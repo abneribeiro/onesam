@@ -1,0 +1,114 @@
+# ======================
+# Logs e arquivos de debug
+# ======================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+fix.md
+
+# ======================
+# web (React + Vite)
+# ======================
+web/node_modules/
+web/dist/
+web/.env
+web/.env.local
+web/.env*.local
+web/.cache/
+web/.vite/
+web/.DS_Store
+web/coverage/
+web/.eslintcache
+
+# Vite cache
+web/.vite/cache/
+requests
+
+# Build e produção
+web/build/
+web/out/
+web/.next/
+web/.svelte-kit/
+
+# Testes
+web/__tests__/__snapshots__/
+
+# ======================
+# api (Node.js)
+# ======================
+api/node_modules/
+api/.env
+api/.env.local
+api/.env*.local
+api/.DS_Store
+.mcp.json
+CLAUDE.md
+
+# Logs e arquivos temporários
+api/logs/
+api/tmp/
+api/temp/
+
+# Banco de dados (SQLite, etc)
+api/*.sqlite
+api/*.sqlite-journal
+api/*.db
+api/*.db-journal
+
+# Arquivos de configuração sensíveis
+api/config/private/
+api/config/*.key
+api/config/*.pem
+
+# Build e produção
+api/dist/
+api/coverage/
+
+# ======================
+# Geral (IDE/Editor/Sistema)
+# ======================
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ======================
+# Dependências e lock files
+# ======================
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ======================
+# Arquivos de build e cache
+# ======================
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.o
+*.bin
+*.pyc
+__pycache__/
+*.class
+
+# ======================
+# Sistema operacional
+# ======================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
