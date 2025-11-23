@@ -1236,7 +1236,6 @@ Este projeto está licenciado sob a **Licença MIT** - consulte o ficheiro [LICE
 <p align="center">
   <strong>OneSAM</strong> - Plataforma de Formação Empresarial
   <br/>
-  Desenvolvido com ❤️ em Portugal
 </p>
 
 <p align="center">
