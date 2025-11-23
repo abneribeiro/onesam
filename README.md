@@ -171,43 +171,50 @@ graph LR
 
 O OneSAM segue uma **arquitetura em camadas** com separação clara de responsabilidades:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        CLIENTE (Browser)                         │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     FRONTEND (Next.js 16)                        │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────┐ │
-│  │  Pages   │  │Components│  │  Hooks   │  │  Services/API    │ │
-│  │ (Router) │  │(Radix UI)│  │ (Query)  │  │    (Axios)       │ │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼ HTTP/REST
-┌─────────────────────────────────────────────────────────────────┐
-│                      BACKEND (Express.js 5)                      │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────┐ │
-│  │  Routes  │→ │Middleware│→ │Controller│→ │    Services      │ │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────────────┘ │
-│                                                   │              │
-│                              ┌────────────────────┘              │
-│                              ▼                                   │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │                    Repository Layer                       │   │
-│  │                     (Drizzle ORM)                        │   │
-│  └──────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                         SUPABASE                                 │
-│  ┌──────────────────────┐  ┌──────────────────────────────────┐ │
-│  │   PostgreSQL 15      │  │         Storage (S3)             │ │
-│  │   (Base de Dados)    │  │    (Imagens, Documentos)         │ │
-│  └──────────────────────┘  └──────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    %% Definição de Estilos
+    classDef box fill:#fff,stroke:#333,stroke-width:1px;
+    classDef db fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;
+
+    %% 1. HTTP Layer
+    subgraph HTTP_Layer [HTTP Layer]
+        direction LR
+        CORS --> Logger --> Recovery --> AuthMid[Auth]
+    end
+
+    %% 2. Handler Layer
+    subgraph Handler_Layer [Handler Layer]
+        direction LR
+        %% Usamos nós invisíveis (~~~) para alinhar lado a lado sem setas
+        AuthH[Auth] ~~~ User ~~~ Equipment ~~~ Reservation ~~~ Notif
+    end
+
+    %% 3. Service Layer
+    subgraph Service_Layer [Service Layer]
+        SvcDesc["(Business Logic, Validation, Notifications)"]
+    end
+
+    %% 4. Repository Layer
+    subgraph Repository_Layer [Repository Layer]
+        RepoDesc["(Data Access, SQL Queries)"]
+    end
+
+    %% 5. Database
+    DB[("PostgreSQL")]:::db
+
+    %% Conexões entre as camadas
+    %% Conectamos o final do HTTP ao meio dos Handlers para estética
+    AuthMid --> Equipment
+    
+    %% Conectamos os Handlers ao Serviço
+    User --> SvcDesc
+    Equipment --> SvcDesc
+    Reservation --> SvcDesc
+    
+    %% Resto do fluxo
+    SvcDesc --> RepoDesc
+    RepoDesc --> DB
 ```
 
 ### Padrão de Arquitectura Backend
