@@ -1,0 +1,1877 @@
+{
+  "id": "a2bd6ec5-c351-4b81-b4b7-d6d1cd3d1366",
+  "prevId": "e08c5437-78c7-4247-981b-1ad66f5c3a7c",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.Account": {
+      "name": "Account",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "accountId": {
+          "name": "accountId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "providerId": {
+          "name": "providerId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accessToken": {
+          "name": "accessToken",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refreshToken": {
+          "name": "refreshToken",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "idToken": {
+          "name": "idToken",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accessTokenExpiresAt": {
+          "name": "accessTokenExpiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refreshTokenExpiresAt": {
+          "name": "refreshTokenExpiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scope": {
+          "name": "scope",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_account_userId": {
+          "name": "idx_account_userId",
+          "columns": [
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Account_userId_Utilizadores_IDUtilizador_fk": {
+          "name": "Account_userId_Utilizadores_IDUtilizador_fk",
+          "tableFrom": "Account",
+          "tableTo": "Utilizadores",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "IDUtilizador"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Admins": {
+      "name": "Admins",
+      "schema": "",
+      "columns": {
+        "IDAdmin": {
+          "name": "IDAdmin",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDUtilizador": {
+          "name": "IDUtilizador",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Departamento": {
+          "name": "Departamento",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NivelAcesso": {
+          "name": "NivelAcesso",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'admin'"
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_admins_utilizador": {
+          "name": "idx_admins_utilizador",
+          "columns": [
+            {
+              "expression": "IDUtilizador",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Admins_IDUtilizador_Utilizadores_IDUtilizador_fk": {
+          "name": "Admins_IDUtilizador_Utilizadores_IDUtilizador_fk",
+          "tableFrom": "Admins",
+          "tableTo": "Utilizadores",
+          "columnsFrom": [
+            "IDUtilizador"
+          ],
+          "columnsTo": [
+            "IDUtilizador"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "Admins_IDUtilizador_unique": {
+          "name": "Admins_IDUtilizador_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "IDUtilizador"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Areas": {
+      "name": "Areas",
+      "schema": "",
+      "columns": {
+        "IDArea": {
+          "name": "IDArea",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "NomeArea": {
+          "name": "NomeArea",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Descricao": {
+          "name": "Descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.AuditLogs": {
+      "name": "AuditLogs",
+      "schema": "",
+      "columns": {
+        "IDAuditLog": {
+          "name": "IDAuditLog",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDUtilizador": {
+          "name": "IDUtilizador",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ActionType": {
+          "name": "ActionType",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "EntityType": {
+          "name": "EntityType",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "EntityId": {
+          "name": "EntityId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ChangesJson": {
+          "name": "ChangesJson",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "IpAddress": {
+          "name": "IpAddress",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "UserAgent": {
+          "name": "UserAgent",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_auditlogs_utilizador": {
+          "name": "idx_auditlogs_utilizador",
+          "columns": [
+            {
+              "expression": "IDUtilizador",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_auditlogs_action": {
+          "name": "idx_auditlogs_action",
+          "columns": [
+            {
+              "expression": "ActionType",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_auditlogs_entity": {
+          "name": "idx_auditlogs_entity",
+          "columns": [
+            {
+              "expression": "EntityType",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "EntityId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_auditlogs_data": {
+          "name": "idx_auditlogs_data",
+          "columns": [
+            {
+              "expression": "DataCriacao",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "AuditLogs_IDUtilizador_Utilizadores_IDUtilizador_fk": {
+          "name": "AuditLogs_IDUtilizador_Utilizadores_IDUtilizador_fk",
+          "tableFrom": "AuditLogs",
+          "tableTo": "Utilizadores",
+          "columnsFrom": [
+            "IDUtilizador"
+          ],
+          "columnsTo": [
+            "IDUtilizador"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Aulas": {
+      "name": "Aulas",
+      "schema": "",
+      "columns": {
+        "IDAula": {
+          "name": "IDAula",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDModulo": {
+          "name": "IDModulo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Titulo": {
+          "name": "Titulo",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Descricao": {
+          "name": "Descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Tipo": {
+          "name": "Tipo",
+          "type": "tipo_conteudo_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Conteudo": {
+          "name": "Conteudo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "URL": {
+          "name": "URL",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Duracao": {
+          "name": "Duracao",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Ordem": {
+          "name": "Ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "Obrigatoria": {
+          "name": "Obrigatoria",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_aulas_modulo": {
+          "name": "idx_aulas_modulo",
+          "columns": [
+            {
+              "expression": "IDModulo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_aulas_modulo_ordem": {
+          "name": "idx_aulas_modulo_ordem",
+          "columns": [
+            {
+              "expression": "IDModulo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Ordem",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Aulas_IDModulo_Modulos_IDModulo_fk": {
+          "name": "Aulas_IDModulo_Modulos_IDModulo_fk",
+          "tableFrom": "Aulas",
+          "tableTo": "Modulos",
+          "columnsFrom": [
+            "IDModulo"
+          ],
+          "columnsTo": [
+            "IDModulo"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Categorias": {
+      "name": "Categorias",
+      "schema": "",
+      "columns": {
+        "IDCategoria": {
+          "name": "IDCategoria",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDArea": {
+          "name": "IDArea",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NomeCategoria": {
+          "name": "NomeCategoria",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Descricao": {
+          "name": "Descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Categorias_IDArea_Areas_IDArea_fk": {
+          "name": "Categorias_IDArea_Areas_IDArea_fk",
+          "tableFrom": "Categorias",
+          "tableTo": "Areas",
+          "columnsFrom": [
+            "IDArea"
+          ],
+          "columnsTo": [
+            "IDArea"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Cursos": {
+      "name": "Cursos",
+      "schema": "",
+      "columns": {
+        "IDCurso": {
+          "name": "IDCurso",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDArea": {
+          "name": "IDArea",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "IDCategoria": {
+          "name": "IDCategoria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NomeCurso": {
+          "name": "NomeCurso",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Descricao": {
+          "name": "Descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ImagemCurso": {
+          "name": "ImagemCurso",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Certificado": {
+          "name": "Certificado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "DataInicio": {
+          "name": "DataInicio",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DataFim": {
+          "name": "DataFim",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DataLimiteInscricao": {
+          "name": "DataLimiteInscricao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Estado": {
+          "name": "Estado",
+          "type": "estado_curso_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'planeado'"
+        },
+        "Visivel": {
+          "name": "Visivel",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "Nivel": {
+          "name": "Nivel",
+          "type": "nivel_curso_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'iniciante'"
+        },
+        "LimiteVagas": {
+          "name": "LimiteVagas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "CargaHoraria": {
+          "name": "CargaHoraria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NotaMinimaAprovacao": {
+          "name": "NotaMinimaAprovacao",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 10
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_cursos_estado_visivel": {
+          "name": "idx_cursos_estado_visivel",
+          "columns": [
+            {
+              "expression": "Estado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Visivel",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_cursos_data_inicio": {
+          "name": "idx_cursos_data_inicio",
+          "columns": [
+            {
+              "expression": "DataInicio",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Cursos_IDArea_Areas_IDArea_fk": {
+          "name": "Cursos_IDArea_Areas_IDArea_fk",
+          "tableFrom": "Cursos",
+          "tableTo": "Areas",
+          "columnsFrom": [
+            "IDArea"
+          ],
+          "columnsTo": [
+            "IDArea"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "Cursos_IDCategoria_Categorias_IDCategoria_fk": {
+          "name": "Cursos_IDCategoria_Categorias_IDCategoria_fk",
+          "tableFrom": "Cursos",
+          "tableTo": "Categorias",
+          "columnsFrom": [
+            "IDCategoria"
+          ],
+          "columnsTo": [
+            "IDCategoria"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Formandos": {
+      "name": "Formandos",
+      "schema": "",
+      "columns": {
+        "IDFormando": {
+          "name": "IDFormando",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDUtilizador": {
+          "name": "IDUtilizador",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Empresa": {
+          "name": "Empresa",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Cargo": {
+          "name": "Cargo",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "AreaInteresse": {
+          "name": "AreaInteresse",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ObjetivosAprendizagem": {
+          "name": "ObjetivosAprendizagem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Formandos_IDUtilizador_Utilizadores_IDUtilizador_fk": {
+          "name": "Formandos_IDUtilizador_Utilizadores_IDUtilizador_fk",
+          "tableFrom": "Formandos",
+          "tableTo": "Utilizadores",
+          "columnsFrom": [
+            "IDUtilizador"
+          ],
+          "columnsTo": [
+            "IDUtilizador"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "Formandos_IDUtilizador_unique": {
+          "name": "Formandos_IDUtilizador_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "IDUtilizador"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Inscricoes": {
+      "name": "Inscricoes",
+      "schema": "",
+      "columns": {
+        "IDInscricao": {
+          "name": "IDInscricao",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDCurso": {
+          "name": "IDCurso",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IDUtilizador": {
+          "name": "IDUtilizador",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DataInscricao": {
+          "name": "DataInscricao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "Estado": {
+          "name": "Estado",
+          "type": "estado_inscricao_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pendente'"
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_inscricoes_utilizador_estado": {
+          "name": "idx_inscricoes_utilizador_estado",
+          "columns": [
+            {
+              "expression": "IDUtilizador",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Estado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_inscricoes_curso_estado": {
+          "name": "idx_inscricoes_curso_estado",
+          "columns": [
+            {
+              "expression": "IDCurso",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Estado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Inscricoes_IDCurso_Cursos_IDCurso_fk": {
+          "name": "Inscricoes_IDCurso_Cursos_IDCurso_fk",
+          "tableFrom": "Inscricoes",
+          "tableTo": "Cursos",
+          "columnsFrom": [
+            "IDCurso"
+          ],
+          "columnsTo": [
+            "IDCurso"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "Inscricoes_IDUtilizador_Utilizadores_IDUtilizador_fk": {
+          "name": "Inscricoes_IDUtilizador_Utilizadores_IDUtilizador_fk",
+          "tableFrom": "Inscricoes",
+          "tableTo": "Utilizadores",
+          "columnsFrom": [
+            "IDUtilizador"
+          ],
+          "columnsTo": [
+            "IDUtilizador"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Modulos": {
+      "name": "Modulos",
+      "schema": "",
+      "columns": {
+        "IDModulo": {
+          "name": "IDModulo",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDCurso": {
+          "name": "IDCurso",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Titulo": {
+          "name": "Titulo",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Descricao": {
+          "name": "Descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Ordem": {
+          "name": "Ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_modulos_curso": {
+          "name": "idx_modulos_curso",
+          "columns": [
+            {
+              "expression": "IDCurso",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_modulos_curso_ordem": {
+          "name": "idx_modulos_curso_ordem",
+          "columns": [
+            {
+              "expression": "IDCurso",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Ordem",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Modulos_IDCurso_Cursos_IDCurso_fk": {
+          "name": "Modulos_IDCurso_Cursos_IDCurso_fk",
+          "tableFrom": "Modulos",
+          "tableTo": "Cursos",
+          "columnsFrom": [
+            "IDCurso"
+          ],
+          "columnsTo": [
+            "IDCurso"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Notificacoes": {
+      "name": "Notificacoes",
+      "schema": "",
+      "columns": {
+        "IDNotificacao": {
+          "name": "IDNotificacao",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDUtilizador": {
+          "name": "IDUtilizador",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Tipo": {
+          "name": "Tipo",
+          "type": "tipo_notificacao_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Titulo": {
+          "name": "Titulo",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Mensagem": {
+          "name": "Mensagem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Lida": {
+          "name": "Lida",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "LinkAcao": {
+          "name": "LinkAcao",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataLeitura": {
+          "name": "DataLeitura",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_notificacoes_utilizador_lida": {
+          "name": "idx_notificacoes_utilizador_lida",
+          "columns": [
+            {
+              "expression": "IDUtilizador",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Lida",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_notificacoes_data": {
+          "name": "idx_notificacoes_data",
+          "columns": [
+            {
+              "expression": "DataCriacao",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Notificacoes_IDUtilizador_Utilizadores_IDUtilizador_fk": {
+          "name": "Notificacoes_IDUtilizador_Utilizadores_IDUtilizador_fk",
+          "tableFrom": "Notificacoes",
+          "tableTo": "Utilizadores",
+          "columnsFrom": [
+            "IDUtilizador"
+          ],
+          "columnsTo": [
+            "IDUtilizador"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ProgressoAulas": {
+      "name": "ProgressoAulas",
+      "schema": "",
+      "columns": {
+        "IDProgresso": {
+          "name": "IDProgresso",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDAula": {
+          "name": "IDAula",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IDUtilizador": {
+          "name": "IDUtilizador",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Concluida": {
+          "name": "Concluida",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "DataConclusao": {
+          "name": "DataConclusao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "TempoGasto": {
+          "name": "TempoGasto",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_progresso_aula": {
+          "name": "idx_progresso_aula",
+          "columns": [
+            {
+              "expression": "IDAula",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_progresso_utilizador": {
+          "name": "idx_progresso_utilizador",
+          "columns": [
+            {
+              "expression": "IDUtilizador",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_progresso_utilizador_aula": {
+          "name": "idx_progresso_utilizador_aula",
+          "columns": [
+            {
+              "expression": "IDUtilizador",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "IDAula",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ProgressoAulas_IDAula_Aulas_IDAula_fk": {
+          "name": "ProgressoAulas_IDAula_Aulas_IDAula_fk",
+          "tableFrom": "ProgressoAulas",
+          "tableTo": "Aulas",
+          "columnsFrom": [
+            "IDAula"
+          ],
+          "columnsTo": [
+            "IDAula"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ProgressoAulas_IDUtilizador_Utilizadores_IDUtilizador_fk": {
+          "name": "ProgressoAulas_IDUtilizador_Utilizadores_IDUtilizador_fk",
+          "tableFrom": "ProgressoAulas",
+          "tableTo": "Utilizadores",
+          "columnsFrom": [
+            "IDUtilizador"
+          ],
+          "columnsTo": [
+            "IDUtilizador"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unique_aula_utilizador": {
+          "name": "unique_aula_utilizador",
+          "nullsNotDistinct": false,
+          "columns": [
+            "IDAula",
+            "IDUtilizador"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Reviews": {
+      "name": "Reviews",
+      "schema": "",
+      "columns": {
+        "IDReview": {
+          "name": "IDReview",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "IDCurso": {
+          "name": "IDCurso",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IDUtilizador": {
+          "name": "IDUtilizador",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Rating": {
+          "name": "Rating",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Comentario": {
+          "name": "Comentario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_reviews_curso": {
+          "name": "idx_reviews_curso",
+          "columns": [
+            {
+              "expression": "IDCurso",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_reviews_utilizador": {
+          "name": "idx_reviews_utilizador",
+          "columns": [
+            {
+              "expression": "IDUtilizador",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_reviews_rating": {
+          "name": "idx_reviews_rating",
+          "columns": [
+            {
+              "expression": "Rating",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Reviews_IDCurso_Cursos_IDCurso_fk": {
+          "name": "Reviews_IDCurso_Cursos_IDCurso_fk",
+          "tableFrom": "Reviews",
+          "tableTo": "Cursos",
+          "columnsFrom": [
+            "IDCurso"
+          ],
+          "columnsTo": [
+            "IDCurso"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "Reviews_IDUtilizador_Utilizadores_IDUtilizador_fk": {
+          "name": "Reviews_IDUtilizador_Utilizadores_IDUtilizador_fk",
+          "tableFrom": "Reviews",
+          "tableTo": "Utilizadores",
+          "columnsFrom": [
+            "IDUtilizador"
+          ],
+          "columnsTo": [
+            "IDUtilizador"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unique_curso_utilizador": {
+          "name": "unique_curso_utilizador",
+          "nullsNotDistinct": false,
+          "columns": [
+            "IDCurso",
+            "IDUtilizador"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Session": {
+      "name": "Session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "ipAddress": {
+          "name": "ipAddress",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "userAgent": {
+          "name": "userAgent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_session_userId": {
+          "name": "idx_session_userId",
+          "columns": [
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Session_userId_Utilizadores_IDUtilizador_fk": {
+          "name": "Session_userId_Utilizadores_IDUtilizador_fk",
+          "tableFrom": "Session",
+          "tableTo": "Utilizadores",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "IDUtilizador"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "Session_token_unique": {
+          "name": "Session_token_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Utilizadores": {
+      "name": "Utilizadores",
+      "schema": "",
+      "columns": {
+        "IDUtilizador": {
+          "name": "IDUtilizador",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "Nome": {
+          "name": "Nome",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Email": {
+          "name": "Email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "EmailVerified": {
+          "name": "EmailVerified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "PalavraPasse": {
+          "name": "PalavraPasse",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "TipoPerfil": {
+          "name": "TipoPerfil",
+          "type": "tipo_perfil_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PerfilId": {
+          "name": "PerfilId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Avatar": {
+          "name": "Avatar",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Ativo": {
+          "name": "Ativo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "DataCriacao": {
+          "name": "DataCriacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "DataAtualizacao": {
+          "name": "DataAtualizacao",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_utilizadores_perfil_id": {
+          "name": "idx_utilizadores_perfil_id",
+          "columns": [
+            {
+              "expression": "PerfilId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "TipoPerfil",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "Utilizadores_Email_unique": {
+          "name": "Utilizadores_Email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "Email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Verification": {
+      "name": "Verification",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.estado_curso_enum": {
+      "name": "estado_curso_enum",
+      "schema": "public",
+      "values": [
+        "planeado",
+        "em_curso",
+        "terminado",
+        "arquivado"
+      ]
+    },
+    "public.estado_inscricao_enum": {
+      "name": "estado_inscricao_enum",
+      "schema": "public",
+      "values": [
+        "pendente",
+        "aceite",
+        "rejeitada",
+        "cancelada"
+      ]
+    },
+    "public.nivel_curso_enum": {
+      "name": "nivel_curso_enum",
+      "schema": "public",
+      "values": [
+        "iniciante",
+        "intermedio",
+        "avancado"
+      ]
+    },
+    "public.tipo_conteudo_enum": {
+      "name": "tipo_conteudo_enum",
+      "schema": "public",
+      "values": [
+        "video",
+        "documento",
+        "link",
+        "texto",
+        "quiz"
+      ]
+    },
+    "public.tipo_notificacao_enum": {
+      "name": "tipo_notificacao_enum",
+      "schema": "public",
+      "values": [
+        "inscricao_aprovada",
+        "inscricao_rejeitada",
+        "novo_curso",
+        "lembrete",
+        "sistema"
+      ]
+    },
+    "public.tipo_perfil_enum": {
+      "name": "tipo_perfil_enum",
+      "schema": "public",
+      "values": [
+        "admin",
+        "formando"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
