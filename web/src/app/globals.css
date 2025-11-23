@@ -1,0 +1,225 @@
+/**
+ * OneSam Platform - Main Styles
+ * Sistema de design moderno para plataforma de cursos online
+ */
+
+/* === FONTS === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
+
+/* === TAILWIND === */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* === DESIGN SYSTEM === */
+@import "../styles/tokens.css";
+@import "../styles/utilities.css";
+
+@theme inline {
+  /* Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Core colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Semantic colors */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* Brand colors */
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  /* Accent colors */
+  --color-accent-50: var(--accent-50);
+  --color-accent-100: var(--accent-100);
+  --color-accent-200: var(--accent-200);
+  --color-accent-300: var(--accent-300);
+  --color-accent-400: var(--accent-400);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+  --color-accent-800: var(--accent-800);
+  --color-accent-900: var(--accent-900);
+
+  /* Charts */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* === SIDEBAR COLORS - Light Mode === */
+root {
+  --sidebar: hsl(210 40% 98%);
+  --sidebar-foreground: var(--gray-900);
+  --sidebar-primary: var(--brand-500);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: var(--gray-100);
+  --sidebar-accent-foreground: var(--gray-900);
+  --sidebar-border: var(--gray-200);
+  --sidebar-ring: var(--brand-500);
+}
+
+/* === CHART COLORS === */
+:root {
+  --chart-1: var(--brand-500);
+  --chart-2: var(--accent-500);
+  --chart-3: var(--success-500);
+  --chart-4: var(--warning-500);
+  --chart-5: var(--info-500);
+}
+
+/* === BASE STYLES === */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    min-height: 100vh;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    @apply tracking-tight;
+  }
+
+  /* Melhor selecao de texto */
+  ::selection {
+    background-color: color-mix(in srgb, var(--primary) 25%, transparent);
+    color: var(--foreground);
+  }
+
+  /* Focus visible padrao */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+/* === COMPONENT OVERRIDES === */
+@layer components {
+
+  /* Links melhorados */
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  /* Buttons com transicoes suaves */
+  button {
+    @apply transition-all duration-200;
+  }
+
+  /* Inputs com melhor acessibilidade */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Cards com hover suave */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5;
+  }
+
+  /* Glass effect para overlays */
+  .glass {
+    @apply bg-background/80 backdrop-blur-xl border border-border/50;
+  }
+
+  .glass-strong {
+    @apply bg-background/95 backdrop-blur-2xl border border-border/80;
+  }
+}
+
+/* === TRANSITIONS === */
+@layer utilities {
+  .theme-transition {
+    transition: background-color 0.2s ease-in-out,
+      border-color 0.2s ease-in-out,
+      color 0.2s ease-in-out,
+      fill 0.2s ease-in-out,
+      stroke 0.2s ease-in-out;
+  }
+}
+
+/* === PRINT STYLES === */
+@media print {
+  @page {
+    margin: 2cm;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
