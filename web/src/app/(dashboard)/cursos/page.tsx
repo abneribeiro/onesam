@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { CursoFiltros } from '@/types';
+import { ScrollBlurWrapper } from '@/components/scrollBlurWrapper';
 
 export default function CatalogPage() {
   const router = useRouter();
@@ -300,11 +301,11 @@ export default function CatalogPage() {
           <div className="text-sm text-muted-foreground">
             {meta?.total || 0} curso{(meta?.total || 0) !== 1 ? 's' : ''} encontrado{(meta?.total || 0) !== 1 ? 's' : ''}
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <ScrollBlurWrapper minVelocity={20} className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {response.data.map((curso) => (
               <CursoCard key={curso.id} curso={curso} />
             ))}
-          </div>
+          </ScrollBlurWrapper>
           {meta && (
             <DataPagination
               currentPage={meta.page}
