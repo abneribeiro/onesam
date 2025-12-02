@@ -110,7 +110,7 @@ const getNavigationData = (role: TipoPerfil): NavItem[] => {
       roles: ["formando"],
     },
     {
-      title: "Minhas Inscricoes",
+      title: "Minhas Inscrições",
       url: "/minhas-inscricoes",
       icon: FileText,
       roles: ["formando"],
@@ -142,9 +142,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
           <div className="group-data-[collapsible=icon]:hidden">
             <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              OneSAM
+              MESSU
             </span>
-            <p className="text-xs text-muted-foreground">Plataforma de Formacao</p>
+            <p className="text-xs text-muted-foreground">Plataforma de Formação</p>
           </div>
         </div>
       </SidebarHeader>

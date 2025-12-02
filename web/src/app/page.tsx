@@ -192,7 +192,7 @@ export default function HomePage() {
       <div className="bg-gradient-to-r from-[var(--brand-600)] to-[var(--brand-400)] text-white py-16 px-4 rounded-b-2xl shadow-xl">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Bem-vindo à OneSAM
+            Bem-vindo à MESSU
           </h1>
           <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
             Descubra cursos de qualidade para impulsionar sua carreira. Capacite-se com os melhores conteúdos e alcance seus objetivos.
