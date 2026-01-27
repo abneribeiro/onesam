@@ -928,7 +928,7 @@ async function seedAulas(modulosInserted: any[]) {
     { moduloId: modulosInserted[5].id, titulo: 'Introdução ao Python', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 25 }, // [TESTE]
     { moduloId: modulosInserted[5].id, titulo: 'Variáveis e Tipos de Dados', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 2, duracao: 30 }, // [TESTE]
     { moduloId: modulosInserted[5].id, titulo: 'Listas e Dicionários', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 35 }, // [TESTE]
-    { moduloId: modulosInserted[5].id, titulo: 'Exercícios de Fixação', tipo: 'documento' as const, url: 'https://docs.google.com/document/d/exerc icios', ordem: 4, duracao: null },
+    { moduloId: modulosInserted[5].id, titulo: 'Exercícios de Fixação', tipo: 'documento' as const, url: 'https://docs.google.com/document/d/exercicios', ordem: 4, duracao: null },
 
     // Aulas para módulo "HTML Básico" (módulo 9)
     { moduloId: modulosInserted[9].id, titulo: 'Estrutura HTML', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 20 }, // [TESTE]
