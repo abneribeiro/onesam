@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, FileText, Video, AlertCircle, Download, FileIcon, Eye, RefreshCw } from 'lucide-react';
 import { VideoPlayer } from '@/components/content/VideoPlayer';
+import { sanitizeUrl } from '@/utils/sanitize';
 
 interface AulaViewerProps {
   aula: Aula;
@@ -399,39 +400,6 @@ function LinkViewer({ url, titulo }: { url: string; titulo: string }) {
       </div>
     </Card>
   );
-}
-
-/**
- * Sanitize a URL to prevent XSS attacks via javascript: protocol
- * Only allows http:, https:, mailto:, and tel: protocols
- */
-function sanitizeUrl(url: string): string | null {
-  if (!url) return null;
-  
-  try {
-    const trimmedUrl = url.trim();
-    
-    // Allow relative URLs
-    if (trimmedUrl.startsWith('/') || trimmedUrl.startsWith('#')) {
-      return trimmedUrl;
-    }
-    
-    const parsed = new URL(trimmedUrl);
-    const allowedProtocols = ['http:', 'https:', 'mailto:', 'tel:'];
-    
-    if (allowedProtocols.includes(parsed.protocol)) {
-      return trimmedUrl;
-    }
-    
-    // Disallow dangerous protocols (javascript:, data:, vbscript:, etc.)
-    return null;
-  } catch {
-    // If URL parsing fails, check if it looks like a relative URL
-    if (/^[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=%]+$/.test(url)) {
-      return url;
-    }
-    return null;
-  }
 }
 
 function TextoViewer({ conteudo }: { conteudo: string }) {

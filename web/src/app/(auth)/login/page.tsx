@@ -20,8 +20,8 @@ import { getDefaultRedirectPath } from '@/lib/auth';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
-  email: z.email({ error: 'Email invalido' }),
-  palavrapasse: z.string().min(8, { error: 'A senha deve ter no minimo 8 caracteres' }),
+  email: z.string().email('Email inválido'),
+  palavrapasse: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;

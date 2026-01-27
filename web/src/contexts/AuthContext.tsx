@@ -2,13 +2,27 @@
 
 import React, { createContext, useContext, useMemo, useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { authClient, useSession } from '../lib/auth-client';
-import type { Utilizador, AuthContextType, RegisterInput } from '../types';
+import { authClient, useSession, type User } from '../lib/auth-client';
+import type { Utilizador, AuthContextType, RegisterInput, TipoPerfil } from '../types';
 import { SUCCESS_MESSAGES } from '../utils/constants';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function mapUserFromSession(user: any): Utilizador | null {
+// Interface for session user data
+interface SessionUser extends Partial<User> {
+  id: string | number;
+  name?: string;
+  email?: string;
+  emailVerified?: boolean;
+  image?: string | null;
+  ativo?: boolean;
+  tipoPerfil?: TipoPerfil;
+  perfilId?: number;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+}
+
+function mapUserFromSession(user: SessionUser): Utilizador | null {
   // CRITICAL: Do not use fallback for tipoPerfil - it causes security issues
   // where admin users briefly see formando UI before their real profile loads
   if (!user.tipoPerfil) {
@@ -40,7 +54,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Only consider user authenticated if we have both session data AND tipoPerfil
   // This prevents the flash of wrong profile content
   const currentUser: Utilizador | null = session.data?.user
-    ? mapUserFromSession(session.data.user)
+    ? mapUserFromSession(session.data.user as SessionUser)
     : null;
 
   // User is only authenticated when we have a valid user with tipoPerfil
@@ -74,7 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await session.refetch();
       // Fetch session directly from API to avoid stale React state
       const sessionResponse = await authClient.getSession();
-      const currentData = sessionResponse.data?.user as Record<string, unknown> | undefined;
+      const currentData = sessionResponse.data?.user as SessionUser | undefined;
       if (currentData?.tipoPerfil) {
         return mapUserFromSession(currentData) as Utilizador;
       }
@@ -113,7 +127,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await session.refetch();
       // Fetch session directly from API to avoid stale React state
       const sessionResponse = await authClient.getSession();
-      const currentData = sessionResponse.data?.user as Record<string, unknown> | undefined;
+      const currentData = sessionResponse.data?.user as SessionUser | undefined;
       if (currentData?.tipoPerfil) {
         return mapUserFromSession(currentData) as Utilizador;
       }

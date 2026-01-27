@@ -9,7 +9,7 @@ export const validateDto = <T extends z.ZodTypeAny>(schema: T) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const validated = await schema.parseAsync(req.body);
-      req.body = validated as any;
+      req.body = validated;
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -58,7 +58,7 @@ export const validateQuery = <T extends z.ZodTypeAny>(schema: T) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const validated = await schema.parseAsync(req.query);
-      req.query = validated as any;
+      req.query = validated;
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -96,7 +96,7 @@ export const validateParams = <T extends z.ZodTypeAny>(schema: T) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const validated = await schema.parseAsync(req.params);
-      req.params = validated as any;
+      req.params = validated;
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {

@@ -1,12 +1,17 @@
 import { z } from 'zod';
+import { sanitizeText, sanitizeHtml } from '../utils/sanitize';
 
 const nivelEnum = z.enum(['iniciante', 'intermedio', 'avancado']);
+
+// Custom sanitizing string transformers
+const sanitizedString = z.string().transform((val) => sanitizeText(val));
+const sanitizedHtmlString = z.string().transform((val) => sanitizeHtml(val));
 
 export const createCursoSchema = z.object({
   body: z
     .object({
-      nome: z.string().min(3, 'Nome é obrigatório'),
-      descricao: z.string().optional(),
+      nome: sanitizedString.min(3, 'Nome é obrigatório'),
+      descricao: sanitizedHtmlString.optional(),
       dataInicio: z.string().datetime('Data de início inválida'),
       dataFim: z.string().datetime('Data de fim inválida'),
       IDArea: z.number().int().positive('ID de área inválido'),
@@ -31,8 +36,8 @@ export const createCursoSchema = z.object({
 export const updateCursoSchema = z.object({
   body: z
     .object({
-      nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres').optional(),
-      descricao: z.string().optional(),
+      nome: sanitizedString.min(3, 'Nome deve ter no mínimo 3 caracteres').optional(),
+      descricao: sanitizedHtmlString.optional(),
       dataInicio: z.string().datetime('Data inválida').optional(),
       dataFim: z.string().datetime('Data inválida').optional(),
       dataLimiteInscricao: z.string().datetime('Data inválida').optional().nullable(),

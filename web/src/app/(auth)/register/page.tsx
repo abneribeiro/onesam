@@ -21,15 +21,15 @@ import { toast } from 'sonner';
 
 const registerSchema = z
   .object({
-    nome: z.string().min(3, { error: 'Nome deve ter no mínimo 3 caracteres' }),
-    email: z.email({ error: 'Email inválido' }),
+    nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
+    email: z.string().email('Email inválido'),
     palavrapasse: z
       .string()
-      .min(8, { error: 'Senha deve ter no mínimo 8 caracteres' })
-      .regex(/[A-Z]/, { error: 'Senha deve conter pelo menos uma letra maiúscula' })
-      .regex(/[a-z]/, { error: 'Senha deve conter pelo menos uma letra minúscula' })
-      .regex(/[0-9]/, { error: 'Senha deve conter pelo menos um número' }),
-    confirmPassword: z.string().min(1, { error: 'Confirmação de senha é obrigatória' }),
+      .min(8, 'Senha deve ter no mínimo 8 caracteres')
+      .regex(/[A-Z]/, 'Senha deve conter pelo menos uma letra maiúscula')
+      .regex(/[a-z]/, 'Senha deve conter pelo menos uma letra minúscula')
+      .regex(/[0-9]/, 'Senha deve conter pelo menos um número'),
+    confirmPassword: z.string().min(1, 'Confirmação de senha é obrigatória'),
   })
   .refine((data) => data.palavrapasse === data.confirmPassword, {
     message: 'As senhas não coincidem',

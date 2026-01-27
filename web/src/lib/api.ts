@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig, AxiosProgressEvent } from 'axios';
 import type { ApiResponse, ApiError } from '../types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
@@ -37,32 +37,32 @@ class ApiService {
     );
   }
 
-  public async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  public async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.axiosInstance.get<ApiResponse<T>>(url, config);
     return (response.data.dados !== undefined ? response.data.dados : response.data) as T;
   }
 
-  public async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  public async post<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.axiosInstance.post<ApiResponse<T>>(url, data, config);
     return (response.data.dados !== undefined ? response.data.dados : response.data) as T;
   }
 
-  public async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  public async put<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.axiosInstance.put<ApiResponse<T>>(url, data, config);
     return (response.data.dados !== undefined ? response.data.dados : response.data) as T;
   }
 
-  public async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  public async patch<T, D = unknown>(url: string, data?: D, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.axiosInstance.patch<ApiResponse<T>>(url, data, config);
     return (response.data.dados !== undefined ? response.data.dados : response.data) as T;
   }
 
-  public async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  public async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.axiosInstance.delete<ApiResponse<T>>(url, config);
     return (response.data.dados !== undefined ? response.data.dados : response.data) as T;
   }
 
-  public async upload<T = any>(url: string, formData: FormData, onUploadProgress?: (progressEvent: any) => void): Promise<T> {
+  public async upload<T>(url: string, formData: FormData, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void): Promise<T> {
     const response = await this.axiosInstance.post<ApiResponse<T>>(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -72,7 +72,7 @@ class ApiService {
     return (response.data.dados !== undefined ? response.data.dados : response.data) as T;
   }
 
-  public async postFormData<T = any>(url: string, formData: FormData, onUploadProgress?: (progressEvent: any) => void): Promise<T> {
+  public async postFormData<T>(url: string, formData: FormData, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void): Promise<T> {
     const response = await this.axiosInstance.post<ApiResponse<T>>(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -82,7 +82,7 @@ class ApiService {
     return (response.data.dados !== undefined ? response.data.dados : response.data) as T;
   }
 
-  public async putFormData<T = any>(url: string, formData: FormData, onUploadProgress?: (progressEvent: any) => void): Promise<T> {
+  public async putFormData<T>(url: string, formData: FormData, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void): Promise<T> {
     const response = await this.axiosInstance.put<ApiResponse<T>>(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

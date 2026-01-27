@@ -63,7 +63,7 @@ export function VideoPlayer({
 }: VideoPlayerProps) {
   // Refs
   const videoRef = useRef<HTMLVideoElement>(null);
-  const reactPlayerRef = useRef<any>(null); // ReactPlayer instance ref
+  const reactPlayerRef = useRef<InstanceType<typeof ReactPlayer> | null>(null); // ReactPlayer instance ref
   const containerRef = useRef<HTMLDivElement>(null);
   const hideControlsTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mountedRef = useRef(true);
@@ -88,12 +88,6 @@ export function VideoPlayer({
 
   // Log para debug
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[VideoPlayer] Initializing with URL:', url);
-      console.log('[VideoPlayer] Using native player:', useNativePlayer);
-      console.log('[VideoPlayer] ReactPlayer imported:', typeof ReactPlayer);
-    }
-
     // Reset estados quando URL muda
     mountedRef.current = true;
     setIsReady(false);
@@ -126,6 +120,28 @@ export function VideoPlayer({
       seekTo(initialTime);
     }
   }, [initialTime, isReady, duration, seekTo]);
+
+  // Fallback para obter duração se não foi detectada no onReady
+  useEffect(() => {
+    if (!useNativePlayer && isReady && duration === 0 && reactPlayerRef.current) {
+      const checkDuration = () => {
+        const playerDuration = reactPlayerRef.current?.getDuration();
+        if (playerDuration && playerDuration > 0 && mountedRef.current) {
+          setDuration(playerDuration);
+        }
+      };
+
+      // Tenta obter duração imediatamente e depois a cada 500ms por até 5 segundos
+      checkDuration();
+      const interval = setInterval(checkDuration, 500);
+      const timeout = setTimeout(() => clearInterval(interval), 5000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
+    }
+  }, [useNativePlayer, isReady, duration]);
 
   // Auto-hide controls
   useEffect(() => {
@@ -363,9 +379,6 @@ export function VideoPlayer({
             if (videoRef.current && mountedRef.current) {
               setDuration(videoRef.current.duration);
               setIsReady(true);
-              if (process.env.NODE_ENV === 'development') {
-                console.log('[VideoPlayer] Native video ready, duration:', videoRef.current.duration);
-              }
             }
           }}
           onCanPlay={() => {
@@ -399,89 +412,83 @@ export function VideoPlayer({
         />
       ) : (
         <ReactPlayer
-          {...({
-            ref: reactPlayerRef,
-            url: url,
-            playing: playing,
-            volume: volume,
-            muted: muted,
-            playbackRate: playbackRate,
-            width: "100%",
-            height: "100%",
-            onProgress: handleReactPlayerProgress,
-            onDuration: (dur: number) => {
-              if (mountedRef.current) {
-                setDuration(dur);
-                if (process.env.NODE_ENV === 'development') {
-                  console.log('[VideoPlayer] ReactPlayer duration loaded:', dur);
-                }
+          ref={reactPlayerRef}
+          url={url}
+          playing={playing}
+          volume={volume}
+          muted={muted}
+          playbackRate={playbackRate}
+          width="100%"
+          height="100%"
+          onProgress={handleReactPlayerProgress}
+          onReady={() => {
+            if (mountedRef.current) {
+              setIsReady(true);
+              setIsBuffering(false);
+              // Get duration using ReactPlayer's getDuration method
+              const playerDuration = reactPlayerRef.current?.getDuration();
+              if (playerDuration) {
+                setDuration(playerDuration);
+              }
+            }
+          }}
+          onPause={() => {
+            // Use onPause as a backup to detect buffering start
+            if (mountedRef.current && playing) {
+              setIsBuffering(true);
+            }
+          }}
+          onPlay={() => {
+            // Use onPlay to detect buffering end
+            if (mountedRef.current) {
+              setIsBuffering(false);
+            }
+          }}
+          onEnded={() => {
+            if (mountedRef.current) {
+              setPlaying(false);
+              onEnded?.();
+            }
+          }}
+          onError={(e: unknown, data?: unknown, hlsInstance?: unknown, hlsGlobal?: unknown) => {
+            console.error('[VideoPlayer] ReactPlayer error:', {
+              error: e,
+              data: data,
+              url: url,
+              hlsInstance,
+              hlsGlobal
+            });
+            if (mountedRef.current) {
+              setHasError(true);
+              setIsBuffering(false);
+              setIsReady(false);
+              onError?.();
+            }
+          }}
+          config={{
+            youtube: {
+              playerVars: {
+                autoplay: 0 as const,
+                controls: 0 as const,
+                rel: 0 as const,
+                modestbranding: 1 as const,
+                showinfo: 0 as const,
+                iv_load_policy: 3 as const,
+                fs: 1 as const,
+                enablejsapi: 1 as const,
+              } as any, // YouTube player config types are complex
+              embedOptions: {
+                host: 'https://www.youtube-nocookie.com'
               }
             },
-            onReady: (player?: any) => {
-              if (mountedRef.current) {
-                setIsReady(true);
-                setIsBuffering(false);
-                if (process.env.NODE_ENV === 'development') {
-                  console.log('[VideoPlayer] ReactPlayer ready', { player, url });
-                }
-              }
-            },
-            onBuffer: () => {
-              if (mountedRef.current) {
-                setIsBuffering(true);
-              }
-            },
-            onBufferEnd: () => {
-              if (mountedRef.current) {
-                setIsBuffering(false);
-              }
-            },
-            onEnded: () => {
-              if (mountedRef.current) {
-                setPlaying(false);
-                onEnded?.();
-              }
-            },
-            onError: (e: unknown, data?: unknown, hlsInstance?: unknown, hlsGlobal?: unknown) => {
-              console.error('[VideoPlayer] ReactPlayer error:', {
-                error: e,
-                data: data,
-                url: url,
-                hlsInstance,
-                hlsGlobal
-              });
-              if (mountedRef.current) {
-                setHasError(true);
-                setIsBuffering(false);
-                setIsReady(false);
-                onError?.();
-              }
-            },
-            config: {
-              youtube: {
-                playerVars: {
-                  autoplay: 0,
-                  controls: 0,
-                  rel: 0,
-                  modestbranding: 1,
-                  showinfo: 0,
-                  iv_load_policy: 3,
-                  fs: 1,
-                  enablejsapi: 1,
-                },
-                embedOptions: {
-                  host: 'https://www.youtube-nocookie.com'
-                }
-              },
-              file: {
-                forceVideo: true,
-                attributes: {
-                  controlsList: 'nodownload',
-                  playsInline: true,
-                },
+            file: {
+              forceVideo: true,
+              attributes: {
+                controlsList: 'nodownload',
+                playsInline: true,
               },
             },
-          } as any)}
+          }}
         />
       )}
 
@@ -519,9 +526,29 @@ export function VideoPlayer({
               variant="outline"
               size="sm"
               onClick={() => {
+                // Reset component state instead of page refresh
                 setHasError(false);
                 setIsReady(false);
-                window.location.reload();
+                setIsBuffering(false);
+                setPlaying(false);
+                setPlayed(0);
+                setLoaded(0);
+
+                // Force component remount by changing key or re-trigger loading
+                if (useNativePlayer && videoRef.current) {
+                  videoRef.current.load();
+                } else if (reactPlayerRef.current) {
+                  // Force ReactPlayer to reload
+                  const currentTime = played * duration;
+                  setTimeout(() => {
+                    if (reactPlayerRef.current && mountedRef.current) {
+                      setIsReady(true);
+                      if (currentTime > 0) {
+                        seekTo(currentTime);
+                      }
+                    }
+                  }, 100);
+                }
               }}
             >
               Tentar Novamente
