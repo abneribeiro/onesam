@@ -14,11 +14,11 @@ const envSchema = z.object({
   APP_NAME: z.string().default('OneSAM LMS'),
   APP_URL: z.string().url('APP_URL must be a valid URL').default('http://localhost:3000'),
   FRONTEND_URL: z.string().url('FRONTEND_URL must be a valid URL').default('http://localhost:3001'),
-  PORT: z.string().regex(/^\d+$/, 'PORT must be a number').transform(Number).default('3000'),
+  PORT: z.string().regex(/^\d+$/, 'PORT must be a number').default('3000').transform(Number),
 
   // Database configuration (required in production)
   DATABASE_URL: z.string().url('DATABASE_URL must be a valid URL'),
-  DATABASE_SSL: z.string().transform(val => val === 'true').default('false'),
+  DATABASE_SSL: z.string().default('false').transform(val => val === 'true'),
 
   // JWT Configuration
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
@@ -41,20 +41,20 @@ const envSchema = z.object({
   EMAIL_PORT: z.string().regex(/^\d+$/, 'EMAIL_PORT must be a number').transform(Number).optional(),
   EMAIL_USER: z.string().optional(),
   EMAIL_PASS: z.string().optional(),
-  EMAIL_SECURE: z.string().transform(val => val === 'true').default('false'),
+  EMAIL_SECURE: z.string().default('false').transform(val => val === 'true'),
 
   // Redis configuration (optional)
   REDIS_URL: z.string().url('REDIS_URL must be a valid URL').optional(),
 
   // Rate limiting
-  RATE_LIMIT_WINDOW_MS: z.string().regex(/^\d+$/, 'RATE_LIMIT_WINDOW_MS must be a number').transform(Number).default('900000'), // 15 minutes
-  RATE_LIMIT_MAX_REQUESTS: z.string().regex(/^\d+$/, 'RATE_LIMIT_MAX_REQUESTS must be a number').transform(Number).default('100'),
+  RATE_LIMIT_WINDOW_MS: z.string().regex(/^\d+$/, 'RATE_LIMIT_WINDOW_MS must be a number').default('900000').transform(Number), // 15 minutes
+  RATE_LIMIT_MAX_REQUESTS: z.string().regex(/^\d+$/, 'RATE_LIMIT_MAX_REQUESTS must be a number').default('100').transform(Number),
 
   // CORS
   ALLOWED_ORIGINS: z.string().optional(),
 
   // File upload
-  MAX_FILE_SIZE: z.string().regex(/^\d+$/, 'MAX_FILE_SIZE must be a number').transform(Number).default('10485760'), // 10MB
+  MAX_FILE_SIZE: z.string().regex(/^\d+$/, 'MAX_FILE_SIZE must be a number').default('10485760').transform(Number), // 10MB
   ALLOWED_FILE_TYPES: z.string().default('jpg,jpeg,png,gif,pdf,doc,docx,ppt,pptx,mp4,webm'),
 
   // Logging
@@ -62,13 +62,13 @@ const envSchema = z.object({
   LOG_FILE: z.string().default('app.log'),
 
   // Security
-  BCRYPT_ROUNDS: z.string().regex(/^\d+$/, 'BCRYPT_ROUNDS must be a number').transform(Number).default('12'),
+  BCRYPT_ROUNDS: z.string().regex(/^\d+$/, 'BCRYPT_ROUNDS must be a number').default('12').transform(Number),
 
   // Monitoring (optional)
   SENTRY_DSN: z.string().url('SENTRY_DSN must be a valid URL').optional(),
 
   // Development only
-  DISABLE_AUTH: z.string().transform(val => val === 'true').default('false'),
+  DISABLE_AUTH: z.string().default('false').transform(val => val === 'true'),
 });
 
 // Validate environment variables
@@ -93,7 +93,7 @@ try {
 
     process.exit(1);
   } else {
-    logger.error('Unexpected error during environment validation:', error);
+    logger.error('Unexpected error during environment validation:', error as Error);
     process.exit(1);
   }
 }

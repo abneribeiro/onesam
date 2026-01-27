@@ -15,9 +15,22 @@ export const swaggerSpec = {
 A OneSAM Platform oferece uma API RESTful completa para gestão de cursos, formações, avaliações e certificados.
 
 ## Autenticação
-A API utiliza JWT (JSON Web Tokens) para autenticação. O token pode ser enviado via:
-- **Bearer Token**: Header \`Authorization: Bearer <token>\`
-- **Cookie HTTP-only**: Cookie \`token\`
+A API utiliza Better Auth para autenticação moderna e segura. A autenticação pode ser feita via:
+- **Session Cookies**: Cookies HTTP-only seguros (método recomendado)
+- **Bearer Token**: Header \`Authorization: Bearer <token>\` (opcional)
+
+### Better Auth Endpoints
+- \`POST /auth/sign-up\` - Registro de novos utilizadores
+- \`POST /auth/sign-in\` - Login com email/password
+- \`POST /auth/sign-out\` - Logout (invalida sessão)
+- \`GET /auth/session\` - Obter dados da sessão atual
+- \`POST /auth/reset-password\` - Solicitar recuperação de senha
+- \`POST /auth/reset-password/verify\` - Confirmar nova senha
+
+### Configuração da Sessão
+- **Duração**: 7 dias (renovação automática)
+- **Cookies**: HTTP-only, Secure, SameSite
+- **Renovação**: Automática a cada 24 horas de uso
 
 ## Perfis de Usuário
 - **Admin/Gestor**: Acesso completo à plataforma
@@ -114,21 +127,50 @@ Formato de erro:
           },
           perfilId: { type: 'integer', nullable: true, example: 1 },
           avatar: { type: 'string', nullable: true, example: 'https://storage.com/avatar.jpg' },
-          ativo: { type: 'boolean', example: false },
+          ativo: { type: 'boolean', example: true },
+          emailVerified: { type: 'boolean', example: true },
           dataCriacao: { type: 'string', format: 'date-time' },
           dataAtualizacao: { type: 'string', format: 'date-time', nullable: true },
         },
       },
 
-      LoginRequest: {
+      // Better Auth Schema - Corrigido
+      SignInRequest: {
         type: 'object',
-        required: ['email', 'palavrapasse'],
+        required: ['email', 'password'],
         properties: {
           email: { type: 'string', format: 'email', example: 'utilizador@exemplo.pt' },
-          palavrapasse: { type: 'string', format: 'password', example: 'SenhaSegura123!' },
+          password: { type: 'string', format: 'password', example: 'SenhaSegura123!' },
         },
       },
 
+      // Mantido para compatibilidade legacy
+      LoginRequest: {
+        type: 'object',
+        required: ['email', 'password'],
+        properties: {
+          email: { type: 'string', format: 'email', example: 'utilizador@exemplo.pt' },
+          password: { type: 'string', format: 'password', example: 'SenhaSegura123!' },
+        },
+      },
+
+      // Better Auth Response - Atualizado
+      AuthResponse: {
+        type: 'object',
+        properties: {
+          user: { $ref: '#/components/schemas/Utilizador' },
+          session: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              token: { type: 'string' },
+              expiresAt: { type: 'string', format: 'date-time' },
+            },
+          },
+        },
+      },
+
+      // Mantido para compatibilidade legacy
       LoginResponse: {
         type: 'object',
         properties: {
@@ -137,13 +179,32 @@ Formato de erro:
         },
       },
 
-      RegisterRequest: {
+      // Better Auth Schema - Corrigido
+      SignUpRequest: {
         type: 'object',
-        required: ['nome', 'email', 'palavrapasse', 'perfil'],
+        required: ['nome', 'email', 'password', 'tipoPerfil'],
         properties: {
           nome: { type: 'string', example: 'João Silva' },
           email: { type: 'string', format: 'email', example: 'joao@exemplo.pt' },
-          palavrapasse: { type: 'string', format: 'password', minLength: 8 },
+          password: { type: 'string', format: 'password', minLength: 8 },
+          tipoPerfil: { type: 'string', enum: ['admin', 'formando'], example: 'formando' },
+          avatar: { type: 'string', nullable: true },
+          // Campos específicos de formando (opcionais)
+          empresa: { type: 'string', nullable: true },
+          cargo: { type: 'string', nullable: true },
+          areaInteresse: { type: 'string', nullable: true },
+          objetivosAprendizagem: { type: 'string', nullable: true },
+        },
+      },
+
+      // Mantido para compatibilidade legacy
+      RegisterRequest: {
+        type: 'object',
+        required: ['nome', 'email', 'password', 'perfil'],
+        properties: {
+          nome: { type: 'string', example: 'João Silva' },
+          email: { type: 'string', format: 'email', example: 'joao@exemplo.pt' },
+          password: { type: 'string', format: 'password', minLength: 8 },
           perfil: { type: 'string', enum: ['admin', 'formando'], example: 'formando' },
           telefone: { type: 'string', nullable: true },
           linkedin: { type: 'string', nullable: true },
@@ -199,8 +260,8 @@ Formato de erro:
           certificado: { type: 'boolean' },
           visivel: { type: 'boolean' },
           estado: { type: 'string', enum: ['planeado', 'em_curso', 'terminado', 'arquivado'] },
-          IDArea: { type: 'integer' },
-          IDCategoria: { type: 'integer' },
+          areaId: { type: 'integer' }, // Padronizado
+          categoriaId: { type: 'integer' }, // Padronizado
         },
       },
 
@@ -224,9 +285,9 @@ Formato de erro:
 
       InscricaoInput: {
         type: 'object',
-        required: ['IDCurso'],
+        required: ['cursoId'], // Padronizado
         properties: {
-          IDCurso: { type: 'integer', example: 1 },
+          cursoId: { type: 'integer', example: 1 }, // Padronizado de IDCurso
         },
       },
 
@@ -274,12 +335,12 @@ Formato de erro:
 
       ModuloInput: {
         type: 'object',
-        required: ['titulo', 'IDCurso'],
+        required: ['titulo', 'cursoId'], // Padronizado
         properties: {
           titulo: { type: 'string', minLength: 3 },
           descricao: { type: 'string' },
           ordem: { type: 'integer' },
-          IDCurso: { type: 'integer' },
+          cursoId: { type: 'integer' }, // Padronizado de IDCurso
         },
       },
 
@@ -318,7 +379,7 @@ Formato de erro:
 
       AulaInput: {
         type: 'object',
-        required: ['titulo', 'tipo', 'IDModulo'],
+        required: ['titulo', 'tipo', 'moduloId'], // Padronizado
         properties: {
           titulo: { type: 'string', minLength: 3 },
           descricao: { type: 'string' },
@@ -328,7 +389,7 @@ Formato de erro:
           duracao: { type: 'integer' },
           ordem: { type: 'integer' },
           obrigatoria: { type: 'boolean' },
-          IDModulo: { type: 'integer' },
+          moduloId: { type: 'integer' }, // Padronizado de IDModulo
         },
       },
 
@@ -368,14 +429,72 @@ Formato de erro:
           utilizadorId: { type: 'integer', example: 1 },
           tipo: {
             type: 'string',
-            enum: ['inscricao', 'curso', 'sistema', 'lembrete'],
-            example: 'inscricao',
+            enum: ['inscricao_aprovada', 'inscricao_rejeitada', 'novo_curso', 'lembrete', 'sistema'],
+            example: 'inscricao_aprovada',
           },
           titulo: { type: 'string', example: 'Inscrição aprovada' },
           mensagem: { type: 'string', example: 'Sua inscrição no curso foi aprovada' },
           lida: { type: 'boolean', example: false },
           dataCriacao: { type: 'string', format: 'date-time' },
           dataLeitura: { type: 'string', format: 'date-time', nullable: true },
+        },
+      },
+
+      // Schemas de Review/Avaliação - ADICIONADO
+      Review: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          cursoId: { type: 'integer', example: 1 },
+          utilizadorId: { type: 'integer', example: 1 },
+          rating: { type: 'integer', minimum: 1, maximum: 5, example: 5 },
+          comentario: { type: 'string', nullable: true, example: 'Excelente curso!' },
+          dataCriacao: { type: 'string', format: 'date-time' },
+          dataAtualizacao: { type: 'string', format: 'date-time', nullable: true },
+          utilizador: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              nome: { type: 'string' },
+              avatar: { type: 'string', nullable: true },
+            },
+          },
+        },
+      },
+
+      ReviewInput: {
+        type: 'object',
+        required: ['cursoId', 'rating'],
+        properties: {
+          cursoId: { type: 'integer', example: 1 },
+          rating: { type: 'integer', minimum: 1, maximum: 5, example: 5 },
+          comentario: { type: 'string', maxLength: 2000, example: 'Ótimo curso, recomendo!' },
+        },
+      },
+
+      ReviewUpdate: {
+        type: 'object',
+        properties: {
+          rating: { type: 'integer', minimum: 1, maximum: 5, example: 4 },
+          comentario: { type: 'string', maxLength: 2000, example: 'Curso atualizado' },
+        },
+      },
+
+      ReviewStats: {
+        type: 'object',
+        properties: {
+          totalReviews: { type: 'integer', example: 25 },
+          mediaRating: { type: 'number', format: 'float', example: 4.2 },
+          distribuicao: {
+            type: 'object',
+            properties: {
+              5: { type: 'integer', example: 10 },
+              4: { type: 'integer', example: 8 },
+              3: { type: 'integer', example: 4 },
+              2: { type: 'integer', example: 2 },
+              1: { type: 'integer', example: 1 },
+            },
+          },
         },
       },
     },
@@ -410,17 +529,17 @@ Formato de erro:
       },
     },
 
-    // Auth Endpoints
-    '/auth/registar': {
+    // Better Auth Endpoints - Atualizados
+    '/auth/sign-up': {
       post: {
         tags: ['Auth'],
-        summary: 'Registar novo utilizador',
-        description: 'Cria uma nova conta de formador ou formando',
+        summary: 'Registrar novo utilizador',
+        description: 'Cria uma nova conta usando Better Auth. Campos customizados são validados conforme configuração.',
         requestBody: {
           required: true,
           content: {
             'application/json': {
-              schema: { $ref: '#/components/schemas/RegisterRequest' },
+              schema: { $ref: '#/components/schemas/SignUpRequest' },
             },
           },
         },
@@ -429,15 +548,27 @@ Formato de erro:
             description: 'Utilizador criado com sucesso',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/LoginResponse' },
+                schema: { $ref: '#/components/schemas/AuthResponse' },
+              },
+            },
+            headers: {
+              'Set-Cookie': {
+                description: 'Session cookie definido automaticamente',
+                schema: { type: 'string' },
               },
             },
           },
           '400': {
-            description: 'Dados inválidos',
+            description: 'Dados inválidos ou validação falhou',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Error' },
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Validation failed' },
+                    details: { type: 'object' },
+                  },
+                },
               },
             },
           },
@@ -445,89 +576,10 @@ Formato de erro:
             description: 'Email já está em uso',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Error' },
-              },
-            },
-          },
-        },
-      },
-    },
-
-    '/auth/autenticar': {
-      post: {
-        tags: ['Auth'],
-        summary: 'Autenticar utilizador',
-        description: 'Login com email e password',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/LoginRequest' },
-            },
-          },
-        },
-        responses: {
-          '200': {
-            description: 'Login bem-sucedido',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/LoginResponse' },
-              },
-            },
-          },
-          '401': {
-            description: 'Credenciais inválidas',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/Error' },
-              },
-            },
-          },
-        },
-      },
-    },
-
-    '/auth/me': {
-      get: {
-        tags: ['Auth'],
-        summary: 'Obter utilizador atual',
-        description: 'Retorna os dados do utilizador autenticado',
-        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
-        responses: {
-          '200': {
-            description: 'Dados do utilizador',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/Utilizador' },
-              },
-            },
-          },
-          '401': {
-            description: 'Não autenticado',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/Error' },
-              },
-            },
-          },
-        },
-      },
-    },
-
-    '/auth/logout': {
-      post: {
-        tags: ['Auth'],
-        summary: 'Logout',
-        description: 'Termina a sessão do utilizador',
-        responses: {
-          '200': {
-            description: 'Logout realizado com sucesso',
-            content: {
-              'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    mensagem: { type: 'string', example: 'Logout realizado com sucesso' },
+                    message: { type: 'string', example: 'User already exists' },
                   },
                 },
               },
@@ -537,11 +589,129 @@ Formato de erro:
       },
     },
 
-    '/auth/recuperar-senha': {
+    '/auth/sign-in': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Autenticar utilizador',
+        description: 'Login com email e password usando Better Auth',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/SignInRequest' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Login bem-sucedido',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AuthResponse' },
+              },
+            },
+            headers: {
+              'Set-Cookie': {
+                description: 'Session cookie definido automaticamente',
+                schema: { type: 'string' },
+              },
+            },
+          },
+          '401': {
+            description: 'Credenciais inválidas',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Invalid credentials' },
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Dados de entrada inválidos',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Invalid input' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/auth/sign-out': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Terminar sessão',
+        description: 'Logout usando Better Auth - invalida a sessão atual',
+        responses: {
+          '200': {
+            description: 'Logout realizado com sucesso',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                  },
+                },
+              },
+            },
+            headers: {
+              'Set-Cookie': {
+                description: 'Session cookie removido',
+                schema: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/auth/session': {
+      get: {
+        tags: ['Auth'],
+        summary: 'Obter sessão atual',
+        description: 'Retorna a sessão e dados do utilizador autenticado via Better Auth',
+        responses: {
+          '200': {
+            description: 'Dados da sessão',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AuthResponse' },
+              },
+            },
+          },
+          '401': {
+            description: 'Não autenticado ou sessão expirada',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Unauthorized' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/auth/reset-password': {
       post: {
         tags: ['Auth'],
         summary: 'Solicitar recuperação de senha',
-        description: 'Envia email para recuperação de senha',
+        description: 'Envia email para recuperação de senha usando Better Auth',
         requestBody: {
           required: true,
           content: {
@@ -558,23 +728,29 @@ Formato de erro:
         },
         responses: {
           '200': {
-            description: 'Email de recuperação enviado',
+            description: 'Email de recuperação enviado (sempre retorna 200 por segurança)',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    mensagem: { type: 'string', example: 'Email de recuperação enviado' },
+                    success: { type: 'boolean', example: true },
+                    message: { type: 'string', example: 'Se o email existir, receberá instruções de recuperação' },
                   },
                 },
               },
             },
           },
-          '404': {
-            description: 'Email não encontrado',
+          '400': {
+            description: 'Email inválido',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Error' },
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Invalid email format' },
+                  },
+                },
               },
             },
           },
@@ -582,21 +758,21 @@ Formato de erro:
       },
     },
 
-    '/auth/recuperar-senha-confirmar': {
+    '/auth/reset-password/verify': {
       post: {
         tags: ['Auth'],
         summary: 'Confirmar recuperação de senha',
-        description: 'Define nova senha usando token de recuperação',
+        description: 'Define nova senha usando token de recuperação Better Auth',
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['token', 'novaSenha'],
+                required: ['token', 'password'],
                 properties: {
-                  token: { type: 'string', example: 'token-de-recuperacao' },
-                  novaSenha: { type: 'string', format: 'password', minLength: 8 },
+                  token: { type: 'string', example: 'reset-token-uuid' },
+                  password: { type: 'string', format: 'password', minLength: 8 },
                 },
               },
             },
@@ -610,7 +786,8 @@ Formato de erro:
                 schema: {
                   type: 'object',
                   properties: {
-                    mensagem: { type: 'string', example: 'Senha alterada com sucesso' },
+                    success: { type: 'boolean', example: true },
+                    message: { type: 'string', example: 'Password reset successful' },
                   },
                 },
               },
@@ -620,7 +797,12 @@ Formato de erro:
             description: 'Token inválido ou expirado',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/Error' },
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Invalid or expired token' },
+                  },
+                },
               },
             },
           },
@@ -628,40 +810,37 @@ Formato de erro:
       },
     },
 
-    '/auth/refresh-token': {
+    // Better Auth não requer refresh token manual - sessions são gerenciadas automaticamente
+    // Endpoint mantido para compatibilidade, mas sessions Better Auth são renovadas automaticamente
+    '/auth/session/refresh': {
       post: {
         tags: ['Auth'],
-        summary: 'Renovar token de acesso',
-        description: 'Renova o access token usando o refresh token',
+        summary: 'Renovar sessão (Better Auth)',
+        description: 'Com Better Auth, as sessões são renovadas automaticamente. Este endpoint força uma verificação de sessão.',
         responses: {
           '200': {
-            description: 'Token renovado com sucesso',
+            description: 'Sessão verificada/renovada',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
                     success: { type: 'boolean', example: true },
+                    session: { $ref: '#/components/schemas/AuthResponse' },
                   },
                 },
               },
             },
           },
           '401': {
-            description: 'Refresh token inválido',
+            description: 'Sessão inválida ou expirada',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
                     success: { type: 'boolean', example: false },
-                    error: {
-                      type: 'object',
-                      properties: {
-                        code: { type: 'string', example: 'INVALID_REFRESH' },
-                        message: { type: 'string', example: 'Refresh token inválido' },
-                      },
-                    },
+                    message: { type: 'string', example: 'Session expired' },
                   },
                 },
               },
@@ -769,6 +948,52 @@ Formato de erro:
               },
             },
           },
+        },
+      },
+    },
+
+    '/cursos/bulk-delete': {
+      post: {
+        tags: ['Cursos'],
+        summary: 'Deletar cursos em massa',
+        description: 'Remove múltiplos cursos (apenas admin)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['ids'],
+                properties: {
+                  ids: {
+                    type: 'array',
+                    items: { type: 'integer' },
+                    example: [1, 2, 3],
+                    description: 'Array de IDs dos cursos a deletar',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Cursos deletados com sucesso',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    mensagem: { type: 'string', example: 'Cursos deletados com sucesso' },
+                    deletedCount: { type: 'integer', example: 3 },
+                  },
+                },
+              },
+            },
+          },
+          '403': { description: 'Sem permissão (apenas admin)' },
+          '400': { description: 'Lista de IDs inválida' },
         },
       },
     },
@@ -1642,6 +1867,52 @@ Formato de erro:
       },
     },
 
+    '/utilizadores/bulk-delete': {
+      post: {
+        tags: ['Utilizadores'],
+        summary: 'Deletar utilizadores em massa',
+        description: 'Remove múltiplos utilizadores (apenas admin)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['ids'],
+                properties: {
+                  ids: {
+                    type: 'array',
+                    items: { type: 'integer' },
+                    example: [1, 2, 3],
+                    description: 'Array de IDs dos utilizadores a deletar',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Utilizadores deletados com sucesso',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    mensagem: { type: 'string', example: 'Utilizadores deletados com sucesso' },
+                    deletedCount: { type: 'integer', example: 3 },
+                  },
+                },
+              },
+            },
+          },
+          '403': { description: 'Sem permissão (apenas admin)' },
+          '400': { description: 'Lista de IDs inválida' },
+        },
+      },
+    },
+
     // Admin Endpoints
     '/admin/stats': {
       get: {
@@ -1821,7 +2092,7 @@ Formato de erro:
       },
     },
 
-    '/modulos/curso/{IDCurso}': {
+    '/modulos/curso/{id}': {
       get: {
         tags: ['Módulos'],
         summary: 'Listar módulos por curso',
@@ -1829,7 +2100,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDCurso',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -1863,7 +2134,7 @@ Formato de erro:
       },
     },
 
-    '/modulos/{IDModulo}': {
+    '/modulos/{id}': {
       get: {
         tags: ['Módulos'],
         summary: 'Obter módulo',
@@ -1871,7 +2142,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDModulo',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -1901,7 +2172,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDModulo',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -1928,7 +2199,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDModulo',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -1950,7 +2221,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDCurso',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -2032,7 +2303,7 @@ Formato de erro:
       },
     },
 
-    '/aulas/modulo/{IDModulo}': {
+    '/aulas/modulo/{id}': {
       get: {
         tags: ['Aulas'],
         summary: 'Listar aulas por módulo',
@@ -2040,7 +2311,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDModulo',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -2068,7 +2339,7 @@ Formato de erro:
       },
     },
 
-    '/aulas/{IDAula}': {
+    '/aulas/{id}': {
       get: {
         tags: ['Aulas'],
         summary: 'Obter aula',
@@ -2076,7 +2347,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDAula',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -2106,7 +2377,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDAula',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -2133,7 +2404,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDAula',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -2147,7 +2418,7 @@ Formato de erro:
       },
     },
 
-    '/aulas/{IDAula}/concluir': {
+    '/aulas/{id}/concluir': {
       post: {
         tags: ['Aulas'],
         summary: 'Marcar aula como concluída',
@@ -2155,7 +2426,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDAula',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -2197,7 +2468,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDAula',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -2218,7 +2489,7 @@ Formato de erro:
         security: [{ bearerAuth: [] }, { cookieAuth: [] }],
         parameters: [
           {
-            name: 'IDCurso',
+            name: 'id',
             in: 'path',
             required: true,
             schema: { type: 'integer' },
@@ -2408,6 +2679,229 @@ Formato de erro:
         },
       },
     },
+
+    // === REVIEWS/AVALIAÇÕES - ADICIONADO ===
+    '/reviews': {
+      post: {
+        tags: ['Reviews'],
+        summary: 'Criar review/avaliação',
+        description: 'Cria uma nova avaliação para um curso (apenas formandos)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ReviewInput' },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Review criada com sucesso',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    mensagem: { type: 'string' },
+                    review: { $ref: '#/components/schemas/Review' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Dados inválidos' },
+          '403': { description: 'Sem permissão (apenas formandos)' },
+          '409': { description: 'Já possui avaliação para este curso' },
+        },
+      },
+    },
+
+    '/reviews/minhas': {
+      get: {
+        tags: ['Reviews'],
+        summary: 'Minhas reviews',
+        description: 'Lista todas as reviews do utilizador autenticado',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Lista de reviews do utilizador',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Review' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/reviews/{id}': {
+      get: {
+        tags: ['Reviews'],
+        summary: 'Obter review',
+        description: 'Retorna uma review específica',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Review encontrada',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Review' },
+              },
+            },
+          },
+          '404': { description: 'Review não encontrada' },
+        },
+      },
+      put: {
+        tags: ['Reviews'],
+        summary: 'Atualizar review',
+        description: 'Atualiza uma review (apenas autor)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ReviewUpdate' },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'Review atualizada' },
+          '403': { description: 'Sem permissão' },
+          '404': { description: 'Review não encontrada' },
+        },
+      },
+      delete: {
+        tags: ['Reviews'],
+        summary: 'Deletar review',
+        description: 'Remove uma review (autor ou admin)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
+        ],
+        responses: {
+          '200': { description: 'Review deletada' },
+          '403': { description: 'Sem permissão' },
+          '404': { description: 'Review não encontrada' },
+        },
+      },
+    },
+
+    '/reviews/curso/{id}': {
+      get: {
+        tags: ['Reviews'],
+        summary: 'Reviews por curso',
+        description: 'Lista todas as reviews de um curso específico',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do curso',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Lista de reviews do curso',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Review' },
+                },
+              },
+            },
+          },
+          '404': { description: 'Curso não encontrado' },
+        },
+      },
+    },
+
+    '/reviews/curso/{id}/stats': {
+      get: {
+        tags: ['Reviews'],
+        summary: 'Estatísticas de reviews do curso',
+        description: 'Retorna estatísticas das avaliações de um curso',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do curso',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Estatísticas das reviews',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ReviewStats' },
+              },
+            },
+          },
+          '404': { description: 'Curso não encontrado' },
+        },
+      },
+    },
+
+    '/reviews/curso/{id}/minha': {
+      get: {
+        tags: ['Reviews'],
+        summary: 'Minha review do curso',
+        description: 'Retorna a review do utilizador para um curso específico',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do curso',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Review do utilizador',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Review' },
+              },
+            },
+          },
+          '404': { description: 'Review não encontrada' },
+        },
+      },
+    },
   },
 
   // Tags organizadas por módulo
@@ -2455,6 +2949,10 @@ Formato de erro:
     {
       name: 'Notificações',
       description: 'Notificações do utilizador',
+    },
+    {
+      name: 'Reviews',
+      description: 'Sistema de avaliações e reviews de cursos',
     },
   ],
 };
