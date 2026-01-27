@@ -1,43 +1,14 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { DataTableSkeleton } from '@/components/ui/loading-system';
 
 interface TableSkeletonProps {
   rows?: number;
   columns?: number;
 }
 
+/**
+ * @deprecated Use DataTableSkeleton from @/components/ui/loading-system instead
+ * This component is kept for backwards compatibility
+ */
 export function TableSkeleton({ rows = 5, columns = 4 }: TableSkeletonProps) {
-  return (
-    <div className="overflow-x-auto rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {Array.from({ length: columns }).map((_, i) => (
-              <TableHead key={i}>
-                <Skeleton className="h-4 w-24" />
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array.from({ length: rows }).map((_, rowIndex) => (
-            <TableRow key={rowIndex}>
-              {Array.from({ length: columns }).map((_, colIndex) => (
-                <TableCell key={colIndex}>
-                  <Skeleton className="h-4 w-full" />
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
+  return <DataTableSkeleton rows={rows} columns={columns} showActions={false} />;
 }
