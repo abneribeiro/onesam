@@ -3,6 +3,7 @@
 import { lazy, Suspense, Component, ReactNode } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { VideoPlayerSkeleton } from '@/components/ui/loading-system';
 
 const VideoPlayerInternal = lazy(() =>
   import('./VideoPlayer.internal').then((module) => ({
@@ -17,19 +18,6 @@ interface VideoPlayerProps {
   onError?: () => void;
   autoSaveProgress?: boolean;
   initialTime?: number;
-}
-
-function VideoPlayerSkeleton() {
-  return (
-    <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-          <p className="text-white text-sm">A carregar reprodutor de vídeo...</p>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 interface ErrorBoundaryProps {
@@ -54,7 +42,9 @@ class VideoPlayerErrorBoundary extends Component<ErrorBoundaryProps, ErrorBounda
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('VideoPlayer Error:', error, errorInfo);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('VideoPlayer Error:', error, errorInfo);
+    }
     this.props.onError?.();
   }
 

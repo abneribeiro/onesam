@@ -48,11 +48,7 @@ export function useErrorHandler(): UseErrorHandlerReturn {
     // Send error to monitoring service in production
     if (process.env.NODE_ENV === 'production') {
       // TODO: Send to error monitoring service (e.g., Sentry)
-      console.error('Production error:', {
-        message,
-        operation,
-        timestamp: new Date().toISOString(),
-      });
+      // For now, we'll rely on external monitoring to capture errors
     }
   }, []);
 
