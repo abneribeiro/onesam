@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/versão-1.0.0-blue.svg" alt="Versão"/></a>
+  <a href="#"><img src="https://img.shields.io/badge/versão-3.0.0-blue.svg" alt="Versão"/></a>
   <a href="#"><img src="https://img.shields.io/badge/licença-MIT-green.svg" alt="Licença"/></a>
   <a href="#"><img src="https://img.shields.io/badge/Node.js-18+-339933.svg?logo=node.js&logoColor=white" alt="Node.js"/></a>
   <a href="#"><img src="https://img.shields.io/badge/TypeScript-5.9-3178C6.svg?logo=typescript&logoColor=white" alt="TypeScript"/></a>
