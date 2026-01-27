@@ -72,6 +72,10 @@ export default function AdminInscricoesList() {
     open: false,
     inscricaoId: null,
   });
+  const [approveDialog, setApproveDialog] = useState<{ open: boolean; inscricaoId: number | null }>({
+    open: false,
+    inscricaoId: null,
+  });
 
   const aprovar = useAprovarInscricao();
   const rejeitar = useRejeitarInscricao();
@@ -108,10 +112,15 @@ export default function AdminInscricoesList() {
     prevFiltersRef.current = { search: debouncedSearchTerm, estado: estadoFilter };
   }, [debouncedSearchTerm, estadoFilter, pagination.page, setPage]);
 
-  const handleAprovar = async (inscricaoId: number) => {
-    if (window.confirm('Tem a certeza que deseja aprovar esta inscrição?')) {
-      await aprovar.mutateAsync(inscricaoId);
+  const handleAprovar = async () => {
+    if (approveDialog.inscricaoId) {
+      await aprovar.mutateAsync(approveDialog.inscricaoId);
+      setApproveDialog({ open: false, inscricaoId: null });
     }
+  };
+
+  const openApproveDialog = (inscricaoId: number) => {
+    setApproveDialog({ open: true, inscricaoId });
   };
 
   const handleRejeitar = async () => {
@@ -264,7 +273,7 @@ export default function AdminInscricoesList() {
                                 {inscricao.estado === 'pendente' && (
                                   <>
                                     <DropdownMenuItem
-                                      onClick={() => handleAprovar(inscricao.id)}
+                                      onClick={() => openApproveDialog(inscricao.id)}
                                       className="text-green-600 focus:text-green-600"
                                     >
                                       <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -333,6 +342,26 @@ export default function AdminInscricoesList() {
               className="bg-destructive hover:bg-destructive/90"
             >
               Rejeitar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={approveDialog.open} onOpenChange={(open) => setApproveDialog({ ...approveDialog, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Aprovar Inscrição</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem a certeza que deseja aprovar esta inscrição? O formando será notificado por email e terá acesso ao curso.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleAprovar}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Aprovar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

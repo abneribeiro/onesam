@@ -401,6 +401,39 @@ function LinkViewer({ url, titulo }: { url: string; titulo: string }) {
   );
 }
 
+/**
+ * Sanitize a URL to prevent XSS attacks via javascript: protocol
+ * Only allows http:, https:, mailto:, and tel: protocols
+ */
+function sanitizeUrl(url: string): string | null {
+  if (!url) return null;
+  
+  try {
+    const trimmedUrl = url.trim();
+    
+    // Allow relative URLs
+    if (trimmedUrl.startsWith('/') || trimmedUrl.startsWith('#')) {
+      return trimmedUrl;
+    }
+    
+    const parsed = new URL(trimmedUrl);
+    const allowedProtocols = ['http:', 'https:', 'mailto:', 'tel:'];
+    
+    if (allowedProtocols.includes(parsed.protocol)) {
+      return trimmedUrl;
+    }
+    
+    // Disallow dangerous protocols (javascript:, data:, vbscript:, etc.)
+    return null;
+  } catch {
+    // If URL parsing fails, check if it looks like a relative URL
+    if (/^[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=%]+$/.test(url)) {
+      return url;
+    }
+    return null;
+  }
+}
+
 function TextoViewer({ conteudo }: { conteudo: string }) {
   // Função para converter texto simples em elementos com formatação básica
   // Suporta: **bold**, *italic*, links, listas, e quebras de linha
@@ -443,18 +476,28 @@ function TextoViewer({ conteudo }: { conteudo: string }) {
             // Italic: *text*
             parts.push(<em key={`i-${keyCounter++}`}>{match[3]}</em>);
           } else if (match[4] && match[5]) {
-            // Link: [text](url)
-            parts.push(
-              <a
-                key={`l-${keyCounter++}`}
-                href={match[5]}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline hover:no-underline"
-              >
-                {match[4]}
-              </a>
-            );
+            // Link: [text](url) - sanitize URL to prevent XSS
+            const safeUrl = sanitizeUrl(match[5]);
+            if (safeUrl) {
+              parts.push(
+                <a
+                  key={`l-${keyCounter++}`}
+                  href={safeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline hover:no-underline"
+                >
+                  {match[4]}
+                </a>
+              );
+            } else {
+              // Render as plain text if URL is unsafe
+              parts.push(
+                <span key={`l-${keyCounter++}`} className="text-muted-foreground">
+                  {match[4]} (link inválido)
+                </span>
+              );
+            }
           }
 
           lastIndex = match.index + match[0].length;

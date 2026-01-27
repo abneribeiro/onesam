@@ -11,8 +11,12 @@ const shouldClean = process.argv.includes('--clean');
 async function cleanDatabase() {
   logger.info('Cleaning database...');
 
+  // Delete in correct order (respecting foreign key constraints)
   await db.delete(progressoAulas);
+  await db.delete(reviews);
   await db.delete(notificacoes);
+  await db.delete(aulas);
+  await db.delete(modulos);
   await db.delete(inscricoes);
   await db.delete(cursos);
   await db.delete(categorias);
@@ -22,7 +26,19 @@ async function cleanDatabase() {
   await db.delete(account);
   await db.delete(utilizadores);
 
-  logger.info('Database cleaned');
+  // Reset auto-increment sequences to start from 1
+  await db.execute(`ALTER SEQUENCE "Areas_IDArea_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "Categorias_IDCategoria_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "Utilizadores_IDUtilizador_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "Cursos_IDCurso_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "Modulos_IDModulo_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "Aulas_IDAula_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "Inscricoes_IDInscricao_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "Reviews_IDReview_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "Notificacoes_IDNotificacao_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "ProgressoAulas_IDProgresso_seq" RESTART WITH 1`);
+
+  logger.info('Database cleaned and sequences reset');
 }
 
 async function seedAreas() {
@@ -892,49 +908,57 @@ async function seedModulos(cursosInserted: any[]) {
 async function seedAulas(modulosInserted: any[]) {
   logger.info('Seeding aulas...');
 
+  // ⚠️ NOTA: As URLs de vídeo abaixo são APENAS PARA TESTE/DESENVOLVIMENTO
+  // A maioria usa "dQw4w9WgXcQ" (Rick Astley - Never Gonna Give You Up) como placeholder
+  // Em produção, substitua por URLs de vídeos educacionais reais
   const aulasData = [
     // Aulas para módulo "Introdução ao React 19" (módulo 0)
     { moduloId: modulosInserted[0].id, titulo: 'O que é React?', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=SqcY0GlETPk', ordem: 1, duracao: 15 },
-    { moduloId: modulosInserted[0].id, titulo: 'Instalação e Setup', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 2, duracao: 20 },
-    { moduloId: modulosInserted[0].id, titulo: 'Primeiro Componente', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 25 },
+    { moduloId: modulosInserted[0].id, titulo: 'Instalação e Setup', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=Ke90Tje7VS0', ordem: 2, duracao: 20 }, // [TESTE] React Tutorial
+    { moduloId: modulosInserted[0].id, titulo: 'Primeiro Componente', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=bMknfKXIFA8', ordem: 3, duracao: 25 }, // [TESTE] React Basics
     { moduloId: modulosInserted[0].id, titulo: 'Documentação Oficial', tipo: 'link' as const, url: 'https://react.dev', ordem: 4, duracao: null },
 
     // Aulas para módulo "Hooks e State Management" (módulo 1)
-    { moduloId: modulosInserted[1].id, titulo: 'useState Hook', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 30 },
-    { moduloId: modulosInserted[1].id, titulo: 'useEffect Hook', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 2, duracao: 35 },
-    { moduloId: modulosInserted[1].id, titulo: 'useContext para State Global', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 40 },
+    { moduloId: modulosInserted[1].id, titulo: 'useState Hook', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 30 }, // [TESTE]
+    { moduloId: modulosInserted[1].id, titulo: 'useEffect Hook', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 2, duracao: 35 }, // [TESTE]
+    { moduloId: modulosInserted[1].id, titulo: 'useContext para State Global', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 40 }, // [TESTE]
     { moduloId: modulosInserted[1].id, titulo: 'Quiz: Hooks', tipo: 'quiz' as const, url: 'https://quiz.example.com/react-hooks', ordem: 4, duracao: 15 },
 
     // Aulas para módulo "Fundamentos de Python" (módulo 5)
-    { moduloId: modulosInserted[5].id, titulo: 'Introdução ao Python', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 25 },
-    { moduloId: modulosInserted[5].id, titulo: 'Variáveis e Tipos de Dados', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 2, duracao: 30 },
-    { moduloId: modulosInserted[5].id, titulo: 'Listas e Dicionários', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 35 },
+    { moduloId: modulosInserted[5].id, titulo: 'Introdução ao Python', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 25 }, // [TESTE]
+    { moduloId: modulosInserted[5].id, titulo: 'Variáveis e Tipos de Dados', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 2, duracao: 30 }, // [TESTE]
+    { moduloId: modulosInserted[5].id, titulo: 'Listas e Dicionários', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 35 }, // [TESTE]
     { moduloId: modulosInserted[5].id, titulo: 'Exercícios de Fixação', tipo: 'documento' as const, url: 'https://docs.google.com/document/d/exerc icios', ordem: 4, duracao: null },
 
     // Aulas para módulo "HTML Básico" (módulo 9)
-    { moduloId: modulosInserted[9].id, titulo: 'Estrutura HTML', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 20 },
-    { moduloId: modulosInserted[9].id, titulo: 'Tags Essenciais', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 2, duracao: 25 },
-    { moduloId: modulosInserted[9].id, titulo: 'Formulários HTML', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 30 },
+    { moduloId: modulosInserted[9].id, titulo: 'Estrutura HTML', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 20 }, // [TESTE]
+    { moduloId: modulosInserted[9].id, titulo: 'Tags Essenciais', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 2, duracao: 25 }, // [TESTE]
+    { moduloId: modulosInserted[9].id, titulo: 'Formulários HTML', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 30 }, // [TESTE]
 
     // Aulas para módulo "Fundamentos de Liderança" (módulo 13)
-    { moduloId: modulosInserted[13].id, titulo: 'O que faz um bom líder?', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 25 },
+    { moduloId: modulosInserted[13].id, titulo: 'O que faz um bom líder?', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 25 }, // [TESTE]
     { moduloId: modulosInserted[13].id, titulo: 'Estilos de Liderança', tipo: 'texto' as const, conteudo: 'Existem diversos estilos de liderança: autocrática, democrática, transformacional...', ordem: 2, duracao: null },
     { moduloId: modulosInserted[13].id, titulo: 'Case Studies', tipo: 'documento' as const, url: 'https://docs.google.com/document/d/cases', ordem: 3, duracao: null },
 
     // Aulas para módulo "Introdução ao Agile" (módulo 17)
-    { moduloId: modulosInserted[17].id, titulo: 'Manifesto Ágil', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 20 },
+    { moduloId: modulosInserted[17].id, titulo: 'Manifesto Ágil', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 20 }, // [TESTE]
     { moduloId: modulosInserted[17].id, titulo: 'Princípios Ágeis', tipo: 'texto' as const, conteudo: 'Os 12 princípios do manifesto ágil...', ordem: 2, duracao: null },
-    { moduloId: modulosInserted[17].id, titulo: 'Agile vs Waterfall', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 25 },
+    { moduloId: modulosInserted[17].id, titulo: 'Agile vs Waterfall', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 25 }, // [TESTE]
 
     // Aulas para módulo "Fundamentos de UX" (módulo 21)
-    { moduloId: modulosInserted[21].id, titulo: 'Introdução ao UX', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 30 },
-    { moduloId: modulosInserted[21].id, titulo: 'User Research', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 2, duracao: 35 },
-    { moduloId: modulosInserted[21].id, titulo: 'Criando Personas', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 40 },
+    { moduloId: modulosInserted[21].id, titulo: 'Introdução ao UX', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 1, duracao: 30 }, // [TESTE]
+    { moduloId: modulosInserted[21].id, titulo: 'User Research', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 2, duracao: 35 }, // [TESTE]
+    { moduloId: modulosInserted[21].id, titulo: 'Criando Personas', tipo: 'video' as const, url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', ordem: 3, duracao: 40 }, // [TESTE]
     { moduloId: modulosInserted[21].id, titulo: 'Template de Persona', tipo: 'documento' as const, url: 'https://docs.google.com/document/d/persona-template', ordem: 4, duracao: null },
   ];
 
   const insertedAulas = await db.insert(aulas).values(aulasData).returning();
   logger.info('Aulas created', { count: insertedAulas.length });
+  logger.info('Aulas IDs range', { 
+    minId: Math.min(...insertedAulas.map(a => a.id)),
+    maxId: Math.max(...insertedAulas.map(a => a.id)),
+    ids: insertedAulas.map(a => a.id)
+  });
 
   return insertedAulas;
 }

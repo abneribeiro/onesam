@@ -140,7 +140,22 @@ export default function CourseDetailsPage() {
   }
 
   if (error || !curso) {
-    return null;
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
+        <AlertCircle className="h-16 w-16 text-destructive" />
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Curso não encontrado</h2>
+          <p className="text-muted-foreground mb-4">
+            O curso que procura não existe ou não está disponível.
+          </p>
+        </div>
+        <Link href="/cursos">
+          <Button variant="outline">
+            ← Voltar ao Catálogo
+          </Button>
+        </Link>
+      </div>
+    );
   }
 
   const isEnrolled = minhaInscricao?.estado === 'aceite';

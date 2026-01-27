@@ -63,7 +63,7 @@ export function VideoPlayer({
 }: VideoPlayerProps) {
   // Refs
   const videoRef = useRef<HTMLVideoElement>(null);
-  const reactPlayerRef = useRef<{ seekTo: (amount: number, type?: string) => void } | null>(null);
+  const reactPlayerRef = useRef<any>(null); // ReactPlayer instance ref
   const containerRef = useRef<HTMLDivElement>(null);
   const hideControlsTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mountedRef = useRef(true);
@@ -81,6 +81,7 @@ export function VideoPlayer({
   const [seeking, setSeeking] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   // Determina o tipo de player a usar
   const useNativePlayer = isDirectVideoUrl(url);
@@ -90,6 +91,7 @@ export function VideoPlayer({
     if (process.env.NODE_ENV === 'development') {
       console.log('[VideoPlayer] Initializing with URL:', url);
       console.log('[VideoPlayer] Using native player:', useNativePlayer);
+      console.log('[VideoPlayer] ReactPlayer imported:', typeof ReactPlayer);
     }
 
     // Reset estados quando URL muda
@@ -100,6 +102,7 @@ export function VideoPlayer({
     setDuration(0);
     setPlaying(false);
     setIsBuffering(false);
+    setHasError(false);
 
     return () => {
       mountedRef.current = false;
@@ -395,82 +398,134 @@ export function VideoPlayer({
           }}
         />
       ) : (
-        React.createElement(ReactPlayer as React.ComponentType<Record<string, unknown>>, {
-          ref: reactPlayerRef,
-          url,
-          playing,
-          volume,
-          muted,
-          playbackRate,
-          width: "100%",
-          height: "100%",
-          onProgress: handleReactPlayerProgress,
-          onDuration: (dur: number) => {
-            if (mountedRef.current) {
-              setDuration(dur);
-              if (process.env.NODE_ENV === 'development') {
-                console.log('[VideoPlayer] ReactPlayer duration loaded:', dur);
+        <ReactPlayer
+          {...({
+            ref: reactPlayerRef,
+            url: url,
+            playing: playing,
+            volume: volume,
+            muted: muted,
+            playbackRate: playbackRate,
+            width: "100%",
+            height: "100%",
+            onProgress: handleReactPlayerProgress,
+            onDuration: (dur: number) => {
+              if (mountedRef.current) {
+                setDuration(dur);
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('[VideoPlayer] ReactPlayer duration loaded:', dur);
+                }
               }
-            }
-          },
-          onReady: () => {
-            if (mountedRef.current) {
-              setIsReady(true);
-              setIsBuffering(false);
-              if (process.env.NODE_ENV === 'development') {
-                console.log('[VideoPlayer] ReactPlayer ready');
+            },
+            onReady: (player?: any) => {
+              if (mountedRef.current) {
+                setIsReady(true);
+                setIsBuffering(false);
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('[VideoPlayer] ReactPlayer ready', { player, url });
+                }
               }
-            }
-          },
-          onBuffer: () => {
-            if (mountedRef.current) {
-              setIsBuffering(true);
-            }
-          },
-          onBufferEnd: () => {
-            if (mountedRef.current) {
-              setIsBuffering(false);
-            }
-          },
-          onEnded: () => {
-            if (mountedRef.current) {
-              setPlaying(false);
-              onEnded?.();
-            }
-          },
-          onError: (e: unknown, data?: unknown) => {
-            console.error('[VideoPlayer] ReactPlayer error:', e, data);
-            if (mountedRef.current) {
-              onError?.();
-            }
-          },
-          config: {
-            youtube: {
-              playerVars: {
-                rel: 0,
-                controls: 0,
-                modestbranding: 1,
+            },
+            onBuffer: () => {
+              if (mountedRef.current) {
+                setIsBuffering(true);
+              }
+            },
+            onBufferEnd: () => {
+              if (mountedRef.current) {
+                setIsBuffering(false);
+              }
+            },
+            onEnded: () => {
+              if (mountedRef.current) {
+                setPlaying(false);
+                onEnded?.();
+              }
+            },
+            onError: (e: unknown, data?: unknown, hlsInstance?: unknown, hlsGlobal?: unknown) => {
+              console.error('[VideoPlayer] ReactPlayer error:', {
+                error: e,
+                data: data,
+                url: url,
+                hlsInstance,
+                hlsGlobal
+              });
+              if (mountedRef.current) {
+                setHasError(true);
+                setIsBuffering(false);
+                setIsReady(false);
+                onError?.();
+              }
+            },
+            config: {
+              youtube: {
+                playerVars: {
+                  autoplay: 0,
+                  controls: 0,
+                  rel: 0,
+                  modestbranding: 1,
+                  showinfo: 0,
+                  iv_load_policy: 3,
+                  fs: 1,
+                  enablejsapi: 1,
+                },
+                embedOptions: {
+                  host: 'https://www.youtube-nocookie.com'
+                }
+              },
+              file: {
+                forceVideo: true,
+                attributes: {
+                  controlsList: 'nodownload',
+                  playsInline: true,
+                },
               },
             },
-            file: {
-              forceVideo: true,
-              attributes: {
-                controlsList: 'nodownload',
-                playsInline: true,
-              },
-            },
-          },
-        })
+          } as any)}
+        />
       )}
 
       {/* Loading Overlay */}
-      {(!isReady || isBuffering) && (
+      {(!isReady || isBuffering) && !hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 pointer-events-none">
           <div className="flex flex-col items-center gap-2">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
             <span className="text-white text-sm">
               {isBuffering ? 'A carregar...' : 'A preparar vídeo...'}
             </span>
+          </div>
+        </div>
+      )}
+
+      {/* Error Overlay */}
+      {hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+          <div className="flex flex-col items-center gap-4 p-6 text-center">
+            <div className="text-red-500">
+              <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div className="text-white">
+              <h3 className="text-lg font-semibold mb-2">Erro ao carregar vídeo</h3>
+              <p className="text-sm text-gray-300">
+                O vídeo não pôde ser carregado. Verifique a URL ou tente novamente mais tarde.
+              </p>
+              <p className="text-xs text-gray-400 mt-2">
+                URL: {url}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setHasError(false);
+                setIsReady(false);
+                window.location.reload();
+              }}
+            >
+              Tentar Novamente
+            </Button>
           </div>
         </div>
       )}

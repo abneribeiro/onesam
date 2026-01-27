@@ -19,6 +19,10 @@ const forgotPasswordSchema = z.object({
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
+// Build the API base URL consistently with auth-client
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const baseURL = apiUrl.replace(/\/api\/?$/, '');
+
 const ForgotPasswordPage = memo(function ForgotPasswordPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string>('');
@@ -32,7 +36,10 @@ const ForgotPasswordPage = memo(function ForgotPasswordPage() {
     try {
       setError('');
       setSuccess(false);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:3000'}/api/auth/forget-password`, {
+      
+      // Note: better-auth doesn't expose forgetPassword on the client directly,
+      // so we call the API endpoint directly. The endpoint is /api/auth/forget-password
+      const response = await fetch(`${baseURL}/api/auth/forget-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,13 +47,16 @@ const ForgotPasswordPage = memo(function ForgotPasswordPage() {
         credentials: 'include',
         body: JSON.stringify({
           email: data.email,
-          redirectTo: `${window.location.origin}/reset-password`
+          redirectTo: `${window.location.origin}/reset-password`,
         }),
       });
 
+      const result = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        throw new Error('Erro ao enviar email de recuperação');
+        throw new Error(result.message || 'Erro ao enviar email de recuperação');
       }
+
       setSuccess(true);
       form.reset();
     } catch (err: unknown) {
