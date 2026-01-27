@@ -10,6 +10,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 fix.md
+.claude
 
 # ======================
 # web (React + Vite)
