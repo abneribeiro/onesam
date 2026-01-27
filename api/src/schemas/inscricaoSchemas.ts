@@ -2,19 +2,19 @@ import { z } from 'zod';
 
 export const createInscricaoSchema = z.object({
   body: z.object({
-    IDCurso: z.number().int().positive('ID do curso inválido'),
+    cursoId: z.number().int().positive('ID do curso inválido'), // Padronizado de IDCurso
   }),
 });
 
 export const getInscricaoSchema = z.object({
   params: z.object({
-    IDInscricao: z.string().regex(/^\d+$/, 'ID inválido'),
+    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDInscricao
   }),
 });
 
 export const getInscricoesByCursoSchema = z.object({
   params: z.object({
-    IDCurso: z.string().regex(/^\d+$/, 'ID do curso inválido'),
+    id: z.string().regex(/^\d+$/, 'ID do curso inválido'), // Padronizado de IDCurso para id
   }),
 });
 

@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
  * Security headers middleware to protect against common attacks
  */
 export function securityHeaders() {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (_req: Request, res: Response, next: NextFunction): void => {
     // Prevent XSS attacks
     res.setHeader('X-XSS-Protection', '1; mode=block');
 
@@ -107,7 +107,7 @@ export function configureCORS() {
  * Disable caching for sensitive endpoints
  */
 export function noCache() {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (_req: Request, res: Response, next: NextFunction): void => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');

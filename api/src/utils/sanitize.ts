@@ -157,7 +157,7 @@ export function sanitizeJsonString(input: string): string {
     const parsed = JSON.parse(input);
 
     // Remove any function properties that could be dangerous
-    const sanitized = JSON.stringify(parsed, (key, value) => {
+    const sanitized = JSON.stringify(parsed, (_key, value) => {
       if (typeof value === 'function' || typeof value === 'undefined') {
         return null;
       }

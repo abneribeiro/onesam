@@ -26,7 +26,7 @@ export const createAulaSchema = z.object({
       duracao: z.number().int().positive('A duração deve ser um número positivo').optional(),
       ordem: z.number().int().nonnegative('A ordem deve ser um número inteiro positivo').optional(),
       obrigatoria: z.boolean().optional(),
-      IDModulo: z.number().int().positive('ID do módulo deve ser um número válido'),
+      moduloId: z.number().int().positive('ID do módulo deve ser um número válido'), // Padronizado de IDModulo
     })
     .refine(
       (data) => {
@@ -124,25 +124,25 @@ export const updateAulaSchema = z.object({
       }
     ),
   params: z.object({
-    IDAula: z.string().regex(/^\d+$/, 'ID inválido'),
+    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDAula
   }),
 });
 
 export const getAulaSchema = z.object({
   params: z.object({
-    IDAula: z.string().regex(/^\d+$/, 'ID inválido'),
+    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDAula
   }),
 });
 
 export const deleteAulaSchema = z.object({
   params: z.object({
-    IDAula: z.string().regex(/^\d+$/, 'ID inválido'),
+    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDAula
   }),
 });
 
 export const listAulasByModuloSchema = z.object({
   params: z.object({
-    IDModulo: z.string().regex(/^\d+$/, 'ID do módulo inválido'),
+    id: z.string().regex(/^\d+$/, 'ID do módulo inválido'), // Padronizado de IDModulo
   }),
 });
 
@@ -151,6 +151,6 @@ export const marcarAulaConcluidaSchema = z.object({
     tempoGasto: z.number().int().nonnegative('O tempo gasto deve ser um número positivo').optional(),
   }),
   params: z.object({
-    IDAula: z.string().regex(/^\d+$/, 'ID da aula inválido'),
+    id: z.string().regex(/^\d+$/, 'ID da aula inválido'), // Padronizado de IDAula
   }),
 });

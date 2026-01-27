@@ -9,7 +9,7 @@ export const createModuloSchema = z.object({
       .max(255, 'O título deve ter no máximo 255 caracteres'),
     descricao: z.string().optional(),
     ordem: z.number().int().nonnegative('A ordem deve ser um número inteiro positivo').optional(),
-    IDCurso: z.number().int().positive('ID do curso deve ser um número válido'),
+    cursoId: z.number().int().positive('ID do curso deve ser um número válido'), // Padronizado de IDCurso
   }),
 });
 
@@ -25,24 +25,24 @@ export const updateModuloSchema = z.object({
     ordem: z.number().int().nonnegative('A ordem deve ser um número inteiro positivo').optional(),
   }),
   params: z.object({
-    IDModulo: z.string().regex(/^\d+$/, 'ID inválido'),
+    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDModulo
   }),
 });
 
 export const getModuloSchema = z.object({
   params: z.object({
-    IDModulo: z.string().regex(/^\d+$/, 'ID inválido'),
+    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDModulo
   }),
 });
 
 export const deleteModuloSchema = z.object({
   params: z.object({
-    IDModulo: z.string().regex(/^\d+$/, 'ID inválido'),
+    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDModulo
   }),
 });
 
 export const listModulosByCursoSchema = z.object({
   params: z.object({
-    IDCurso: z.string().regex(/^\d+$/, 'ID do curso inválido'),
+    id: z.string().regex(/^\d+$/, 'ID do curso inválido'), // Padronizado de IDCurso
   }),
 });

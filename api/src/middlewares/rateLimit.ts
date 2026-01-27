@@ -35,19 +35,6 @@ class RateLimiter {
     }
   }
 
-  private async getCount(key: string): Promise<number> {
-    if (this.redis) {
-      try {
-        const count = await this.redis.get(key);
-        return count ? parseInt(count, 10) : 0;
-      } catch (error) {
-        logger.warn('Redis error in rate limiter', { error });
-        return this.getMemoryCount(key);
-      }
-    }
-    return this.getMemoryCount(key);
-  }
-
   private async incrementCount(key: string): Promise<number> {
     if (this.redis) {
       try {
@@ -62,14 +49,6 @@ class RateLimiter {
       }
     }
     return this.incrementMemoryCount(key);
-  }
-
-  private getMemoryCount(key: string): number {
-    const entry = memoryStore.get(key);
-    if (!entry || Date.now() > entry.resetTime) {
-      return 0;
-    }
-    return entry.count;
   }
 
   private incrementMemoryCount(key: string): number {
@@ -87,7 +66,7 @@ class RateLimiter {
   }
 
   middleware() {
-    return async (req: Request, res: Response, next: NextFunction) => {
+    return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         const key = `rate_limit:${this.options.keyGenerator!(req)}`;
         const count = await this.incrementCount(key);
@@ -106,13 +85,14 @@ class RateLimiter {
             limit: this.options.maxRequests,
           });
 
-          return res.status(429).json({
+          res.status(429).json({
             success: false,
             error: {
               code: 'RATE_LIMIT_EXCEEDED',
               message: this.options.message,
             },
           });
+          return;
         }
 
         next();

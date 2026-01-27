@@ -35,6 +35,8 @@ import { apiReference } from '@scalar/express-api-reference';
 import { auth } from './lib/auth';
 import { toNodeHandler } from 'better-auth/node';
 
+import { healthCheck } from './controllers/healthController';
+
 const app: Express = express();
 
 // Helmet para segurança HTTP headers
@@ -42,9 +44,19 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      scriptSrc: [
+        "'self'",
+        "https://cdn.jsdelivr.net",
+        "'unsafe-inline'", // Necessário para Scalar API Reference
+        "'unsafe-eval'"   // Necessário para alguns componentes do Scalar
+      ],
+      imgSrc: ["'self'", "data:", "https:", "https://cdn.jsdelivr.net"],
+      connectSrc: ["'self'", "https://cdn.jsdelivr.net"],
+      fontSrc: ["'self'", "https://cdn.jsdelivr.net", "https://fonts.scalar.com", "data:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'self'"],
     },
   },
   crossOriginEmbedderPolicy: false,
@@ -64,6 +76,18 @@ app.use(cookieParser());
 
 // Servir arquivos estáticos da pasta uploads (imagens, etc.)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Servir arquivos estáticos da pasta public (favicon, etc.)
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Rota específica para favicon
+app.get('/favicon.ico', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../public/favicon.ico'), (err) => {
+    if (err) {
+      res.status(204).end(); // No Content - evita erro 404 no console
+    }
+  });
+});
 
 // HTTP request logging com Morgan integrado ao Winston
 app.use(morganMiddleware);
@@ -89,15 +113,8 @@ app.use('/api/reference', apiReference({
   theme: 'purple',
 }));
 
-// Health check endpoint
-app.get('/api/health', (_req, res) => {
-  res.json({
-    status: 'healthy',
-    version: '3.0.0',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-  });
-});
+// Health check endpoint - usando controller completo
+app.get('/api/health', healthCheck);
 
 // Rate limiting específico para autenticação - proteção contra força bruta
 // 5 tentativas por 15 minutos por IP

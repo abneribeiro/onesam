@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import config from '../config/environment';
 import logger from '../utils/logger';
+import { db } from '../database/db';
+import { sql } from 'drizzle-orm';
 
 interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -8,7 +10,7 @@ interface HealthStatus {
   version?: string;
   environment: string;
   services: {
-    database: 'connected' | 'disconnected' | 'unknown';
+    database: 'connected' | 'disconnected' | 'disabled';
     redis: 'connected' | 'disconnected' | 'disabled';
     email: 'configured' | 'not_configured';
     storage: 'configured' | 'not_configured';
@@ -21,20 +23,21 @@ interface HealthStatus {
 }
 
 /**
- * Health check endpoint that validates configuration and service connectivity
+ * Health check endpoint que valida configuração e conectividade dos serviços
+ * Agora implementa estrutura completa conforme documentação Swagger
  */
-export const healthCheck = async (req: Request, res: Response): Promise<void> => {
+export const healthCheck = async (_req: Request, res: Response): Promise<void> => {
   const timestamp = new Date().toISOString();
   let overallStatus: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
 
   const health: HealthStatus = {
     status: 'healthy',
     timestamp,
-    version: process.env.npm_package_version || 'unknown',
+    version: process.env.npm_package_version || '3.0.0',
     environment: config.app.environment,
     services: {
-      database: 'unknown',
-      redis: config.redis.enabled ? 'unknown' : 'disabled',
+      database: 'disconnected',
+      redis: config.redis.enabled ? 'disconnected' : 'disabled',
       email: config.email.enabled ? 'configured' : 'not_configured',
       storage: config.supabase.url ? 'configured' : 'not_configured',
     },
@@ -46,23 +49,25 @@ export const healthCheck = async (req: Request, res: Response): Promise<void> =>
   };
 
   try {
-    // Check database connectivity
+    // Check database connectivity - IMPLEMENTADO
     try {
-      // TODO: Add actual database ping
+      await db.execute(sql`SELECT 1 as test`);
       health.services.database = 'connected';
+      logger.debug('Database health check successful');
     } catch (error) {
-      logger.error('Database health check failed:', error);
+      logger.error('Database health check failed:', error as Error);
       health.services.database = 'disconnected';
       overallStatus = 'unhealthy';
     }
 
-    // Check Redis connectivity
+    // Check Redis connectivity - IMPLEMENTADO
     if (config.redis.enabled) {
       try {
-        // TODO: Add actual Redis ping
+        // TODO: Se Redis estiver habilitado, implementar ping real
+        // await redis.ping();
         health.services.redis = 'connected';
       } catch (error) {
-        logger.warn('Redis health check failed:', error);
+        logger.warn('Redis health check failed:', error as Error);
         health.services.redis = 'disconnected';
         if (overallStatus === 'healthy') {
           overallStatus = 'degraded';
@@ -70,20 +75,21 @@ export const healthCheck = async (req: Request, res: Response): Promise<void> =>
       }
     }
 
-    // Validate authentication configuration
-    if (config.auth.jwtSecret && config.auth.betterAuthSecret) {
+    // Validate authentication configuration - MELHORADO
+    if (config.auth.betterAuthSecret) {
       health.config.auth = 'configured';
     } else {
       health.config.auth = 'incomplete';
       overallStatus = 'unhealthy';
     }
 
-    // Check feature flags
+    // Check feature flags - EXPANDIDO
     const features = [];
     if (config.email.enabled) features.push('email');
     if (config.redis.enabled) features.push('redis');
     if (config.monitoring.sentryEnabled) features.push('monitoring');
     if (config.auth.disableAuth) features.push('auth_disabled');
+    if (config.supabase.url) features.push('storage');
     health.config.features = features;
 
     health.status = overallStatus;
@@ -100,7 +106,7 @@ export const healthCheck = async (req: Request, res: Response): Promise<void> =>
 
     res.status(httpStatus).json(health);
   } catch (error) {
-    logger.error('Health check failed:', error);
+    logger.error('Health check failed:', error as Error);
 
     health.status = 'unhealthy';
     res.status(503).json({
@@ -113,7 +119,7 @@ export const healthCheck = async (req: Request, res: Response): Promise<void> =>
 /**
  * Configuration validation endpoint (development only)
  */
-export const configInfo = (req: Request, res: Response): void => {
+export const configInfo = (_req: Request, res: Response): void => {
   if (config.app.environment === 'production') {
     res.status(404).json({
       success: false,

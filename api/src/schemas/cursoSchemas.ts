@@ -4,18 +4,24 @@ import { sanitizeText, sanitizeHtml } from '../utils/sanitize';
 const nivelEnum = z.enum(['iniciante', 'intermedio', 'avancado']);
 
 // Custom sanitizing string transformers
-const sanitizedString = z.string().transform((val) => sanitizeText(val));
-const sanitizedHtmlString = z.string().transform((val) => sanitizeHtml(val));
+const sanitizedString = (minLength?: number) =>
+  z.string()
+    .min(minLength || 0)
+    .transform((val) => sanitizeText(val));
+
+const sanitizedHtmlString = () =>
+  z.string()
+    .transform((val) => sanitizeHtml(val));
 
 export const createCursoSchema = z.object({
   body: z
     .object({
-      nome: sanitizedString.min(3, 'Nome é obrigatório'),
-      descricao: sanitizedHtmlString.optional(),
+      nome: sanitizedString(3),
+      descricao: sanitizedHtmlString().optional(),
       dataInicio: z.string().datetime('Data de início inválida'),
       dataFim: z.string().datetime('Data de fim inválida'),
-      IDArea: z.number().int().positive('ID de área inválido'),
-      IDCategoria: z.number().int().positive('ID de categoria inválido'),
+      areaId: z.number().int().positive('ID de área inválido'), // Padronizado de IDArea
+      categoriaId: z.number().int().positive('ID de categoria inválido'), // Padronizado de IDCategoria
       nivel: nivelEnum.optional(),
       limiteVagas: z.number().int().positive('Limite de vagas deve ser pelo menos 1').optional().nullable(),
       dataLimiteInscricao: z.string().datetime('Data limite de inscrição inválida').optional().nullable(),
@@ -36,15 +42,20 @@ export const createCursoSchema = z.object({
 export const updateCursoSchema = z.object({
   body: z
     .object({
-      nome: sanitizedString.min(3, 'Nome deve ter no mínimo 3 caracteres').optional(),
-      descricao: sanitizedHtmlString.optional(),
+      nome: sanitizedString(3).optional(),
+      descricao: sanitizedHtmlString().optional(),
       dataInicio: z.string().datetime('Data inválida').optional(),
       dataFim: z.string().datetime('Data inválida').optional(),
       dataLimiteInscricao: z.string().datetime('Data inválida').optional().nullable(),
-      IDArea: z.number().int().positive('ID de área inválido').optional(),
-      IDCategoria: z.number().int().positive('ID de categoria inválido').optional(),
-      limiteVagas: z.number().int().min(1, 'Limite de vagas deve ser pelo menos 1').optional().nullable(),
+      areaId: z.number().int().positive('ID de área inválido').optional(), // Padronizado
+      categoriaId: z.number().int().positive('ID de categoria inválido').optional(), // Padronizado
       nivel: nivelEnum.optional(),
+      limiteVagas: z.number().int().positive('Limite de vagas deve ser pelo menos 1').optional().nullable(),
+      certificado: z.boolean().optional(),
+      visivel: z.boolean().optional(),
+      estado: z.enum(['planeado', 'em_curso', 'terminado', 'arquivado']).optional(),
+      cargaHoraria: z.number().int().positive('Carga horária inválida').optional().nullable(),
+      notaMinimaAprovacao: z.number().int().min(0, 'Nota deve ser pelo menos 0').max(20, 'Nota deve ser no máximo 20').optional(),
     })
     .refine(
       (data) => {

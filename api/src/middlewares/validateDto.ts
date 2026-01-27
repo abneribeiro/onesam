@@ -58,7 +58,7 @@ export const validateQuery = <T extends z.ZodTypeAny>(schema: T) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const validated = await schema.parseAsync(req.query);
-      req.query = validated;
+      (req as any).query = validated;
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -96,7 +96,7 @@ export const validateParams = <T extends z.ZodTypeAny>(schema: T) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const validated = await schema.parseAsync(req.params);
-      req.params = validated;
+      (req as any).params = validated;
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
