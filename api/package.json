@@ -28,7 +28,10 @@
     "db:benchmark": "bun run src/scripts/performance-benchmark.ts",
     "test:load": "bun run src/scripts/load-test.ts",
     "security:validate": "bun test src/__tests__/security --verbose",
-    "audit:generate-report": "bun run src/scripts/audit-report.ts"
+    "audit:generate-report": "bun run src/scripts/audit-report.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix"
   },
   "dependencies": {
     "@scalar/express-api-reference": "^0.8.22",
@@ -75,7 +78,10 @@
     "@types/supertest": "^6.0.3",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^11.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
     "drizzle-kit": "^0.31.9",
+    "eslint": "^10.0.2",
     "supertest": "^6.3.3",
     "typescript": "^5.9.3"
   }
