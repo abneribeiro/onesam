@@ -18,15 +18,15 @@ const clientEnvSchema = z.object({
   NEXT_PUBLIC_APP_VERSION: z.string().optional(),
 
   // Feature flags
-  NEXT_PUBLIC_ENABLE_ANALYTICS: z.string().transform(val => val === 'true').default('false'),
-  NEXT_PUBLIC_ENABLE_DEBUG: z.string().transform(val => val === 'true').default('false'),
+  NEXT_PUBLIC_ENABLE_ANALYTICS: z.string().default('false').transform(val => val === 'true'),
+  NEXT_PUBLIC_ENABLE_DEBUG: z.string().default('false').transform(val => val === 'true'),
 
   // File upload limits
-  NEXT_PUBLIC_MAX_FILE_SIZE: z.string().regex(/^\d+$/, 'NEXT_PUBLIC_MAX_FILE_SIZE must be a number').transform(Number).default('10485760'), // 10MB
+  NEXT_PUBLIC_MAX_FILE_SIZE: z.string().regex(/^\d+$/, 'NEXT_PUBLIC_MAX_FILE_SIZE must be a number').default('10485760').transform(Number), // 10MB
   NEXT_PUBLIC_ALLOWED_FILE_TYPES: z.string().default('jpg,jpeg,png,gif,pdf,doc,docx,ppt,pptx,mp4,webm'),
 
   // Video player configuration
-  NEXT_PUBLIC_ENABLE_VIDEO_ANALYTICS: z.string().transform(val => val === 'true').default('false'),
+  NEXT_PUBLIC_ENABLE_VIDEO_ANALYTICS: z.string().default('false').transform(val => val === 'true'),
   NEXT_PUBLIC_VIDEO_QUALITY_OPTIONS: z.string().default('480p,720p,1080p'),
 
   // Monitoring
@@ -88,6 +88,9 @@ try {
       process.exit(1);
     }
   }
+
+  // If validation failed, we can't proceed safely
+  throw new Error('Environment validation failed');
 }
 
 // Configuration object with validated values

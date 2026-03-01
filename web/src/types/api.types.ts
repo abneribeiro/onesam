@@ -186,3 +186,137 @@ export interface CursoFiltros {
   categoriaId?: number;
   areaId?: number;
 }
+
+// Quiz System Types
+export interface QuizBase {
+  id: number;
+  aulaId: number;
+  titulo: string;
+  notaMinima: number;
+  maxTentativas: number;
+  dataCriacao: Date;
+  dataAtualizacao?: Date;
+}
+
+export interface QuizPerguntaBase {
+  id: number;
+  quizId: number;
+  pergunta: string;
+  opcoesJson: string;
+  respostaCorreta: number;
+  ordem: number;
+  dataCriacao: Date;
+}
+
+export interface QuizTentativaBase {
+  id: number;
+  quizId: number;
+  utilizadorId: number;
+  respostasJson: string;
+  nota: number;
+  aprovado: boolean;
+  tentativa: number;
+  dataCriacao: Date;
+}
+
+// Quiz-specific types for frontend
+export interface QuizOpcao {
+  texto: string;
+  indice: number;
+}
+
+export interface QuizPerguntaCompleta extends Omit<QuizPerguntaBase, 'opcoesJson'> {
+  opcoes: QuizOpcao[];
+}
+
+export interface QuizCompleto extends QuizBase {
+  perguntas: QuizPerguntaCompleta[];
+}
+
+export interface QuizResposta {
+  perguntaId: number;
+  respostaSelecionada: number;
+}
+
+export interface QuizSubmissao {
+  quizId: number;
+  respostas: QuizResposta[];
+}
+
+export interface QuizResultado {
+  tentativa: QuizTentativaBase;
+  nota: number;
+  aprovado: boolean;
+  respostasCorretas: number;
+  totalPerguntas: number;
+  podeReitentar: boolean;
+  tentativasRestantes: number;
+}
+
+// Quiz input types for forms
+export interface CreateQuizPerguntaInput {
+  pergunta: string;
+  opcoes: string[];
+  respostaCorreta: number;
+  ordem?: number;
+}
+
+export interface CreateQuizInput {
+  aulaId: number;
+  titulo: string;
+  notaMinima?: number;
+  maxTentativas?: number;
+  perguntas: CreateQuizPerguntaInput[];
+}
+
+// Certificate System Types
+export interface CertificadoBase {
+  id: number;
+  utilizadorId: number;
+  cursoId: number;
+  codigoHash: string;
+  dataEmissao: Date;
+  dataCriacao: Date;
+}
+
+// Aliases for common usage
+export type Quiz = QuizBase;
+export type QuizPergunta = QuizPerguntaBase;
+export type QuizTentativa = QuizTentativaBase;
+export type Certificado = CertificadoBase;
+
+// Analytics Types
+export interface KPIData {
+  totalCursos: number;
+  totalUtilizadores: number;
+  totalInscricoes: number;
+  totalCertificados: number;
+  cursosAtivos: number;
+  taxaConclusaoMedia: number;
+}
+
+export interface ConclusaoMensal {
+  mes: string;
+  conclusoes: number;
+  certificados: number;
+}
+
+export interface CursoAnalytics {
+  cursoId: number;
+  cursoNome: string;
+  totalInscricoes: number;
+  conclusoes: number;
+  taxaConclusao: number;
+  certificadosEmitidos: number;
+}
+
+export interface ExportData {
+  utilizadorNome: string;
+  utilizadorEmail: string;
+  cursoNome: string;
+  dataInscricao: string;
+  estadoInscricao: string;
+  progressoPercentual: number;
+  dataConclusao?: string;
+  certificadoEmitido: boolean;
+}

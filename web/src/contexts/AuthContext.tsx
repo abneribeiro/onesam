@@ -9,7 +9,7 @@ import { SUCCESS_MESSAGES } from '../utils/constants';
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Interface for session user data
-interface SessionUser extends Partial<User> {
+interface SessionUser extends Omit<Partial<User>, 'id' | 'createdAt' | 'updatedAt'> {
   id: string | number;
   name?: string;
   email?: string;
