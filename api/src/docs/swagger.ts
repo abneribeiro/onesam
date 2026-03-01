@@ -497,6 +497,230 @@ Formato de erro:
           },
         },
       },
+
+      // Schemas de Quiz
+      QuizPergunta: {
+        type: 'object',
+        required: ['pergunta', 'opcoes', 'respostaCorreta'],
+        properties: {
+          pergunta: { type: 'string', minLength: 5, maxLength: 500, example: 'Qual é a capital de Portugal?' },
+          opcoes: {
+            type: 'array',
+            minItems: 2,
+            maxItems: 6,
+            items: { type: 'string', maxLength: 200 },
+            example: ['Lisboa', 'Porto', 'Coimbra', 'Braga'],
+          },
+          respostaCorreta: { type: 'integer', minimum: 0, example: 0 },
+          ordem: { type: 'integer', minimum: 1, example: 1 },
+        },
+      },
+
+      CreateQuizRequest: {
+        type: 'object',
+        required: ['aulaId', 'titulo', 'perguntas'],
+        properties: {
+          aulaId: { type: 'integer', minimum: 1, example: 1 },
+          titulo: { type: 'string', minLength: 3, maxLength: 255, example: 'Quiz de Geografia de Portugal' },
+          notaMinima: { type: 'number', minimum: 0, maximum: 20, default: 10, example: 12 },
+          maxTentativas: { type: 'integer', minimum: 1, maximum: 10, default: 3, example: 3 },
+          perguntas: {
+            type: 'array',
+            minItems: 1,
+            maxItems: 50,
+            items: { $ref: '#/components/schemas/QuizPergunta' },
+          },
+        },
+      },
+
+      UpdateQuizRequest: {
+        type: 'object',
+        properties: {
+          aulaId: { type: 'integer', minimum: 1, example: 1 },
+          titulo: { type: 'string', minLength: 3, maxLength: 255, example: 'Quiz de Geografia de Portugal (Atualizado)' },
+          notaMinima: { type: 'number', minimum: 0, maximum: 20, example: 12 },
+          maxTentativas: { type: 'integer', minimum: 1, maximum: 10, example: 5 },
+          perguntas: {
+            type: 'array',
+            minItems: 1,
+            maxItems: 50,
+            items: { $ref: '#/components/schemas/QuizPergunta' },
+          },
+        },
+      },
+
+      Quiz: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          aulaId: { type: 'integer', example: 1 },
+          titulo: { type: 'string', example: 'Quiz de Geografia de Portugal' },
+          notaMinima: { type: 'number', example: 12 },
+          maxTentativas: { type: 'integer', example: 3 },
+          criadoEm: { type: 'string', format: 'date-time' },
+          atualizadoEm: { type: 'string', format: 'date-time' },
+          totalPerguntas: { type: 'integer', example: 10 },
+        },
+      },
+
+      QuizCompleto: {
+        allOf: [
+          { $ref: '#/components/schemas/Quiz' },
+          {
+            type: 'object',
+            properties: {
+              perguntas: {
+                type: 'array',
+                items: {
+                  allOf: [
+                    { $ref: '#/components/schemas/QuizPergunta' },
+                    {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'integer', example: 1 },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      },
+
+      QuizParaResolver: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          titulo: { type: 'string', example: 'Quiz de Geografia de Portugal' },
+          notaMinima: { type: 'number', example: 12 },
+          maxTentativas: { type: 'integer', example: 3 },
+          tentativasRealizadas: { type: 'integer', example: 1 },
+          perguntas: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer', example: 1 },
+                pergunta: { type: 'string', example: 'Qual é a capital de Portugal?' },
+                opcoes: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  example: ['Lisboa', 'Porto', 'Coimbra', 'Braga'],
+                },
+                ordem: { type: 'integer', example: 1 },
+              },
+            },
+          },
+        },
+      },
+
+      SubmitQuizRequest: {
+        type: 'object',
+        required: ['respostas'],
+        properties: {
+          respostas: {
+            type: 'array',
+            minItems: 1,
+            maxItems: 50,
+            items: {
+              type: 'object',
+              required: ['perguntaId', 'respostaSelecionada'],
+              properties: {
+                perguntaId: { type: 'integer', minimum: 1, example: 1 },
+                respostaSelecionada: { type: 'integer', minimum: 0, example: 0 },
+              },
+            },
+          },
+        },
+      },
+
+      QuizResult: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          nota: { type: 'number', minimum: 0, maximum: 20, example: 15.5 },
+          aprovado: { type: 'boolean', example: true },
+          totalPerguntas: { type: 'integer', example: 10 },
+          respostasCorretas: { type: 'integer', example: 8 },
+          tentativa: { type: 'integer', example: 2 },
+          dataSubmissao: { type: 'string', format: 'date-time' },
+          tempoResolucao: { type: 'integer', description: 'Tempo em segundos', example: 1200 },
+        },
+      },
+
+      QuizAttempt: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          quizId: { type: 'integer', example: 1 },
+          utilizadorId: { type: 'integer', example: 1 },
+          nota: { type: 'number', minimum: 0, maximum: 20, example: 15.5 },
+          aprovado: { type: 'boolean', example: true },
+          tentativa: { type: 'integer', example: 2 },
+          dataSubmissao: { type: 'string', format: 'date-time' },
+          tempoResolucao: { type: 'integer', description: 'Tempo em segundos', example: 1200 },
+          respostasCorretas: { type: 'integer', example: 8 },
+          totalPerguntas: { type: 'integer', example: 10 },
+        },
+      },
+
+      // Schemas de Certificado
+      Certificate: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          codigo: { type: 'string', example: 'CERT-ABC123XYZ' },
+          cursoId: { type: 'integer', example: 1 },
+          utilizadorId: { type: 'integer', example: 1 },
+          notaFinal: { type: 'number', minimum: 0, maximum: 20, example: 17.5 },
+          dataEmissao: { type: 'string', format: 'date-time' },
+          validoAte: { type: 'string', format: 'date-time', nullable: true },
+          curso: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer', example: 1 },
+              nome: { type: 'string', example: 'Curso de Programação Web' },
+              cargaHoraria: { type: 'integer', example: 40 },
+              categoria: { type: 'string', example: 'Tecnologia' },
+            },
+          },
+          utilizador: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer', example: 1 },
+              nome: { type: 'string', example: 'João Silva' },
+              email: { type: 'string', format: 'email', example: 'joao.silva@example.com' },
+            },
+          },
+        },
+      },
+
+      CertificateValidation: {
+        type: 'object',
+        properties: {
+          valido: { type: 'boolean', example: true },
+          codigo: { type: 'string', example: 'CERT-ABC123XYZ' },
+          dataEmissao: { type: 'string', format: 'date-time' },
+          validoAte: { type: 'string', format: 'date-time', nullable: true },
+          curso: {
+            type: 'object',
+            properties: {
+              nome: { type: 'string', example: 'Curso de Programação Web' },
+              cargaHoraria: { type: 'integer', example: 40 },
+              categoria: { type: 'string', example: 'Tecnologia' },
+              instituicao: { type: 'string', example: 'OneSAM Platform' },
+            },
+          },
+          formando: {
+            type: 'object',
+            properties: {
+              nome: { type: 'string', example: 'João Silva' },
+              notaFinal: { type: 'number', minimum: 0, maximum: 20, example: 17.5 },
+            },
+          },
+        },
+      },
     },
   },
 
@@ -2902,6 +3126,609 @@ Formato de erro:
         },
       },
     },
+
+    // Quiz Endpoints - Sistema de Avaliações
+    '/quizzes': {
+      post: {
+        tags: ['Quizzes'],
+        summary: 'Criar novo quiz',
+        description: 'Cria um novo quiz para uma aula específica (apenas admins)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/CreateQuizRequest' },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Quiz criado com sucesso',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: { $ref: '#/components/schemas/Quiz' },
+                    mensagem: { type: 'string', example: 'Quiz criado com sucesso' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Dados inválidos' },
+          '401': { description: 'Não autenticado' },
+          '403': { description: 'Sem permissão para criar quizzes' },
+          '404': { description: 'Aula não encontrada' },
+        },
+      },
+    },
+
+    '/quizzes/aula/{aulaId}': {
+      get: {
+        tags: ['Quizzes'],
+        summary: 'Listar quizzes por aula',
+        description: 'Lista todos os quizzes de uma aula específica',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'aulaId',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID da aula',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Lista de quizzes da aula',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Quiz' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Não autenticado' },
+          '404': { description: 'Aula não encontrada' },
+        },
+      },
+    },
+
+    '/quizzes/{id}': {
+      get: {
+        tags: ['Quizzes'],
+        summary: 'Obter quiz específico',
+        description: 'Retorna detalhes completos de um quiz (apenas admins)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do quiz',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Dados do quiz',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: { $ref: '#/components/schemas/QuizCompleto' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Não autenticado' },
+          '403': { description: 'Sem permissão para ver este quiz' },
+          '404': { description: 'Quiz não encontrado' },
+        },
+      },
+      put: {
+        tags: ['Quizzes'],
+        summary: 'Atualizar quiz',
+        description: 'Atualiza um quiz existente (apenas admins)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do quiz',
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UpdateQuizRequest' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Quiz atualizado com sucesso',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: { $ref: '#/components/schemas/Quiz' },
+                    mensagem: { type: 'string', example: 'Quiz atualizado com sucesso' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Dados inválidos' },
+          '401': { description: 'Não autenticado' },
+          '403': { description: 'Sem permissão para atualizar quiz' },
+          '404': { description: 'Quiz não encontrado' },
+        },
+      },
+      delete: {
+        tags: ['Quizzes'],
+        summary: 'Deletar quiz',
+        description: 'Remove um quiz permanentemente (apenas admins)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do quiz',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Quiz deletado com sucesso',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    mensagem: { type: 'string', example: 'Quiz deletado com sucesso' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Não autenticado' },
+          '403': { description: 'Sem permissão para deletar quiz' },
+          '404': { description: 'Quiz não encontrado' },
+        },
+      },
+    },
+
+    '/quizzes/{id}/resolver': {
+      get: {
+        tags: ['Quizzes'],
+        summary: 'Obter quiz para resolver',
+        description: 'Retorna quiz preparado para resolução (sem respostas corretas)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do quiz',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Quiz para resolução',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: { $ref: '#/components/schemas/QuizParaResolver' },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Não autenticado' },
+          '403': { description: 'Sem permissão ou quiz já concluído' },
+          '404': { description: 'Quiz não encontrado' },
+        },
+      },
+    },
+
+    '/quizzes/{id}/submeter': {
+      post: {
+        tags: ['Quizzes'],
+        summary: 'Submeter quiz',
+        description: 'Submete respostas de um quiz para avaliação (com rate limiting)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do quiz',
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/SubmitQuizRequest' },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Quiz submetido com sucesso',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: { $ref: '#/components/schemas/QuizResult' },
+                    mensagem: { type: 'string', example: 'Quiz submetido com sucesso' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Dados inválidos ou quiz já submetido' },
+          '401': { description: 'Não autenticado' },
+          '403': { description: 'Sem permissão ou limite de tentativas excedido' },
+          '404': { description: 'Quiz não encontrado' },
+          '429': { description: 'Rate limit excedido - aguarde antes de tentar novamente' },
+        },
+      },
+    },
+
+    '/quizzes/{id}/tentativas': {
+      get: {
+        tags: ['Quizzes'],
+        summary: 'Obter tentativas do quiz',
+        description: 'Lista tentativas realizadas pelo utilizador neste quiz',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do quiz',
+          },
+          {
+            name: 'pagina',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, default: 1 },
+            description: 'Número da página',
+          },
+          {
+            name: 'limite',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+            description: 'Limite de resultados por página',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Lista de tentativas do quiz',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: {
+                      type: 'object',
+                      properties: {
+                        tentativas: {
+                          type: 'array',
+                          items: { $ref: '#/components/schemas/QuizAttempt' },
+                        },
+                        total: { type: 'integer' },
+                        pagina: { type: 'integer' },
+                        limite: { type: 'integer' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Não autenticado' },
+          '404': { description: 'Quiz não encontrado' },
+        },
+      },
+    },
+
+    '/quizzes/{id}/pode-reitentar': {
+      get: {
+        tags: ['Quizzes'],
+        summary: 'Verificar se pode reitentar',
+        description: 'Verifica se o utilizador pode fazer nova tentativa no quiz',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do quiz',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Status de retry disponível',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: {
+                      type: 'object',
+                      properties: {
+                        podeReitentar: { type: 'boolean' },
+                        tentativasRealizadas: { type: 'integer' },
+                        maxTentativas: { type: 'integer' },
+                        ultimaTentativa: { type: 'string', format: 'date-time', nullable: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Não autenticado' },
+          '404': { description: 'Quiz não encontrado' },
+        },
+      },
+    },
+
+    // Certificate Endpoints - Sistema de Certificados
+    '/certificados/validar/{codigo}': {
+      get: {
+        tags: ['Certificados'],
+        summary: 'Validar certificado (público)',
+        description: 'Valida a autenticidade de um certificado usando seu código único. Endpoint público.',
+        parameters: [
+          {
+            name: 'codigo',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              pattern: '^[a-zA-Z0-9]{8,64}$',
+            },
+            description: 'Código único do certificado (8-64 caracteres alfanuméricos)',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Certificado válido',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: { $ref: '#/components/schemas/CertificateValidation' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Código do certificado inválido' },
+          '404': { description: 'Certificado não encontrado ou inválido' },
+        },
+      },
+    },
+
+    '/certificados': {
+      get: {
+        tags: ['Certificados'],
+        summary: 'Listar meus certificados',
+        description: 'Lista todos os certificados do utilizador autenticado com filtros opcionais',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'pagina',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, default: 1 },
+            description: 'Número da página',
+          },
+          {
+            name: 'limite',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+            description: 'Limite de resultados por página',
+          },
+          {
+            name: 'cursoNome',
+            in: 'query',
+            schema: { type: 'string', maxLength: 255 },
+            description: 'Filtrar por nome do curso',
+          },
+          {
+            name: 'dataInicio',
+            in: 'query',
+            schema: { type: 'string', format: 'date-time' },
+            description: 'Data de início do período de filtragem',
+          },
+          {
+            name: 'dataFim',
+            in: 'query',
+            schema: { type: 'string', format: 'date-time' },
+            description: 'Data de fim do período de filtragem',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Lista de certificados',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: {
+                      type: 'object',
+                      properties: {
+                        certificados: {
+                          type: 'array',
+                          items: { $ref: '#/components/schemas/Certificate' },
+                        },
+                        total: { type: 'integer' },
+                        pagina: { type: 'integer' },
+                        limite: { type: 'integer' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Parâmetros de consulta inválidos' },
+          '401': { description: 'Não autenticado' },
+        },
+      },
+    },
+
+    '/certificados/download/{cursoId}': {
+      get: {
+        tags: ['Certificados'],
+        summary: 'Download do certificado',
+        description: 'Download do certificado em PDF para um curso específico (com rate limiting)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'cursoId',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do curso',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Arquivo PDF do certificado',
+            content: {
+              'application/pdf': {
+                schema: {
+                  type: 'string',
+                  format: 'binary',
+                },
+              },
+            },
+            headers: {
+              'Content-Disposition': {
+                description: 'Nome do arquivo do certificado',
+                schema: { type: 'string' },
+              },
+            },
+          },
+          '401': { description: 'Não autenticado' },
+          '403': { description: 'Curso não concluído ou certificado não disponível' },
+          '404': { description: 'Curso ou certificado não encontrado' },
+          '429': { description: 'Rate limit excedido - aguarde antes de tentar novamente' },
+        },
+      },
+    },
+
+    '/certificados/elegibilidade/{cursoId}': {
+      get: {
+        tags: ['Certificados'],
+        summary: 'Verificar elegibilidade para certificado',
+        description: 'Verifica se o utilizador é elegível para receber certificado do curso',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'cursoId',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do curso',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Status de elegibilidade',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: {
+                      type: 'object',
+                      properties: {
+                        elegivel: { type: 'boolean' },
+                        motivo: { type: 'string', nullable: true },
+                        progressoCurso: { type: 'number', minimum: 0, maximum: 100 },
+                        notaFinal: { type: 'number', minimum: 0, maximum: 20, nullable: true },
+                        notaMinimaRequerida: { type: 'number', minimum: 0, maximum: 20 },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': { description: 'Não autenticado' },
+          '404': { description: 'Curso não encontrado ou utilizador não inscrito' },
+        },
+      },
+    },
+
+    '/certificados/gerar/{cursoId}': {
+      post: {
+        tags: ['Certificados'],
+        summary: 'Gerar certificado',
+        description: 'Gera um novo certificado para o curso concluído (com rate limiting)',
+        security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+        parameters: [
+          {
+            name: 'cursoId',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+            description: 'ID do curso',
+          },
+        ],
+        responses: {
+          '201': {
+            description: 'Certificado gerado com sucesso',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    dados: { $ref: '#/components/schemas/Certificate' },
+                    mensagem: { type: 'string', example: 'Certificado gerado com sucesso' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Certificado já existe ou curso não concluído' },
+          '401': { description: 'Não autenticado' },
+          '403': { description: 'Não elegível para certificado' },
+          '404': { description: 'Curso não encontrado' },
+          '429': { description: 'Rate limit excedido - aguarde antes de tentar novamente' },
+        },
+      },
+    },
   },
 
   // Tags organizadas por módulo
@@ -2953,6 +3780,14 @@ Formato de erro:
     {
       name: 'Reviews',
       description: 'Sistema de avaliações e reviews de cursos',
+    },
+    {
+      name: 'Quizzes',
+      description: 'Sistema de quizzes e avaliações de aprendizagem',
+    },
+    {
+      name: 'Certificados',
+      description: 'Gestão e validação de certificados de conclusão',
     },
   ],
 };
