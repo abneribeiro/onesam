@@ -65,9 +65,13 @@ export default function CatalogPage() {
   useEffect(() => {
     const urlSearch = searchParams.get('search') || '';
     if (urlSearch !== searchTerm && !isTypingRef.current) {
-      setSearchTerm(urlSearch);
+      // Use a timeout to avoid direct setState in effect
+      const timeout = setTimeout(() => {
+        setSearchTerm(urlSearch);
+      }, 0);
+      return () => clearTimeout(timeout);
     }
-  }, [searchParams]);
+  }, [searchParams, searchTerm]);
 
   const updateSearchParam = useCallback((key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());

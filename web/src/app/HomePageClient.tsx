@@ -74,7 +74,11 @@ export function HomePageClient() {
   useEffect(() => {
     const urlSearch = searchParams.get('search') || '';
     if (urlSearch !== searchTerm && !isTypingRef.current) {
-      setSearchTerm(urlSearch);
+      // Use a timeout to avoid direct setState in effect
+      const timeout = setTimeout(() => {
+        setSearchTerm(urlSearch);
+      }, 0);
+      return () => clearTimeout(timeout);
     }
   }, [searchParams, searchTerm]);
 

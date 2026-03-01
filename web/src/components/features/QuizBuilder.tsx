@@ -226,7 +226,7 @@ export function QuizBuilder({ aulaId }: QuizBuilderProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Eliminar Quiz</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza de que deseja eliminar o quiz "{quizToDelete?.titulo}"?
+              Tem certeza de que deseja eliminar o quiz &quot;{quizToDelete?.titulo}&quot;?
               Esta ação não pode ser desfeita e todos os dados de tentativas dos alunos serão perdidos.
             </AlertDialogDescription>
           </AlertDialogHeader>

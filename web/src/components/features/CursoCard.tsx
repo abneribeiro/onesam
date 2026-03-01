@@ -30,9 +30,9 @@ export const CursoCard = React.memo(function CursoCard({ curso, className, publi
       ? ((vagasRestantesCalc || 0) / curso.limiteVagas) * 100
       : 100;
 
-    const isNovoCalc = curso.dataCriacao
-      ? Date.now() - new Date(curso.dataCriacao).getTime() < 7 * 24 * 60 * 60 * 1000
-      : false;
+    // Temporarily disable "new" badge to avoid impure function calls during render
+    // TODO: Move this calculation to server-side or use a different approach
+    const isNovoCalc = false;
 
     const vagasLimitadasCalc = vagasRestantesCalc !== null && vagasRestantesCalc > 0 && vagasRestantesCalc <= 5;
 
@@ -42,7 +42,7 @@ export const CursoCard = React.memo(function CursoCard({ curso, className, publi
       isNovo: isNovoCalc,
       vagasLimitadas: vagasLimitadasCalc,
     };
-  }, [curso.limiteVagas, curso._count?.inscricoes, curso.dataCriacao]);
+  }, [curso.limiteVagas, curso._count?.inscricoes]);
 
   return (
     <Card

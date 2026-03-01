@@ -84,7 +84,7 @@ function createAuthAwareQueryClient() {
 
           // Don't retry client errors (400-499)
           if (error instanceof Error && 'response' in error) {
-            const status = (error as any).response?.status;
+            const status = (error as { response?: { status?: number } }).response?.status;
             if (status && status >= 400 && status < 500) {
               return false;
             }
@@ -104,7 +104,7 @@ function createAuthAwareQueryClient() {
 
           // Don't retry client errors
           if (error instanceof Error && 'response' in error) {
-            const status = (error as any).response?.status;
+            const status = (error as { response?: { status?: number } }).response?.status;
             if (status && status >= 400 && status < 500) {
               return false;
             }

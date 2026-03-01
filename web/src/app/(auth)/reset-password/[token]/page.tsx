@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, memo, useCallback } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -40,14 +40,10 @@ const ResetPasswordPage = memo(function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string>('');
-  const [tokenValid, setTokenValid] = useState(true);
 
-  useEffect(() => {
-    if (!token) {
-      setTokenValid(false);
-      setError('Token inválido ou ausente');
-    }
-  }, [token]);
+  // Derive token validity from token instead of using useEffect
+  const tokenValid = !!token;
+  const initialError = !token ? 'Token inválido ou ausente' : '';
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -97,7 +93,7 @@ const ResetPasswordPage = memo(function ResetPasswordPage() {
           </CardHeader>
           <CardContent className="px-6 pb-8">
             <Alert variant="destructive" className="mb-6">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{initialError}</AlertDescription>
             </Alert>
 
             <Link href="/forgot-password">

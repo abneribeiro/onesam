@@ -27,7 +27,7 @@ export function ExportarButton({
     exportCSV.mutate();
   };
 
-  const ButtonContent = () => (
+  const buttonContent = useMemo(() => (
     <>
       {exportCSV.isPending ? (
         <Download className="h-4 w-4 animate-pulse" />
@@ -40,7 +40,7 @@ export function ExportarButton({
         </span>
       )}
     </>
-  );
+  ), [exportCSV.isPending, showText]);
 
   if (!showText) {
     return (
@@ -54,7 +54,7 @@ export function ExportarButton({
               size={size}
               className={className}
             >
-              <ButtonContent />
+              {buttonContent}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
@@ -73,7 +73,7 @@ export function ExportarButton({
       size={size}
       className={className}
     >
-      <ButtonContent />
+      {buttonContent}
     </Button>
   );
 }

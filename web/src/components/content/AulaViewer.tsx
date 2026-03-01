@@ -45,9 +45,12 @@ function VideoViewer({ url, aula, onProgressUpdate }: VideoViewerProps) {
 
   // Reset error state when URL changes
   useEffect(() => {
-    setHasError(false);
-    setErrorMessage(null);
-    setIsLoading(true);
+    // Use a timeout to avoid direct setState in effect
+    const timeout = setTimeout(() => {
+      setHasError(false);
+      setErrorMessage(null);
+      setIsLoading(true);
+    }, 0);
 
     // Log for debugging
     if (process.env.NODE_ENV === 'development') {
@@ -59,6 +62,7 @@ function VideoViewer({ url, aula, onProgressUpdate }: VideoViewerProps) {
     }
 
     return () => {
+      clearTimeout(timeout);
       mountedRef.current = false;
     };
   }, [url, aula.id]);

@@ -140,7 +140,7 @@ class ApiService {
   /**
    * Parse validation errors into a more usable format
    */
-  private parseValidationErrors(details: any[]): Array<{ field: string; message: string }> {
+  private parseValidationErrors(details: Array<{ campo?: string; field?: string; message?: string; mensagem?: string }>): Array<{ field: string; message: string }> {
     if (!Array.isArray(details)) {
       return [];
     }
@@ -179,7 +179,7 @@ class ApiService {
     maxRetries: number = 2,
     delay: number = 1000
   ): Promise<T> {
-    let lastError: any;
+    let lastError: unknown;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {

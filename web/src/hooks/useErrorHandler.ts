@@ -152,8 +152,8 @@ export function useQueryErrorHandler() {
   const shouldRetry = useCallback((error: unknown): boolean => {
     // Don't retry on client errors (4xx)
     if (typeof error === 'object' && error !== null && 'response' in error) {
-      const response = (error as any).response;
-      if (response?.status >= 400 && response?.status < 500) {
+      const response = (error as { response?: { status?: number } }).response;
+      if (response?.status && response.status >= 400 && response.status < 500) {
         return false;
       }
     }

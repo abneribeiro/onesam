@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useMemo, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import { authClient, useSession, type User } from '../lib/auth-client';
 import type { Utilizador, AuthContextType, RegisterInput, TipoPerfil } from '../types';
@@ -49,7 +49,6 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const session = useSession();
-  const [initialCheckDone, setInitialCheckDone] = useState(false);
 
   // Only consider user authenticated if we have both session data AND tipoPerfil
   // This prevents the flash of wrong profile content
@@ -61,13 +60,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAuthenticated = !!currentUser;
   const loading = session.isPending;
 
-  useEffect(() => {
-    // Only set initialCheckDone when session loading is complete
-    // This prevents premature rendering before auth state is known
-    if (!session.isPending && !initialCheckDone) {
-      setInitialCheckDone(true);
-    }
-  }, [session.isPending, initialCheckDone]);
+  // Derive initialCheckDone from session state instead of using useEffect
+  const initialCheckDone = !session.isPending;
 
   const login = useCallback(async (email: string, password: string) => {
     const result = await authClient.signIn.email({
