@@ -142,6 +142,17 @@ export interface ApiResponse<T> {
 export interface ApiError {
   erro: string;
   detalhes?: string | string[];
+  // Enhanced error format from new backend
+  error?: {
+    code?: string;
+    message?: string;
+    details?: Array<{
+      campo?: string;
+      mensagem?: string;
+      field?: string;
+      message?: string;
+    }>;
+  };
 }
 
 // Tipos para formulários (dados de input) - sincronizado com Schema DB
