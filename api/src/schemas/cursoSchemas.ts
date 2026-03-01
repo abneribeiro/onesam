@@ -72,13 +72,13 @@ export const updateCursoSchema = z.object({
       }
     ),
   params: z.object({
-    IDCurso: z.string().regex(/^\d+$/, 'ID inválido'),
+    id: z.string().regex(/^\d+$/, 'ID inválido'),
   }),
 });
 
 export const getCursoSchema = z.object({
   params: z.object({
-    IDCurso: z.string().regex(/^\d+$/, 'ID inválido'),
+    id: z.string().regex(/^\d+$/, 'ID inválido'),
   }),
 });
 
@@ -100,6 +100,6 @@ export const reativarCursoSchema = z.object({
       }
     ),
   params: z.object({
-    IDCurso: z.string().regex(/^\d+$/, 'ID inválido'),
+    id: z.string().regex(/^\d+$/, 'ID inválido'),
   }),
 });
