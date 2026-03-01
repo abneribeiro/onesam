@@ -8,6 +8,8 @@ interface ApiErrorResponse {
   erro?: string;
   mensagem?: string;
   erros?: ValidationError[];
+  // Enhanced error response from new backend validation
+  parsedValidationErrors?: Array<{ field: string; message: string }>;
 }
 
 interface ErrorWithResponse {
@@ -26,21 +28,65 @@ function isErrorWithResponse(error: unknown): error is ErrorWithResponse {
   );
 }
 
+/**
+ * Check if error is an authentication error (401)
+ */
+export const isAuthenticationError = (error: unknown): boolean => {
+  return isErrorWithResponse(error) && error.response?.status === 401;
+};
+
+/**
+ * Check if error is a permission error (403)
+ */
+export const isPermissionError = (error: unknown): boolean => {
+  return isErrorWithResponse(error) && error.response?.status === 403;
+};
+
+/**
+ * Check if error is a validation error (400 with validation details)
+ */
+export const isValidationError = (error: unknown): boolean => {
+  if (!isErrorWithResponse(error) || error.response?.status !== 400) {
+    return false;
+  }
+
+  const data = error.response.data;
+  return !!(
+    data?.error?.details ||
+    data?.erros ||
+    data?.parsedValidationErrors
+  );
+};
+
+/**
+ * Check if error is a rate limiting error (429)
+ */
+export const isRateLimitError = (error: unknown): boolean => {
+  return isErrorWithResponse(error) && error.response?.status === 429;
+};
+
+/**
+ * Extract error message with enhanced support for new backend formats
+ */
 export const extractErrorMessage = (error: unknown, defaultMessage: string): string => {
   if (!isErrorWithResponse(error)) {
     return defaultMessage;
   }
 
-  if (error.response?.data?.error?.message) {
-    return String(error.response.data.error.message);
+  const data = error.response?.data;
+
+  // New backend format (standardized)
+  if (data?.error?.message) {
+    return String(data.error.message);
   }
 
-  if (error.response?.data?.erro) {
-    return String(error.response.data.erro);
+  // Legacy formats (maintain compatibility)
+  if (data?.erro) {
+    return String(data.erro);
   }
 
-  if (error.response?.data?.mensagem) {
-    return String(error.response.data.mensagem);
+  if (data?.mensagem) {
+    return String(data.mensagem);
   }
 
   if (error.message) {
@@ -66,20 +112,68 @@ export interface ValidationError {
   message?: string;
 }
 
+/**
+ * Enhanced validation error extraction supporting new backend formats
+ */
 export const extractValidationErrors = (error: unknown): ValidationError[] => {
   if (!isErrorWithResponse(error)) {
     return [];
   }
 
-  if (error.response?.data?.error?.details && Array.isArray(error.response.data.error.details)) {
-    return error.response.data.error.details.map(d => ({
-      campo: d.campo || d.field || '',
-      mensagem: d.mensagem || d.message || ''
+  const data = error.response?.data;
+
+  // Enhanced format from API interceptor
+  if (data?.parsedValidationErrors && Array.isArray(data.parsedValidationErrors)) {
+    return data.parsedValidationErrors.map(e => ({
+      campo: e.field,
+      mensagem: e.message,
+      field: e.field,
+      message: e.message,
     }));
   }
 
-  if (error.response?.data?.erros && Array.isArray(error.response.data.erros)) {
-    return error.response.data.erros;
+  // New backend format
+  if (data?.error?.details && Array.isArray(data.error.details)) {
+    return data.error.details.map(d => ({
+      campo: d.campo || d.field || '',
+      mensagem: d.mensagem || d.message || '',
+      field: d.campo || d.field || '',
+      message: d.mensagem || d.message || ''
+    }));
   }
+
+  // Legacy format (maintain compatibility)
+  if (data?.erros && Array.isArray(data.erros)) {
+    return data.erros;
+  }
+
   return [];
+};
+
+/**
+ * Get user-friendly error messages for specific error types
+ */
+export const getErrorTypeMessage = (error: unknown): string => {
+  if (isAuthenticationError(error)) {
+    return 'Sessão expirada. Por favor, faça login novamente.';
+  }
+
+  if (isPermissionError(error)) {
+    return 'Acesso negado. Não tem permissões para realizar esta operação.';
+  }
+
+  if (isRateLimitError(error)) {
+    return 'Limite de requisições excedido. Tente novamente em alguns minutos.';
+  }
+
+  if (isValidationError(error)) {
+    const validationErrors = extractValidationErrors(error);
+    if (validationErrors.length > 0) {
+      return `Dados inválidos: ${validationErrors.map(e => e.mensagem).join(', ')}`;
+    }
+    return 'Dados inválidos. Verifique os campos e tente novamente.';
+  }
+
+  // Fallback to generic error message
+  return extractErrorMessage(error, 'Ocorreu um erro inesperado');
 };
