@@ -70,7 +70,7 @@ export class UtilizadorService {
 
       return await utilizadorRepository.findAll();
     } catch (error) {
-      logger.error('Error listing users:', error);
+      logger.error('Error listing users:', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Erro ao listar utilizadores');
     }
   }
@@ -97,7 +97,7 @@ export class UtilizadorService {
       logger.debug('User retrieved:', { userId, requestedBy: requestingUserId });
       return utilizador;
     } catch (error) {
-      logger.error('Error getting user:', error);
+      logger.error('Error getting user:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -114,7 +114,7 @@ export class UtilizadorService {
 
       return utilizador;
     } catch (error) {
-      logger.error('Error getting current profile:', error);
+      logger.error('Error getting current profile:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -142,7 +142,7 @@ export class UtilizadorService {
 
       return utilizadorAtualizado;
     } catch (error) {
-      logger.error('Error updating user:', error);
+      logger.error('Error updating user:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -180,7 +180,7 @@ export class UtilizadorService {
 
       return { success: true, message: 'Senha alterada com sucesso' };
     } catch (error) {
-      logger.error('Error changing password:', error);
+      logger.error('Error changing password:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -204,7 +204,7 @@ export class UtilizadorService {
         try {
           await supabaseStorageService.deleteOldAvatar(utilizador.avatar);
         } catch (error) {
-          logger.warn('Failed to delete old avatar:', error);
+          logger.warn('Failed to delete old avatar:', { error: String(error) });
           // Don't throw - continue with upload
         }
       }
@@ -222,7 +222,7 @@ export class UtilizadorService {
       logger.info('Avatar updated successfully:', { userId, avatarUrl });
       return { avatar: avatarUrl };
     } catch (error) {
-      logger.error('Error updating avatar:', error);
+      logger.error('Error updating avatar:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -247,7 +247,7 @@ export class UtilizadorService {
 
       return { success: true, message: 'Utilizador deletado com sucesso' };
     } catch (error) {
-      logger.error('Error deleting user:', error);
+      logger.error('Error deleting user:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -285,7 +285,7 @@ export class UtilizadorService {
       logger.info('User created successfully:', { userId: novoUtilizador?.id, email, tipoPerfil });
       return novoUtilizador;
     } catch (error) {
-      logger.error('Error creating user:', error);
+      logger.error('Error creating user:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -321,7 +321,7 @@ export class UtilizadorService {
       logger.info('User updated by admin:', { userId, updatedFields: Object.keys(userUpdateData) });
       return utilizadorAtualizado;
     } catch (error) {
-      logger.error('Error in admin user update:', error);
+      logger.error('Error in admin user update:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -345,7 +345,7 @@ export class UtilizadorService {
         message: `Utilizador ${novoEstado ? 'ativado' : 'desativado'} com sucesso`
       };
     } catch (error) {
-      logger.error('Error toggling user status:', error);
+      logger.error('Error toggling user status:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -378,7 +378,7 @@ export class UtilizadorService {
         message: `${deletedCount} utilizador(es) eliminado(s) com sucesso`
       };
     } catch (error) {
-      logger.error('Error in bulk user deletion:', error);
+      logger.error('Error in bulk user deletion:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -390,7 +390,7 @@ export class UtilizadorService {
     try {
       return await utilizadorRepository.findByEmail(email);
     } catch (error) {
-      logger.error('Error getting user by email:', error);
+      logger.error('Error getting user by email:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -403,7 +403,7 @@ export class UtilizadorService {
       const utilizador = await utilizadorRepository.findById(userId);
       return !!utilizador;
     } catch (error) {
-      logger.error('Error checking user existence:', error);
+      logger.error('Error checking user existence:', error instanceof Error ? error : new Error(String(error)));
       return false;
     }
   }

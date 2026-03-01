@@ -14,7 +14,7 @@
  * Usage: bun run src/scripts/gap-analysis.ts
  */
 
-import { readdirSync, statSync, existsSync, readFileSync } from 'fs';
+import { readdirSync, statSync, existsSync } from 'fs';
 import { writeFileSync } from 'fs';
 import path from 'path';
 
@@ -45,11 +45,9 @@ interface GapAnalysisReport {
 }
 
 class GapAnalyzer {
-  private projectRoot: string;
   private apiRoot: string;
 
   constructor() {
-    this.projectRoot = path.resolve(process.cwd(), '..');
     this.apiRoot = process.cwd() + '/src';
   }
 
@@ -341,7 +339,7 @@ class GapAnalyzer {
 }
 
 // Execute if run directly
-if (import.meta.main) {
+if (require.main === module) {
   const analyzer = new GapAnalyzer();
 
   analyzer.analyze()

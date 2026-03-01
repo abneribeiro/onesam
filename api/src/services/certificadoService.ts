@@ -1,6 +1,5 @@
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
 import crypto from 'crypto';
-import path from 'path';
 import { certificadoRepository } from '../repositories/certificadoRepository';
 import { cursoRepository } from '../repositories/cursoRepository';
 import { utilizadorRepository } from '../repositories/utilizadorRepository';
@@ -115,7 +114,7 @@ export class CertificadoService {
    * Generates PDF certificate
    */
   async gerarPDF(codigoHash: string): Promise<Buffer> {
-    let browser: puppeteer.Browser | null = null;
+    let browser: Browser | null = null;
 
     try {
       const dados = await this.obterDadosCertificado(codigoHash);
@@ -152,7 +151,7 @@ export class CertificadoService {
         }
       });
 
-      return pdf;
+      return Buffer.from(pdf);
     } catch (error) {
       logger.error('Erro ao gerar PDF do certificado', { codigoHash, error });
       throw new Error('Erro interno ao gerar certificado');

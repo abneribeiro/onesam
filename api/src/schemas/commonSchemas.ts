@@ -50,9 +50,7 @@ export const sortingSchema = z.object({
     .regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/, 'Campo de ordenação inválido')
     .optional(),
   direcao: z
-    .enum(['asc', 'desc'], {
-      errorMap: () => ({ message: 'Direção deve ser "asc" ou "desc"' })
-    })
+    .enum(['asc', 'desc'], { message: 'Direção deve ser "asc" ou "desc"' })
     .optional()
     .default('asc'),
 });
@@ -100,9 +98,7 @@ export const bulkOperationSchema = z.object({
  * Used for image and document uploads
  */
 export const fileUploadSchema = z.object({
-  tipo: z.enum(['imagem', 'documento', 'video'], {
-    errorMap: () => ({ message: 'Tipo de arquivo inválido' })
-  }),
+  tipo: z.enum(['imagem', 'documento', 'video'], { message: 'Tipo de arquivo inválido' }),
   tamanhoMaximo: z.number().int().positive().optional(),
 });
 

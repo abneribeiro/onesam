@@ -148,7 +148,7 @@ export class AulaService {
         mimeType
       );
       return url;
-    } catch (error) {
+    } catch {
       throw new CustomError('Erro ao fazer upload do vídeo', 500);
     }
   }
@@ -156,7 +156,7 @@ export class AulaService {
   async deleteVideoFromUrl(videoUrl: string): Promise<void> {
     try {
       await supabaseStorageService.deleteOldCourseContent(videoUrl);
-    } catch (error) {
+    } catch {
       // Log mas não falha - arquivo pode não existir mais
     }
   }

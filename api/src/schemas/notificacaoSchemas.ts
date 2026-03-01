@@ -27,9 +27,7 @@ export const listarNotificacoesSchema = z.object({
       .transform(Number)
       .refine((val) => val >= 1 && val <= 50, 'Limite deve estar entre 1 e 50'),
     tipo: z
-      .enum(['inscricao', 'curso', 'sistema', 'certificado'], {
-        errorMap: () => ({ message: 'Tipo de notificação inválido' })
-      })
+      .enum(['inscricao', 'curso', 'sistema', 'certificado'], { message: 'Tipo de notificação inválido' })
       .optional(),
     lida: z
       .string()
@@ -90,9 +88,7 @@ export const listarNotificacoesNaoLidasSchema = z.object({
       .transform(Number)
       .refine((val) => val >= 1 && val <= 50, 'Limite deve estar entre 1 e 50'),
     tipo: z
-      .enum(['inscricao', 'curso', 'sistema', 'certificado'], {
-        errorMap: () => ({ message: 'Tipo de notificação inválido' })
-      })
+      .enum(['inscricao', 'curso', 'sistema', 'certificado'], { message: 'Tipo de notificação inválido' })
       .optional(),
   }),
 });

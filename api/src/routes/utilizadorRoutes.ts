@@ -1,7 +1,7 @@
 import express, { type Router } from 'express';
 import * as utilizadorController from '../controllers/utilizadorController';
 import betterAuthMiddleware from '../middlewares/betterAuthMiddleware';
-import { adminOnly, can } from '../middlewares/rbacMiddleware';
+import { can } from '../middlewares/rbacMiddleware';
 import { uploadAvatar } from '../middlewares/uploadMiddleware';
 import { validateDto } from '../middlewares/validateDto';
 import {

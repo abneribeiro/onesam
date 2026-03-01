@@ -11,11 +11,12 @@
  */
 
 import { faker } from '@faker-js/faker';
-import type { TipoPerfil } from '../../types';
-import { utilizadorService } from '../../services/utilizadorService';
-import { cursoService } from '../../services/cursoService';
-import { inscricaoService } from '../../services/inscricaoService';
-import logger from '../../utils/logger';
+import type { TipoPerfil } from '../types';
+import { utilizadorService } from '../services/utilizadorService';
+import logger from '../utils/logger';
+
+// Import expect to be used in utility functions - will be available in test context
+declare const expect: any;
 
 // Interface definitions
 export interface TestUser {
@@ -63,8 +64,6 @@ export interface MockFile {
  */
 export class TestUtils {
   private static createdUsers: number[] = [];
-  private static createdCourses: number[] = [];
-  private static createdEnrollments: number[] = [];
 
   /**
    * Create a test user with optional custom data
@@ -93,7 +92,7 @@ export class TestUtils {
       }
       throw new Error('Failed to create test user');
     } catch (error) {
-      logger.error('Error creating test user:', error);
+      logger.error('Error creating test user:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -186,7 +185,7 @@ export class TestUtils {
     try {
       logger.debug('Test database cleaned successfully');
     } catch (error) {
-      logger.error('Error cleaning test database:', error);
+      logger.error('Error cleaning test database:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 }

@@ -75,7 +75,7 @@ const getAllowedOrigins = () => {
 
   // In development, allow all localhost ports
   if (config.app.isDevelopment) {
-    origins.push(/^http:\/\/localhost:\d+$/);
+    origins.push('http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173');
   }
 
   return origins;

@@ -10,9 +10,7 @@ const sanitizedString = (minLength?: number, maxLength?: number) =>
     .transform((val) => sanitizeText(val));
 
 // Valid user types
-const tipoPerfilEnum = z.enum(['admin', 'formando'], {
-  errorMap: () => ({ message: 'Tipo de perfil deve ser "admin" ou "formando"' })
-});
+const tipoPerfilEnum = z.enum(['admin', 'formando'], { message: 'Tipo de perfil deve ser "admin" ou "formando"' });
 
 export const atualizarPerfilSchema = z.object({
   nome: sanitizedString(2, 255).optional(),
@@ -128,9 +126,7 @@ export const listarUtilizadoresSchema = z.object({
       .regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/, 'Campo de ordenação inválido')
       .optional(),
     sortOrder: z
-      .enum(['asc', 'desc'], {
-        errorMap: () => ({ message: 'Ordem deve ser "asc" ou "desc"' })
-      })
+      .enum(['asc', 'desc'], { message: 'Ordem deve ser "asc" ou "desc"' })
       .optional(),
     busca: z.string().max(255, 'Termo de busca muito longo').optional(),
     tipoPerfil: tipoPerfilEnum.optional(),

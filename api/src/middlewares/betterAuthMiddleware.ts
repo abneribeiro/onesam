@@ -124,7 +124,7 @@ export const optionalAuthMiddleware = async (
     }
 
     next();
-  } catch (error) {
+  } catch {
     // Em caso de erro, apenas continua sem autenticação
     logger.debug('Optional auth failed, continuing without authentication');
     next();

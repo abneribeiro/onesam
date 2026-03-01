@@ -10,7 +10,7 @@ import {
   modulos
 } from '../database/schema';
 import logger from '../utils/logger';
-import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 export interface KPIData {
   totalCursos: number;
@@ -131,8 +131,12 @@ export class AnalyticsService {
             lte(certificados.dataEmissao, fimMes)
           ));
 
+        const mesesPt = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const mesIndex = mes.getMonth();
+        const ano = mes.getFullYear();
+
         resultados.push({
-          mes: format(mes, 'MMM yyyy', { locale: { localize: { month: (n: number) => ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][n] } } }),
+          mes: `${mesesPt[mesIndex]} ${ano}`,
           conclusoes: Number(conclusoesResult.conclusoes) || 0,
           certificados: certificadosResult.count
         });

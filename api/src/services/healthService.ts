@@ -101,7 +101,7 @@ export class HealthService {
       health.services.database = dbStatus.connected ? 'connected' : 'disconnected';
       if (!dbStatus.connected) {
         overallStatus = 'unhealthy';
-        logger.error('Database health check failed:', dbStatus.error);
+        logger.error('Database health check failed:', dbStatus.error ? new Error(dbStatus.error) : undefined);
       }
 
       // Check Redis connectivity
@@ -111,7 +111,7 @@ export class HealthService {
         if (overallStatus === 'healthy') {
           overallStatus = 'degraded';
         }
-        logger.warn('Redis health check failed:', redisStatus.error);
+        logger.warn('Redis health check failed:', { error: redisStatus.error || 'Unknown error' });
       }
 
       // Validate authentication configuration
@@ -119,7 +119,7 @@ export class HealthService {
       health.config.auth = authStatus.valid ? 'configured' : 'incomplete';
       if (!authStatus.valid) {
         overallStatus = 'unhealthy';
-        logger.error('Auth configuration invalid:', authStatus.error);
+        logger.error('Auth configuration invalid:', authStatus.error ? new Error(authStatus.error) : undefined);
       }
 
       // Check feature flags
@@ -139,7 +139,7 @@ export class HealthService {
 
       return health;
     } catch (error) {
-      logger.error('Health check failed:', error);
+      logger.error('Health check failed:', error instanceof Error ? error : new Error(String(error)));
       health.status = 'unhealthy';
       throw error;
     }
@@ -225,7 +225,7 @@ export class HealthService {
     try {
       cpu = process.cpuUsage();
     } catch (error) {
-      logger.debug('CPU usage not available:', error);
+      logger.debug('CPU usage not available:', { error: String(error) });
     }
 
     return {
@@ -267,7 +267,7 @@ export class HealthService {
       },
       logging: {
         level: config.logging.level,
-        file: config.logging.file,
+        file: Boolean(config.logging.file),
       },
     };
   }
@@ -284,7 +284,7 @@ export class HealthService {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      logger.error('Quick health check failed:', error);
+      logger.error('Quick health check failed:', error instanceof Error ? error : new Error(String(error)));
       return {
         status: 'error',
         timestamp: new Date().toISOString(),
@@ -345,7 +345,7 @@ export class HealthService {
       const health = await this.performHealthCheck();
       return health.status !== 'unhealthy';
     } catch (error) {
-      logger.error('Readiness check failed:', error);
+      logger.error('Readiness check failed:', error instanceof Error ? error : new Error(String(error)));
       return false;
     }
   }

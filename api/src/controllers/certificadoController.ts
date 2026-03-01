@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import type { AuthRequest } from '../types/auth.types';
 import { certificadoService } from '../services/certificadoService';
-import { sendData, sendCreated, sendSuccess, sendBadRequest, sendNotFound } from '../utils/responseHelper';
+import { sendData, sendCreated, sendBadRequest, sendNotFound } from '../utils/responseHelper';
 
 export const downloadCertificado = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -38,7 +38,7 @@ export const downloadCertificado = async (req: AuthRequest, res: Response, next:
 
 export const validarCertificado = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { codigo } = req.params;
+    const codigo = Array.isArray(req.params.codigo) ? req.params.codigo[0] : req.params.codigo;
     const resultado = await certificadoService.validarCertificado(codigo);
 
     if (!resultado.valido) {

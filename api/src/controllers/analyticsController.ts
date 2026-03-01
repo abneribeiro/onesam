@@ -1,9 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import type { AuthRequest } from '../types/auth.types';
 import { analyticsService } from '../services/analyticsService';
 import { sendData, sendBadRequest } from '../utils/responseHelper';
 
-export const obterKPIs = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const obterKPIs = async (_req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const kpis = await analyticsService.obterKPIs();
     sendData(res, kpis);
@@ -16,7 +16,7 @@ export const obterKPIs = async (req: AuthRequest, res: Response, next: NextFunct
   }
 };
 
-export const obterConclusoesMensais = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const obterConclusoesMensais = async (_req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const dados = await analyticsService.obterConclusoesMensais();
     sendData(res, dados);
@@ -29,7 +29,7 @@ export const obterConclusoesMensais = async (req: AuthRequest, res: Response, ne
   }
 };
 
-export const obterAnalyticsCursos = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const obterAnalyticsCursos = async (_req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const analytics = await analyticsService.obterAnalyticsCursos();
     sendData(res, analytics);
@@ -42,7 +42,7 @@ export const obterAnalyticsCursos = async (req: AuthRequest, res: Response, next
   }
 };
 
-export const exportarCSV = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const exportarCSV = async (_req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const dados = await analyticsService.exportarDados();
     const csvContent = analyticsService.gerarCSV(dados);
