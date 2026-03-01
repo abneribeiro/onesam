@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Plus, Pencil, Trash2, MoreHorizontal, ArrowUpDown, Search, Tags } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -159,7 +159,7 @@ export default function CategoriasList() {
     resolver: zodResolver(categoriaSchema),
   });
 
-  const handleOpenDialog = (categoria?: CategoriaBase) => {
+  const handleOpenDialog = useCallback((categoria?: CategoriaBase) => {
     if (categoria) {
       setEditingCategoria(categoria);
       reset({
@@ -176,7 +176,7 @@ export default function CategoriasList() {
       });
     }
     setDialogOpen(true);
-  };
+  }, [reset]);
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
@@ -216,11 +216,11 @@ export default function CategoriasList() {
     }
   };
 
-  const getAreaNome = (areaId: number | null) => {
+  const getAreaNome = useCallback((areaId: number | null) => {
     if (!areaId) return '-';
     const area = areas.find(a => a.id === areaId);
     return area?.nome || '-';
-  };
+  }, [areas]);
 
   // Filter data based on search and area filter
   const filteredCategorias = useMemo(() => {
@@ -243,7 +243,7 @@ export default function CategoriasList() {
     }
 
     return filtered;
-  }, [categorias, areaFilter, debouncedSearchTerm, areas]);
+  }, [categorias, areaFilter, debouncedSearchTerm, getAreaNome]);
 
   // Paginate filtered data
   const paginatedCategorias = useMemo(() => {
@@ -341,7 +341,7 @@ export default function CategoriasList() {
         );
       },
     },
-  ], [areas]);
+  ], [getAreaNome, handleOpenDialog]);
 
   const table = useReactTable({
     data: paginatedCategorias,

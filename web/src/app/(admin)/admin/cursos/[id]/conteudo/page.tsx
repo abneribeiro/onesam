@@ -65,7 +65,6 @@ import { PageHeader } from '@/components/features/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { LoadingState } from '@/components/features/LoadingState';
 import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
 export default function AdminCursoConteudoPage() {

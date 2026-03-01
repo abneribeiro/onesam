@@ -142,6 +142,7 @@ export function AulaForm({ moduloId, cursoId, aula, onSuccess, onCancel }: AulaF
       setIsUploading(false);
       return url;
     } catch (error) {
+      console.error('Video upload failed:', error);
       setUploadError('Erro ao fazer upload do vídeo. Tente novamente.');
       setIsUploading(false);
       return null;

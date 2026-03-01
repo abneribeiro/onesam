@@ -1,9 +1,8 @@
-import { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateQuiz, useUpdateQuiz } from '@/hooks/queries/useQuizzes';
-import type { Quiz, CreateQuizInput } from '@/types';
+import type { Quiz } from '@/types';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -48,7 +47,6 @@ interface QuizFormProps {
 export function QuizForm({ aulaId, quiz, onSuccess, onCancel }: QuizFormProps) {
   const createQuiz = useCreateQuiz();
   const updateQuiz = useUpdateQuiz();
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const form = useForm({
     resolver: zodResolver(quizSchema),
@@ -68,7 +66,7 @@ export function QuizForm({ aulaId, quiz, onSuccess, onCancel }: QuizFormProps) {
     }
   });
 
-  const { fields, append, remove, move } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'perguntas'
   });

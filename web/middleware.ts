@@ -29,9 +29,25 @@ async function getSessionFromAPI(request: NextRequest): Promise<SessionResponse 
     return null;
   }
 
+  // Validate environment variable exists - no fallback for security
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    console.error('Security: NEXT_PUBLIC_API_URL not configured');
+    return null;
+  }
+
+  // Validate cookie value format for basic security
+  if (!/^[a-zA-Z0-9_-]+$/.test(sessionCookie.value)) {
+    console.warn('Security: Invalid session cookie format detected');
+    return null;
+  }
+
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
     const baseURL = apiUrl.replace(/\/api\/?$/, '');
+
+    // Add timeout and proper error handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
     const response = await fetch(`${baseURL}/api/auth/get-session`, {
       method: 'GET',
@@ -40,16 +56,33 @@ async function getSessionFromAPI(request: NextRequest): Promise<SessionResponse 
         'Content-Type': 'application/json',
       },
       cache: 'no-store',
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
+      console.warn(`Session validation failed: ${response.status}`);
       return null;
     }
 
     const data = await response.json();
+
+    // Validate response structure
+    if (!data || typeof data !== 'object') {
+      console.warn('Security: Invalid session response format');
+      return null;
+    }
+
     return data as SessionResponse;
   } catch (error) {
-    console.error('Error fetching session:', error);
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        console.error('Security: Session validation timeout');
+      } else {
+        console.error('Security: Session validation error:', error.message);
+      }
+    }
     return null;
   }
 }
@@ -96,24 +129,25 @@ export async function middleware(request: NextRequest) {
   // Se tem cookie de sessão, verifica o tipo de perfil para redirecionamento
   if (hasSessionCookie) {
     const sessionData = await getSessionFromAPI(request);
+
+    // If session validation failed completely (network, timeout, invalid response)
+    if (sessionData === null) {
+      console.warn('Security: Session validation failed, redirecting to login');
+      // Clear the invalid session cookie
+      const response = NextResponse.redirect(new URL('/login', request.url));
+      response.cookies.delete('better-auth.session_token');
+      return response;
+    }
+
     const user = sessionData?.user;
     const tipoPerfil = user?.tipoPerfil;
 
-    // SECURITY: If we can't determine the profile, handle each case carefully
-    if (!tipoPerfil) {
-      // For auth routes, allow access (they can re-authenticate if needed)
-      if (isAuthRoute) {
-        return NextResponse.next();
-      }
-      // For admin routes, redirect to login - don't allow access without valid profile
-      if (isAdminRoute) {
-        const loginUrl = new URL('/login', request.url);
-        loginUrl.searchParams.set('from', pathname);
-        return NextResponse.redirect(loginUrl);
-      }
-      // For other protected routes, let client-side guards validate
-      // This handles the case where session exists but tipoPerfil is loading
-      return NextResponse.next();
+    // SECURITY: If session exists but no user profile, this indicates session corruption
+    if (!tipoPerfil || !user) {
+      console.warn('Security: Valid session but missing user profile, clearing session');
+      const response = NextResponse.redirect(new URL('/login', request.url));
+      response.cookies.delete('better-auth.session_token');
+      return response;
     }
 
     // Usuário autenticado tentando acessar rotas de auth (login, register)

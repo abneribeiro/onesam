@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Plus, Pencil, Trash2, MoreHorizontal, ArrowUpDown, Search, FolderOpen } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -14,7 +14,6 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
-  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table"
 import { Button } from '@/components/ui/button';
@@ -163,7 +162,7 @@ export default function AreasList() {
   const startIndex = filteredAreas.length > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
   const endIndex = Math.min(currentPage * PAGE_SIZE, filteredAreas.length);
 
-  const handleOpenDialog = (area?: AreaBase) => {
+  const handleOpenDialog = useCallback((area?: AreaBase) => {
     if (area) {
       setEditingArea(area);
       reset({
@@ -178,7 +177,7 @@ export default function AreasList() {
       });
     }
     setDialogOpen(true);
-  };
+  }, [reset]);
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
@@ -298,7 +297,7 @@ export default function AreasList() {
         );
       },
     },
-  ], []);
+  ], [handleOpenDialog]);
 
   const table = useReactTable({
     data: paginatedAreas,
