@@ -36,9 +36,7 @@ const ForgotPasswordPage = memo(function ForgotPasswordPage() {
     try {
       setError('');
       setSuccess(false);
-      
-      // Note: better-auth doesn't expose forgetPassword on the client directly,
-      // so we call the API endpoint directly. The endpoint is /api/auth/forget-password
+
       const response = await fetch(`${baseURL}/api/auth/forget-password`, {
         method: 'POST',
         headers: {

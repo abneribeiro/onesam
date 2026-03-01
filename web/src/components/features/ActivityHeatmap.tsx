@@ -62,11 +62,11 @@ const HeatmapCell = memo(function HeatmapCell({
     let tooltip = `${dateStr}: ${count} atividade${count !== 1 ? 's' : ''}`;
 
     if (totalTime > 0) {
-      tooltip += `\n⏱️ ${totalTime}min estudados`;
+      tooltip += `\n${totalTime}min estudados`;
     }
 
     if (lessons.length > 0) {
-      tooltip += `\n📚 `;
+      tooltip += `\n`;
       if (lessons.length <= 2) {
         tooltip += lessons.join(', ');
       } else {
@@ -75,7 +75,7 @@ const HeatmapCell = memo(function HeatmapCell({
     }
 
     if (atingiuMeta) {
-      tooltip += '\n🎯 Meta atingida!';
+      tooltip += '\nMeta atingida!';
     }
 
     return tooltip;

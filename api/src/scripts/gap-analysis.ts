@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 /**
- * 🔍 OneSam Gap Analysis Script
+ * OneSam Gap Analysis Script
  * Automated analysis of Frontend ↔ Backend inconsistencies
  *
  * Detects:
@@ -55,14 +55,14 @@ class GapAnalyzer {
    * Main analysis execution
    */
   async analyze(): Promise<GapAnalysisReport> {
-    console.log('🔍 Starting OneSam Gap Analysis...\n');
+    console.log('Starting OneSam Gap Analysis...\n');
 
     const controllers = this.findControllers();
     const services = this.findServices();
     const tests = this.findTests();
     const routes = this.findRoutes();
 
-    console.log(`📊 Found:
+    console.log(`Found:
     - ${controllers.length} Controllers
     - ${services.length} Services
     - ${tests.length} Test files
@@ -159,7 +159,7 @@ class GapAnalyzer {
    * Analyze gaps between controllers, services, and tests
    */
   private analyzeGaps(controllers: string[], services: string[], tests: string[]) {
-    console.log('🔍 Analyzing gaps...\n');
+    console.log('Analyzing gaps...\n');
 
     // Controllers without services
     const controllersWithoutServices = controllers.filter(controller => {
@@ -263,36 +263,36 @@ class GapAnalyzer {
 
     if (gaps.controllersWithoutServices.length > 0) {
       recommendations.push(
-        `🚨 CRITICAL: Create ${gaps.controllersWithoutServices.length} missing service(s): ${gaps.controllersWithoutServices.join(', ')}`
+        `CRITICAL: Create ${gaps.controllersWithoutServices.length} missing service(s): ${gaps.controllersWithoutServices.join(', ')}`
       );
     }
 
     if (gaps.servicesWithoutControllers.length > 0) {
       recommendations.push(
-        `⚠️  WARNING: Found ${gaps.servicesWithoutControllers.length} orphaned service(s): ${gaps.servicesWithoutControllers.join(', ')}`
+        `WARNING: Found ${gaps.servicesWithoutControllers.length} orphaned service(s): ${gaps.servicesWithoutControllers.join(', ')}`
       );
     }
 
     if (gaps.controllersWithoutTests.length > 0) {
       recommendations.push(
-        `📝 TEST COVERAGE: Add tests for ${gaps.controllersWithoutTests.length} controller(s): ${gaps.controllersWithoutTests.join(', ')}`
+        `TEST COVERAGE: Add tests for ${gaps.controllersWithoutTests.length} controller(s): ${gaps.controllersWithoutTests.join(', ')}`
       );
     }
 
     if (gaps.servicesWithoutTests.length > 0) {
       recommendations.push(
-        `📝 TEST COVERAGE: Add tests for ${gaps.servicesWithoutTests.length} service(s): ${gaps.servicesWithoutTests.join(', ')}`
+        `TEST COVERAGE: Add tests for ${gaps.servicesWithoutTests.length} service(s): ${gaps.servicesWithoutTests.join(', ')}`
       );
     }
 
     if (gaps.missingMiddlewares.length > 0) {
       recommendations.push(
-        `🔒 SECURITY: Implement missing middleware(s): ${gaps.missingMiddlewares.join(', ')}`
+        `SECURITY: Implement missing middleware(s): ${gaps.missingMiddlewares.join(', ')}`
       );
     }
 
     if (recommendations.length === 0) {
-      recommendations.push('✅ No critical gaps found! System architecture is well aligned.');
+      recommendations.push('No critical gaps found! System architecture is well aligned.');
     }
 
     return recommendations;
@@ -304,37 +304,37 @@ class GapAnalyzer {
   async saveReport(report: GapAnalysisReport): Promise<void> {
     const reportPath = path.join(process.cwd(), 'gap-analysis-report.json');
     writeFileSync(reportPath, JSON.stringify(report, null, 2));
-    console.log(`📊 Report saved to: ${reportPath}`);
+    console.log(`Report saved to: ${reportPath}`);
   }
 
   /**
    * Print summary to console
    */
   printSummary(report: GapAnalysisReport): void {
-    console.log('\n📋 === GAP ANALYSIS SUMMARY ===');
-    console.log(`🕐 Analysis Time: ${report.timestamp}`);
-    console.log(`📊 Files Found: ${report.summary.controllersFound} controllers, ${report.summary.servicesFound} services`);
-    console.log(`🎯 Test Coverage: ${report.summary.coveragePercentage}%`);
-    console.log(`🚨 Critical Gaps: ${report.summary.criticalGaps}`);
+    console.log('\n=== GAP ANALYSIS SUMMARY ===');
+    console.log(`Analysis Time: ${report.timestamp}`);
+    console.log(`Files Found: ${report.summary.controllersFound} controllers, ${report.summary.servicesFound} services`);
+    console.log(`Test Coverage: ${report.summary.coveragePercentage}%`);
+    console.log(`Critical Gaps: ${report.summary.criticalGaps}`);
 
-    console.log('\n🔍 === RECOMMENDATIONS ===');
+    console.log('\n=== RECOMMENDATIONS ===');
     report.recommendations.forEach(rec => console.log(`  ${rec}`));
 
     if (report.gaps.controllersWithoutServices.length > 0) {
-      console.log('\n🚨 === CONTROLLERS WITHOUT SERVICES ===');
+      console.log('\n=== CONTROLLERS WITHOUT SERVICES ===');
       report.gaps.controllersWithoutServices.forEach(controller =>
-        console.log(`  ❌ ${controller} -> Missing ${controller.replace('Controller', 'Service')}`)
+        console.log(`  ${controller} -> Missing ${controller.replace('Controller', 'Service')}`)
       );
     }
 
     if (report.gaps.servicesWithoutControllers.length > 0) {
-      console.log('\n⚠️  === ORPHANED SERVICES ===');
+      console.log('\n=== ORPHANED SERVICES ===');
       report.gaps.servicesWithoutControllers.forEach(service =>
-        console.log(`  ⚠️  ${service} -> No corresponding ${service.replace('Service', 'Controller')}`)
+        console.log(`  ${service} -> No corresponding ${service.replace('Service', 'Controller')}`)
       );
     }
 
-    console.log('\n✅ === ANALYSIS COMPLETE ===\n');
+    console.log('\n=== ANALYSIS COMPLETE ===\n');
   }
 }
 
@@ -348,7 +348,7 @@ if (require.main === module) {
       analyzer.saveReport(report);
     })
     .catch(error => {
-      console.error('❌ Gap analysis failed:', error);
+      console.error('Gap analysis failed:', error);
       process.exit(1);
     });
 }

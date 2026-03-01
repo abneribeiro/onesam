@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 // Client-side environment validation schema
-// Note: Only NEXT_PUBLIC_ variables are available on the client
 const clientEnvSchema = z.object({
   // Next.js environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),

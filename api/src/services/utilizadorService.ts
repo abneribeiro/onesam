@@ -1,5 +1,5 @@
 /**
- * 🔧 OneSam - UtilizadorService
+ * OneSam - UtilizadorService
  * Business logic for user management operations
  *
  * This service layer abstracts business logic from controllers,

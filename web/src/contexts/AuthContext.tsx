@@ -102,7 +102,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await authClient.signOut();
       toast.success(SUCCESS_MESSAGES.LOGOUT);
-    } catch (error: unknown) {
+    } catch {
       toast.error('Erro ao fazer logout');
     }
   }, []);

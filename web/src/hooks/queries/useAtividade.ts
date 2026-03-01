@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { parseISO, format, startOfYear, endOfYear, subDays } from 'date-fns';
 import type { ActivityData } from '@/components/features/ActivityHeatmap';
 import { aulaService, type ProgressoAula } from '@/services/aula.service';
@@ -19,7 +19,6 @@ export interface UseAtividadeHeatmapResult {
 function generateMockData(): ProgressoAula[] {
   const mockData: ProgressoAula[] = [];
   const today = new Date();
-  const currentYear = today.getFullYear();
 
   // Simular dados para o ano atual
   const aulasExemplo = [
@@ -231,8 +230,6 @@ export function useAtividadeHeatmap(): UseAtividadeHeatmapResult {
   const {
     data: progressos = [],
     isLoading,
-    isError,
-    error,
   } = useQuery<ProgressoAula[], Error>({
     queryKey: aulaKeys.meuProgresso(),
     queryFn: () => {

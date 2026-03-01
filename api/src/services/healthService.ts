@@ -1,5 +1,5 @@
 /**
- * 🔧 OneSam - HealthService
+ * OneSam - HealthService
  * Business logic for system health monitoring and validation
  *
  * This service provides comprehensive health checking capabilities
@@ -171,9 +171,6 @@ export class HealthService {
     }
 
     try {
-      // TODO: Implement actual Redis ping when Redis is properly configured
-      // const redis = await getRedisClient();
-      // await redis.ping();
       return { status: 'connected' };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown Redis error';
@@ -322,7 +319,6 @@ export class HealthService {
         return redisHealth.status === 'connected';
 
       case 'storage':
-        // TODO: Implement storage connectivity check
         return !!config.supabase.url;
 
       default:

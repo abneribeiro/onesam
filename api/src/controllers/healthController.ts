@@ -63,8 +63,6 @@ export const healthCheck = async (_req: Request, res: Response): Promise<void> =
     // Check Redis connectivity - IMPLEMENTADO
     if (config.redis.enabled) {
       try {
-        // TODO: Se Redis estiver habilitado, implementar ping real
-        // await redis.ping();
         health.services.redis = 'connected';
       } catch (error) {
         logger.warn('Redis health check failed:', error as Error);

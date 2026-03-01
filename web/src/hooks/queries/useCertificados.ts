@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { certificadoService } from '@/services/certificado.service';
-import type { Certificado } from '@/types';
 import { toast } from 'sonner';
 
 export const certificadoKeys = {

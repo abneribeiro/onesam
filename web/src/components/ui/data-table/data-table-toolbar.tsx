@@ -10,7 +10,6 @@ import { DataTableViewOptions } from "./data-table-view-options"
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
   searchPlaceholder?: string
-  searchKey?: string
   searchValue?: string
   onSearchChange?: (value: string) => void
   onBulkDelete?: (ids: number[]) => void
@@ -21,7 +20,6 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({
   table,
   searchPlaceholder = "Pesquisar...",
-  searchKey,
   searchValue,
   onSearchChange,
   onBulkDelete,

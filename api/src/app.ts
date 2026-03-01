@@ -215,8 +215,6 @@ const iniciarServidor = async () => {
         logger.info('HTTP server closed');
 
         try {
-          // Fechar conexão com o banco de dados
-          // Note: Drizzle com pg pool fecha automaticamente, mas podemos adicionar lógica aqui se necessário
           logger.info('Database connections closed');
           process.exit(0);
         } catch (err) {

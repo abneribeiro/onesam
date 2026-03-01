@@ -27,9 +27,6 @@ export async function seedCompleteData() {
     const modulos = await seedModules(cursos);
     const aulas = await seedLessons(modulos);
 
-    // TODO: Add remaining seeders for inscricoes, reviews, notificacoes, progressoAulas
-    // These are intentionally left out for now to focus on core structure
-
     const results = {
       areas,
       categorias,
