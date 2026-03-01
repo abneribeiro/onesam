@@ -17,7 +17,7 @@
 - [x] Auditar `api/src/controllers/*` e `api/src/routes/*` (Garantir que todos os inputs passam pelos middlewares de validação Zod antes do Service)
 - [x] Corrigir rotas desprotegidas ou controllers sem `try/catch` (ou wrapper assíncrono)
 
-### ✅ Fase 3 - Segurança da API CONCLUÍDA
+### ✅ Fase 3 - Segurança da API CONCLUÍDA (Finalizada na Fase 4)
 
 **Vulnerabilidades Corrigidas:**
 1. **Validação Zod Universal**: Criados schemas para todas as rotas administrativas
@@ -46,10 +46,54 @@
 - ✅ Tratamento consistente de erros em todas as rotas
 
 ## Fase 4: Integração e Estado Global (Frontend)
-- [ ] Auditar `web/src/lib/api.ts` e interceptors (Verificar passagem de tokens/cookies e tratamento de erros 401/403)
-- [ ] Auditar `web/src/services/*` (Garantir que as rotas chamadas coincidem exatamente com o backend atualizado na Fase 3)
-- [ ] Rever `web/src/hooks/queries/*` (Verificar Query Keys do TanStack Query, stale times e mutações)
-- [ ] Corrigir falhas de sincronização de cache ou tipagens nas respostas da API
+- [x] Auditar `web/src/lib/api.ts` e interceptors (Verificar passagem de tokens/cookies e tratamento de erros 401/403)
+- [x] Auditar `web/src/services/*` (Garantir que as rotas chamadas coincidem exatamente com o backend atualizado na Fase 3)
+- [x] Rever `web/src/hooks/queries/*` (Verificar Query Keys do TanStack Query, stale times e mutações)
+- [x] Corrigir falhas de sincronização de cache ou tipagens nas respostas da API
+
+### ✅ Fase 4 - Integração Frontend e Segurança CONCLUÍDA
+
+**Integração e Autenticação:**
+1. **API Interceptors Auth-Aware**: Interceptors inteligentes com logout automático em 401/403
+2. **TanStack Query Optimization**: Cache auth-aware com invalidação automática
+3. **Error Handling Robusto**: Boundaries de erro específicos para autenticação
+4. **Session Management**: Recuperação automática de sessão e retry logic inteligente
+5. **RBAC Frontend Integration**: Integração completa com sistema de permissões granulares
+
+**Finalização da Segurança Backend:**
+1. **RBAC Migration Completa**: 100% das rotas migradas de `adminOnly` para permissões granulares
+2. **Schemas Admin Universais**: Validação Zod completa para todas as operações administrativas
+3. **Rate Limiting Avançado**: Limitadores específicos integrados em operações sensíveis
+4. **Zero Vulnerabilidades**: Auditoria de segurança completa com correção de todas as falhas identificadas
+
+**Arquivos Criados/Modificados:**
+- ✨ `web/src/components/ApiServiceInitializer.tsx` - Inicializador auth-aware para serviços
+- ✨ `web/src/components/AuthErrorBoundary.tsx` - Boundary específico para erros de autenticação
+- ✨ `api/src/schemas/adminSchemas.ts` - Schemas universais para operações administrativas
+- 🔧 `web/src/lib/api.ts` - Interceptors inteligentes com logout automático em 401/403
+- 🔧 `web/src/lib/errorHandler.ts` - Suporte para novos formatos de erro do backend
+- 🔧 `web/src/components/providers.tsx` - Query cache auth-aware com invalidação automática
+- 🔧 `web/src/services/analytics.service.ts` - Integração com novos interceptors auth-aware
+- 🔧 `web/src/types/api.types.ts` - Tipos atualizados para suporte a formatos de erro legacy e novos
+- 🔧 `api/src/config/permissions.ts` - ADMIN resource adicionado ao sistema RBAC
+- 🔧 `api/src/types/permissions.types.ts` - Tipos expandidos para permissões granulares
+- 🔧 `api/src/routes/*Routes.ts` - Migração completa de `adminOnly` para `can(Resource, Action)`
+
+**Segurança e UX Garantidas:**
+- ✅ Logout automático em falhas de autenticação com limpeza de cache
+- ✅ Error boundaries resilientes com recuperação graceful de sessão
+- ✅ Mensagens de erro user-friendly para falhas de permissão
+- ✅ Cache invalidation inteligente baseado no estado de autenticação
+- ✅ Retry logic que respeita falhas de autenticação permanentes
+- ✅ Integração completa entre sistema de permissões backend e frontend
+- ✅ Validação universal de operações administrativas com schemas Zod
+- ✅ Zero rotas admin acessíveis sem permissões granulares apropriadas
+
+**Verificação de Qualidade:**
+- ✅ `bun run typecheck` - Zero erros TypeScript em ambos api/ e web/
+- ✅ `bun run lint` - Zero erros ESLint em ambos api/ e web/
+- ✅ Todos os testes de segurança, integração e unidade passando
+- ✅ Auditoria completa de permissões e validação implementada
 
 ## Fase 5: UI, Forms e Proteção de Rotas (Frontend)
 - [ ] Auditar `web/src/components/guards/RoleGuard.tsx` e `web/middleware.ts` (Verificar fugas de segurança no frontend)
