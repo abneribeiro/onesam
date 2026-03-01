@@ -47,7 +47,7 @@ export const formandos = pgTable('Formandos', {
 
 export const areas = pgTable('Areas', {
   id: serial('IDArea').primaryKey(),
-  nome: varchar('NomeArea', { length: 255 }).notNull(),
+  nome: varchar('NomeArea', { length: 255 }).notNull().unique(),
   descricao: text('Descricao'),
   dataCriacao: timestamp('DataCriacao').defaultNow().notNull(),
   dataAtualizacao: timestamp('DataAtualizacao'),
@@ -60,7 +60,9 @@ export const categorias = pgTable('Categorias', {
   descricao: text('Descricao'),
   dataCriacao: timestamp('DataCriacao').defaultNow().notNull(),
   dataAtualizacao: timestamp('DataAtualizacao'),
-});
+}, (table) => [
+  unique('unique_categoria_nome_area').on(table.nome, table.areaId),
+]);
 
 export const cursos = pgTable('Cursos', {
   id: serial('IDCurso').primaryKey(),
@@ -84,6 +86,8 @@ export const cursos = pgTable('Cursos', {
 }, (table) => [
   index('idx_cursos_estado_visivel').on(table.estado, table.visivel),
   index('idx_cursos_data_inicio').on(table.dataInicio),
+  index('idx_cursos_data_limite_inscricao').on(table.dataLimiteInscricao),
+  index('idx_cursos_area_categoria').on(table.areaId, table.categoriaId),
 ]);
 
 export const inscricoes = pgTable('Inscricoes', {

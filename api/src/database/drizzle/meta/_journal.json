@@ -43,6 +43,13 @@
       "when": 1772325792169,
       "tag": "0005_famous_doctor_strange",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1772362820683,
+      "tag": "0006_fearless_domino",
+      "breakpoints": true
     }
   ]
 }
