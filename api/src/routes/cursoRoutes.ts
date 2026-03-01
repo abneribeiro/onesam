@@ -1,22 +1,38 @@
 import express, { type Router } from 'express';
 import * as cursoController from '../controllers/cursoController';
 import betterAuthMiddleware, { optionalAuthMiddleware } from '../middlewares/betterAuthMiddleware';
-import { adminOnly } from '../middlewares/rbacMiddleware';
+import { can } from '../middlewares/rbacMiddleware';
 import { validateDto } from '../middlewares/validateDto';
-import { createCursoSchema, updateCursoSchema } from '../schemas/cursoSchemas';
+import {
+  bulkOperationsRateLimiter,
+  stateChangeRateLimiter,
+  fileUploadRateLimiter
+} from '../middlewares/rateLimitMiddleware';
+import { Action, Resource } from '../types/permissions.types';
+import {
+  createCursoSchema,
+  updateCursoSchema,
+  getCursoSchema,
+  alterarEstadoSchema,
+  deletarCursoSchema,
+  deletarCursosEmMassaSchema,
+  listarCursosSchema
+} from '../schemas/cursoSchemas';
 import { uploadCourseImage } from '../middlewares/uploadMiddleware';
 
 const router: Router = express.Router();
 
 // Rotas públicas com autenticação opcional para personalizar resposta
-router.get('/', optionalAuthMiddleware, cursoController.listarCursos);
-router.get('/:id', optionalAuthMiddleware, cursoController.obterCurso);
+router.get('/', optionalAuthMiddleware, validateDto(listarCursosSchema), cursoController.listarCursos);
+router.get('/:id', optionalAuthMiddleware, validateDto(getCursoSchema), cursoController.obterCurso);
 
 router.use(betterAuthMiddleware);
 
+// Admin routes with granular permissions, validation, and rate limiting
 router.post(
   '/',
-  adminOnly,
+  fileUploadRateLimiter,
+  can(Resource.CURSO, Action.CREATE),
   uploadCourseImage.single('imagemCurso'),
   validateDto(createCursoSchema.shape.body),
   cursoController.criarCurso
@@ -24,15 +40,15 @@ router.post(
 
 router.put(
   '/:id',
-  adminOnly,
+  fileUploadRateLimiter,
+  can(Resource.CURSO, Action.UPDATE),
   uploadCourseImage.single('imagemCurso'),
   validateDto(updateCursoSchema.shape.body),
   cursoController.atualizarCurso
 );
 
-router.put('/:id/estado', adminOnly, cursoController.alterarEstado);
-
-router.delete('/:id', adminOnly, cursoController.deletarCurso);
-router.post('/bulk-delete', adminOnly, cursoController.deletarCursosEmMassa);
+router.put('/:id/estado', stateChangeRateLimiter, can(Resource.CURSO, Action.UPDATE), validateDto(alterarEstadoSchema), cursoController.alterarEstado);
+router.delete('/:id', can(Resource.CURSO, Action.DELETE), validateDto(deletarCursoSchema), cursoController.deletarCurso);
+router.post('/bulk-delete', bulkOperationsRateLimiter, can(Resource.CURSO, Action.DELETE), validateDto(deletarCursosEmMassaSchema), cursoController.deletarCursosEmMassa);
 
 export default router;

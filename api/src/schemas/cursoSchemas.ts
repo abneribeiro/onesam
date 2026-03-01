@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { sanitizeText, sanitizeHtml } from '../utils/sanitize';
 
 const nivelEnum = z.enum(['iniciante', 'intermedio', 'avancado']);
+const estadoEnum = z.enum(['planeado', 'em_curso', 'terminado', 'arquivado']);
 
 // Custom sanitizing string transformers
 const sanitizedString = (minLength?: number) =>
@@ -53,7 +54,7 @@ export const updateCursoSchema = z.object({
       limiteVagas: z.number().int().positive('Limite de vagas deve ser pelo menos 1').optional().nullable(),
       certificado: z.boolean().optional(),
       visivel: z.boolean().optional(),
-      estado: z.enum(['planeado', 'em_curso', 'terminado', 'arquivado']).optional(),
+      estado: estadoEnum.optional(),
       cargaHoraria: z.number().int().positive('Carga horária inválida').optional().nullable(),
       notaMinimaAprovacao: z.number().int().min(0, 'Nota deve ser pelo menos 0').max(20, 'Nota deve ser no máximo 20').optional(),
     })
@@ -101,5 +102,81 @@ export const reativarCursoSchema = z.object({
     ),
   params: z.object({
     id: z.string().regex(/^\d+$/, 'ID inválido'),
+  }),
+});
+
+// Schema for changing course state
+export const alterarEstadoSchema = z.object({
+  body: z.object({
+    estado: estadoEnum,
+  }),
+  params: z.object({
+    id: z.string().regex(/^\d+$/, 'ID inválido'),
+  }),
+});
+
+// Schema for deleting a course
+export const deletarCursoSchema = z.object({
+  params: z.object({
+    id: z.string().regex(/^\d+$/, 'ID inválido'),
+  }),
+});
+
+// Schema for bulk deleting courses
+export const deletarCursosEmMassaSchema = z.object({
+  body: z.object({
+    ids: z
+      .array(z.number().int().positive('ID deve ser um número positivo'))
+      .min(1, 'Pelo menos um ID é obrigatório')
+      .max(50, 'Máximo de 50 cursos por operação'),
+  }),
+});
+
+// Schema for listing courses with filters
+export const listarCursosSchema = z.object({
+  query: z.object({
+    pagina: z
+      .string()
+      .optional()
+      .default('1')
+      .transform(Number)
+      .refine((val) => val >= 1, 'Página deve ser pelo menos 1'),
+    limite: z
+      .string()
+      .optional()
+      .default('10')
+      .transform(Number)
+      .refine((val) => val >= 1 && val <= 100, 'Limite deve estar entre 1 e 100'),
+    busca: z.string().max(255, 'Termo de busca muito longo').optional(),
+    areaId: z
+      .string()
+      .optional()
+      .transform((val) => val ? Number(val) : undefined)
+      .refine((val) => val === undefined || val > 0, 'ID de área inválido'),
+    categoriaId: z
+      .string()
+      .optional()
+      .transform((val) => val ? Number(val) : undefined)
+      .refine((val) => val === undefined || val > 0, 'ID de categoria inválido'),
+    nivel: nivelEnum.optional(),
+    estado: estadoEnum.optional(),
+    visivel: z
+      .string()
+      .optional()
+      .transform((val) => {
+        if (val === 'true') return true;
+        if (val === 'false') return false;
+        return undefined;
+      }),
+    ordenarPor: z
+      .string()
+      .regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/, 'Campo de ordenação inválido')
+      .optional(),
+    direcao: z
+      .enum(['asc', 'desc'], {
+        errorMap: () => ({ message: 'Direção deve ser "asc" ou "desc"' })
+      })
+      .optional()
+      .default('asc'),
   }),
 });
