@@ -41,7 +41,7 @@ export function LoadingState({
 }: LoadingStateProps) {
   const containerClass = fullScreen
     ? 'flex items-center justify-center min-h-screen'
-    : 'flex items-center justify-center min-h-[200px]';
+    : 'flex items-center justify-center min-h-48';
 
   return (
     <div className={cn(containerClass, className)}>

@@ -16,7 +16,7 @@ export function ErrorState({
   retryLabel = 'Tentar novamente',
 }: ErrorStateProps) {
   return (
-    <div className="flex items-center justify-center min-h-[400px] p-4">
+    <div className="flex items-center justify-center min-h-96 p-4">
       <Alert variant="destructive" className="max-w-md">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>{title}</AlertTitle>

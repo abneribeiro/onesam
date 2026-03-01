@@ -223,7 +223,7 @@ export function AulaForm({ moduloId, cursoId, aula, onSuccess, onCancel }: AulaF
               <FormControl>
                 <Textarea
                   placeholder="Descreva o conteúdo desta aula..."
-                  className="min-h-[80px]"
+                  className="min-h-20"
                   {...field}
                 />
               </FormControl>
@@ -291,7 +291,7 @@ export function AulaForm({ moduloId, cursoId, aula, onSuccess, onCancel }: AulaF
                 <FormControl>
                   <Textarea
                     placeholder="Digite o conteúdo da aula..."
-                    className="min-h-[200px] font-mono text-sm"
+                    className="min-h-48 font-mono text-sm"
                     {...field}
                   />
                 </FormControl>
@@ -351,7 +351,7 @@ export function AulaForm({ moduloId, cursoId, aula, onSuccess, onCancel }: AulaF
                           <Video className="h-5 w-5 text-primary" />
                         </div>
                         <div className="text-left">
-                          <p className="text-sm font-medium truncate max-w-[200px]">
+                          <p className="text-sm font-medium truncate max-w-48">
                             {videoFile.name}
                           </p>
                           <p className="text-xs text-muted-foreground">

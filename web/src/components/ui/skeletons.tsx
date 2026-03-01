@@ -84,7 +84,7 @@ export function DataTableSkeleton({
       {/* Table Toolbar Skeleton */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Skeleton className="h-10 w-[250px]" />
+          <Skeleton className="h-10 w-60" />
           <Skeleton className="h-10 w-20" />
         </div>
         <Skeleton className="h-10 w-24" />
@@ -209,7 +209,7 @@ export function ContentDetailSkeleton() {
       </div>
 
       {/* Video/Content Area */}
-      <Skeleton className="h-[400px] w-full rounded-lg" />
+      <Skeleton className="h-96 w-full rounded-lg" />
 
       {/* Description */}
       <div className="space-y-3">

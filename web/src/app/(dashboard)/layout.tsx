@@ -8,7 +8,7 @@ import { Loader2 } from 'lucide-react';
 
 function LoadingFallback() {
   return (
-    <div className="flex items-center justify-center min-h-[400px]">
+    <div className="flex items-center justify-center min-h-96">
       <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
     </div>
   );

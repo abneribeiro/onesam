@@ -96,7 +96,7 @@ export function RoleGuard({ children, allowedRoles, redirectTo }: RoleGuardProps
   // Show error state if auth check failed
   if (authError) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-96">
         <div className="text-center">
           <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
           <p className="text-red-600 mb-4">{authError}</p>
@@ -114,7 +114,7 @@ export function RoleGuard({ children, allowedRoles, redirectTo }: RoleGuardProps
   // Show loading state - consistent timing to prevent attacks
   if (!initialCheckDone || loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-96">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
       </div>
     );
@@ -123,7 +123,7 @@ export function RoleGuard({ children, allowedRoles, redirectTo }: RoleGuardProps
   // Final security check before rendering - prevent any bypass
   if (!isAuthenticated || !currentUser || !allowedRoles.includes(currentUser.tipoPerfil)) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-96">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
       </div>
     );

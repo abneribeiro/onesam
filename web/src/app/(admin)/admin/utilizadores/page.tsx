@@ -378,7 +378,7 @@ export default function UtilizadoresList() {
               value={perfilFilter}
               onValueChange={(value) => setPerfilFilter(value as TipoPerfil | 'todos')}
             >
-              <SelectTrigger className="w-full md:w-[200px]">
+              <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder="Perfil" />
               </SelectTrigger>
               <SelectContent>

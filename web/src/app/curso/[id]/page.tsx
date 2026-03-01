@@ -98,7 +98,7 @@ export default function PublicCourseDetailsPage() {
                         </>
                     )}
                     <ChevronRight className="h-4 w-4" />
-                    <span className="text-foreground truncate max-w-[200px]">{curso.nome}</span>
+                    <span className="text-foreground truncate max-w-48">{curso.nome}</span>
                 </nav>
 
                 {/* Hero Section */}

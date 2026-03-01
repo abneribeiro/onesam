@@ -92,7 +92,7 @@ class AuthErrorBoundary extends Component<AuthErrorBoundaryProps, AuthErrorBound
       // Authentication error fallback
       if (isAuthError) {
         return (
-          <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center">
+          <div className="flex flex-col items-center justify-center min-h-96 p-8 text-center">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Sessão Expirada
@@ -120,7 +120,7 @@ class AuthErrorBoundary extends Component<AuthErrorBoundaryProps, AuthErrorBound
       // Permission error fallback
       if (isPermissionError) {
         return (
-          <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center">
+          <div className="flex flex-col items-center justify-center min-h-96 p-8 text-center">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Acesso Negado
@@ -153,7 +153,7 @@ class AuthErrorBoundary extends Component<AuthErrorBoundaryProps, AuthErrorBound
       const errorMessage = error ? getErrorTypeMessage(error) : 'Ocorreu um erro inesperado';
 
       return (
-        <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center">
+        <div className="flex flex-col items-center justify-center min-h-96 p-8 text-center">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Algo correu mal

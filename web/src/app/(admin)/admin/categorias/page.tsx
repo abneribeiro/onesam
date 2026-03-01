@@ -398,7 +398,7 @@ export default function CategoriasList() {
               value={areaFilter}
               onValueChange={setAreaFilter}
             >
-              <SelectTrigger className="w-full md:w-[250px]">
+              <SelectTrigger className="w-full md:w-60">
                 <SelectValue placeholder="Filtrar por área" />
               </SelectTrigger>
               <SelectContent>

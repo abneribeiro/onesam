@@ -167,7 +167,7 @@ export default function AdminInscricoesList() {
               value={estadoFilter}
               onValueChange={(value) => setEstadoFilter(value as EstadoInscricao | 'todos')}
             >
-              <SelectTrigger className="w-full md:w-[200px]">
+              <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
               <SelectContent>

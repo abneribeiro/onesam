@@ -310,7 +310,7 @@ function DocumentoViewer({ url, titulo }: { url: string; titulo: string }) {
               <img
                 src={url}
                 alt={titulo}
-                className="max-w-full max-h-[600px] mx-auto object-contain"
+                className="max-w-full max-h-96 mx-auto object-contain"
                 onError={() => setPreviewError(true)}
               />
             </div>

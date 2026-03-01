@@ -239,7 +239,7 @@ export function QuizForm({ aulaId, quiz, onSuccess, onCancel }: QuizFormProps) {
                         <FormControl>
                           <Textarea
                             placeholder="Digite a pergunta..."
-                            className="min-h-[80px]"
+                            className="min-h-20"
                             {...field}
                           />
                         </FormControl>
