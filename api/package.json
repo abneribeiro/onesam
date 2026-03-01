@@ -7,20 +7,28 @@
   "type": "commonjs",
   "main": "app.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/app.js",
-    "dev": "tsx watch src/app.ts",
+    "build": "bun build src/app.ts --outdir dist --target node",
+    "start": "bun run dist/app.js",
+    "dev": "bun --hot src/app.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "seed": "tsx src/database/seeds/complete-seed.ts",
-    "seed:clean": "tsx src/database/seeds/complete-seed.ts --clean",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:unit": "jest --testPathPattern=services",
-    "test:integration": "jest --testPathPattern=routes"
+    "seed": "bun run src/database/seeds/complete-seed.ts",
+    "seed:clean": "bun run src/database/seeds/complete-seed.ts --clean",
+    "test": "NODE_ENV=test bun test",
+    "test:watch": "NODE_ENV=test bun test --watch",
+    "test:coverage": "NODE_ENV=test bun test --coverage",
+    "test:security": "NODE_ENV=test bun test src/__tests__/security",
+    "test:services": "NODE_ENV=test bun test src/__tests__/services",
+    "test:integration": "NODE_ENV=test bun test src/__tests__/integration",
+    "test:unit": "NODE_ENV=test bun test --testNamePattern=services",
+    "test:ci": "NODE_ENV=test bun test --reporter=junit --output-file=test-results.xml",
+    "gap-analysis": "bun run src/scripts/gap-analysis.ts",
+    "db:benchmark": "bun run src/scripts/performance-benchmark.ts",
+    "test:load": "bun run src/scripts/load-test.ts",
+    "security:validate": "bun test src/__tests__/security --verbose",
+    "audit:generate-report": "bun run src/scripts/audit-report.ts"
   },
   "dependencies": {
     "@scalar/express-api-reference": "^0.8.22",
@@ -54,11 +62,11 @@
     "zod-to-openapi": "^0.2.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.4.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "@types/jest": "^30.0.0",
     "@types/multer": "^2.0.0",
     "@types/node": "^24.8.1",
     "@types/node-cron": "^3.0.11",
@@ -67,11 +75,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^11.0.0",
     "drizzle-kit": "^0.31.5",
-    "jest": "^29.7.0",
     "supertest": "^6.3.3",
-    "ts-jest": "^29.4.5",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
 }
