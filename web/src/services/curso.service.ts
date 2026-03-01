@@ -148,6 +148,17 @@ class CursoService {
       return handleApiError(error, 'remover cursos em massa');
     }
   }
+
+  /**
+   * Altera o estado de um curso
+   */
+  async alterarEstado(id: number, estado: string): Promise<Curso> {
+    try {
+      return await apiService.put<Curso>(`/cursos/${id}/estado`, { estado });
+    } catch (error: unknown) {
+      return handleApiError(error, 'alterar estado do curso');
+    }
+  }
 }
 
 export const cursoService = new CursoService();
