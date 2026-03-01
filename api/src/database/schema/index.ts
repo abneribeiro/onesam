@@ -230,6 +230,8 @@ export const utilizadoresRelations = relations(utilizadores, ({ one, many }) => 
   inscricoes: many(inscricoes),
   notificacoes: many(notificacoes),
   reviews: many(reviews),
+  quizTentativas: many(quizTentativas),
+  certificados: many(certificados),
 }));
 
 export const adminsRelations = relations(admins, ({ one }) => ({
@@ -272,6 +274,7 @@ export const cursosRelations = relations(cursos, ({ one, many }) => ({
   inscricoes: many(inscricoes),
   modulos: many(modulos),
   reviews: many(reviews),
+  certificados: many(certificados),
 }));
 
 export const inscricoesRelations = relations(inscricoes, ({ one }) => ({
@@ -327,6 +330,7 @@ export const aulasRelations = relations(aulas, ({ one, many }) => ({
     references: [modulos.id],
   }),
   progressos: many(progressoAulas),
+  quizzes: many(quizzes),
 }));
 
 export const progressoAulasRelations = relations(progressoAulas, ({ one }) => ({
@@ -363,5 +367,101 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
   utilizador: one(utilizadores, {
     fields: [reviews.utilizadorId],
     references: [utilizadores.id],
+  }),
+}));
+
+// Quiz System Tables
+export const quizzes = pgTable('Quizzes', {
+  id: serial('IDQuiz').primaryKey(),
+  aulaId: integer('IDAula').notNull().references(() => aulas.id, { onDelete: 'cascade' }),
+  titulo: varchar('Titulo', { length: 255 }).notNull(),
+  notaMinima: integer('NotaMinima').default(10).notNull(), // 0-20
+  maxTentativas: integer('MaxTentativas').default(3).notNull(),
+  dataCriacao: timestamp('DataCriacao').defaultNow().notNull(),
+  dataAtualizacao: timestamp('DataAtualizacao'),
+}, (table) => [
+  index('idx_quizzes_aula').on(table.aulaId),
+]);
+
+export const quizPerguntas = pgTable('QuizPerguntas', {
+  id: serial('IDPergunta').primaryKey(),
+  quizId: integer('IDQuiz').notNull().references(() => quizzes.id, { onDelete: 'cascade' }),
+  pergunta: text('Pergunta').notNull(),
+  opcoesJson: text('OpcoesJson').notNull(), // JSON string array
+  respostaCorreta: integer('RespostaCorreta').notNull(), // índice da resposta correta
+  ordem: integer('Ordem').notNull().default(0),
+  dataCriacao: timestamp('DataCriacao').defaultNow().notNull(),
+}, (table) => [
+  index('idx_quiz_perguntas_quiz').on(table.quizId),
+  index('idx_quiz_perguntas_ordem').on(table.quizId, table.ordem),
+]);
+
+export const quizTentativas = pgTable('QuizTentativas', {
+  id: serial('IDTentativa').primaryKey(),
+  quizId: integer('IDQuiz').notNull().references(() => quizzes.id, { onDelete: 'cascade' }),
+  utilizadorId: integer('IDUtilizador').notNull().references(() => utilizadores.id, { onDelete: 'cascade' }),
+  respostasJson: text('RespostasJson').notNull(), // JSON das respostas escolhidas
+  nota: integer('Nota').notNull(), // 0-20
+  aprovado: boolean('Aprovado').default(false).notNull(),
+  tentativa: integer('Tentativa').notNull().default(1),
+  dataCriacao: timestamp('DataCriacao').defaultNow().notNull(),
+}, (table) => [
+  index('idx_quiz_tentativas_quiz').on(table.quizId),
+  index('idx_quiz_tentativas_utilizador').on(table.utilizadorId),
+  index('idx_quiz_tentativas_utilizador_quiz').on(table.utilizadorId, table.quizId),
+]);
+
+// Certificate System Table
+export const certificados = pgTable('Certificados', {
+  id: serial('IDCertificado').primaryKey(),
+  utilizadorId: integer('IDUtilizador').notNull().references(() => utilizadores.id, { onDelete: 'cascade' }),
+  cursoId: integer('IDCurso').notNull().references(() => cursos.id, { onDelete: 'cascade' }),
+  codigoHash: varchar('CodigoHash', { length: 64 }).notNull().unique(),
+  dataEmissao: timestamp('DataEmissao').defaultNow().notNull(),
+  dataCriacao: timestamp('DataCriacao').defaultNow().notNull(),
+}, (table) => [
+  index('idx_certificados_utilizador').on(table.utilizadorId),
+  index('idx_certificados_curso').on(table.cursoId),
+  index('idx_certificados_codigo').on(table.codigoHash),
+  unique('unique_certificado_utilizador_curso').on(table.utilizadorId, table.cursoId),
+]);
+
+// Quiz Relations
+export const quizzesRelations = relations(quizzes, ({ one, many }) => ({
+  aula: one(aulas, {
+    fields: [quizzes.aulaId],
+    references: [aulas.id],
+  }),
+  perguntas: many(quizPerguntas),
+  tentativas: many(quizTentativas),
+}));
+
+export const quizPerguntasRelations = relations(quizPerguntas, ({ one }) => ({
+  quiz: one(quizzes, {
+    fields: [quizPerguntas.quizId],
+    references: [quizzes.id],
+  }),
+}));
+
+export const quizTentativasRelations = relations(quizTentativas, ({ one }) => ({
+  quiz: one(quizzes, {
+    fields: [quizTentativas.quizId],
+    references: [quizzes.id],
+  }),
+  utilizador: one(utilizadores, {
+    fields: [quizTentativas.utilizadorId],
+    references: [utilizadores.id],
+  }),
+}));
+
+// Certificate Relations
+export const certificadosRelations = relations(certificados, ({ one }) => ({
+  utilizador: one(utilizadores, {
+    fields: [certificados.utilizadorId],
+    references: [utilizadores.id],
+  }),
+  curso: one(cursos, {
+    fields: [certificados.cursoId],
+    references: [cursos.id],
   }),
 }));

@@ -19,6 +19,8 @@ import notificacaoRoutes from './routes/notificacaoRoutes';
 import moduloRoutes from './routes/moduloRoutes';
 import aulaRoutes from './routes/aulaRoutes';
 import reviewRoutes from './routes/reviewRoutes';
+import quizRoutes from './routes/quizRoutes';
+import certificadoRoutes from './routes/certificadoRoutes';
 
 import { errorHandler } from './utils/errorHandler';
 import betterAuthMiddleware from './middlewares/betterAuthMiddleware';
@@ -62,14 +64,34 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
+// CORS configuration - supports multiple origins for production deployment
+const getAllowedOrigins = () => {
+  const origins = [config.app.frontendUrl];
+
+  // Add additional origins from environment variable (comma-separated)
+  if (config.cors.allowedOrigins.length > 0) {
+    origins.push(...config.cors.allowedOrigins);
+  }
+
+  // In development, allow all localhost ports
+  if (config.app.isDevelopment) {
+    origins.push(/^http:\/\/localhost:\d+$/);
+  }
+
+  return origins;
+};
+
 app.use(
   cors({
-    origin: config.app.frontendUrl,
+    origin: getAllowedOrigins(),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'User-Agent', 'Accept', 'X-Requested-With'],
     exposedHeaders: ['Set-Cookie'],
     maxAge: 86400,
+    // Enable preflight for all routes
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
 );
 app.use(cookieParser());
@@ -144,6 +166,8 @@ app.use('/api/notificacoes', betterAuthMiddleware, notificacaoRoutes);
 app.use('/api/modulos', moduloRoutes);
 app.use('/api/aulas', aulaRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/quizzes', quizRoutes);
+app.use('/api/certificados', certificadoRoutes);
 app.use('/api/admin', betterAuthMiddleware, adminRoutes);
 
 app.get('/', (_req, res) => {
