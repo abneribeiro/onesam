@@ -84,8 +84,8 @@ NEXT_PUBLIC_APP_URL=[https://teu-frontend.vercel.app](https://teu-frontend.verce
 
 ## Fase 4: Resiliência da Base de Dados e Seeds
 
-* [ ] Validar a configuração do `api/drizzle.config.ts`.
-* [ ] Verificar os ficheiros em `api/src/database/seeds/*` para garantir que a ordem de inserção respeita as chaves estrangeiras.
-* [ ] Confirmar que não existem conflitos ou migrações pendentes no schema atual.
+* [x] Validar a configuração do `api/drizzle.config.ts`.
+* [x] Verificar os ficheiros em `api/src/database/seeds/*` para garantir que a ordem de inserção respeita as chaves estrangeiras.
+* [x] Confirmar que não existem conflitos ou migrações pendentes no schema atual.
 
 ```

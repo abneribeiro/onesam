@@ -1,5 +1,9 @@
 import { db } from '../db';
-import { utilizadores, admins, formandos, areas, categorias, cursos, inscricoes, reviews, notificacoes, account, progressoAulas, aulas, modulos } from '../schema';
+import {
+  utilizadores, admins, formandos, areas, categorias, cursos, inscricoes,
+  reviews, notificacoes, account, progressoAulas, aulas, modulos, session,
+  auditLogs, verification, quizzes, quizPerguntas, quizTentativas, certificados
+} from '../schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '../../lib/auth';
 
@@ -12,19 +16,39 @@ async function cleanDatabase() {
   logger.info('Cleaning database...');
 
   // Delete in correct order (respecting foreign key constraints)
-  await db.delete(progressoAulas);
-  await db.delete(reviews);
-  await db.delete(notificacoes);
-  await db.delete(aulas);
-  await db.delete(modulos);
-  await db.delete(inscricoes);
-  await db.delete(cursos);
-  await db.delete(categorias);
-  await db.delete(areas);
-  await db.delete(formandos);
-  await db.delete(admins);
-  await db.delete(account);
-  await db.delete(utilizadores);
+  // Most dependent tables first, independent tables last
+  // Use try-catch for tables that might not exist yet
+  const tablesToDelete = [
+    { table: quizTentativas, name: 'QuizTentativas' },
+    { table: quizPerguntas, name: 'QuizPerguntas' },
+    { table: quizzes, name: 'Quizzes' },
+    { table: certificados, name: 'Certificados' },
+    { table: progressoAulas, name: 'ProgressoAulas' },
+    { table: reviews, name: 'Reviews' },
+    { table: notificacoes, name: 'Notificacoes' },
+    { table: aulas, name: 'Aulas' },
+    { table: modulos, name: 'Modulos' },
+    { table: inscricoes, name: 'Inscricoes' },
+    { table: cursos, name: 'Cursos' },
+    { table: categorias, name: 'Categorias' },
+    { table: areas, name: 'Areas' },
+    { table: session, name: 'Session' },
+    { table: auditLogs, name: 'AuditLogs' },
+    { table: formandos, name: 'Formandos' },
+    { table: admins, name: 'Admins' },
+    { table: account, name: 'Account' },
+    { table: utilizadores, name: 'Utilizadores' },
+    { table: verification, name: 'Verification' }
+  ];
+
+  for (const { table, name } of tablesToDelete) {
+    try {
+      await db.delete(table);
+      logger.info(`Cleaned table: ${name}`);
+    } catch (error) {
+      logger.warn(`Table ${name} might not exist or already empty: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
 
   // Reset auto-increment sequences to start from 1
   await db.execute(`ALTER SEQUENCE "Areas_IDArea_seq" RESTART WITH 1`);
@@ -37,6 +61,11 @@ async function cleanDatabase() {
   await db.execute(`ALTER SEQUENCE "Reviews_IDReview_seq" RESTART WITH 1`);
   await db.execute(`ALTER SEQUENCE "Notificacoes_IDNotificacao_seq" RESTART WITH 1`);
   await db.execute(`ALTER SEQUENCE "ProgressoAulas_IDProgresso_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "Quizzes_IDQuiz_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "QuizPerguntas_IDPergunta_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "QuizTentativas_IDTentativa_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "Certificados_IDCertificado_seq" RESTART WITH 1`);
+  await db.execute(`ALTER SEQUENCE "AuditLogs_IDAuditLog_seq" RESTART WITH 1`);
 
   logger.info('Database cleaned and sequences reset');
 }
