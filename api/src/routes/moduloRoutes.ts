@@ -1,8 +1,10 @@
 import express, { type Router } from 'express';
 import * as moduloController from '../controllers/moduloController';
 import betterAuthMiddleware from '../middlewares/betterAuthMiddleware';
-import { adminOnly } from '../middlewares/rbacMiddleware';
+import { can } from '../middlewares/rbacMiddleware';
 import { validateDto } from '../middlewares/validateDto';
+import { stateChangeRateLimiter } from '../middlewares/rateLimitMiddleware';
+import { Resource, Action } from '../types/permissions.types';
 import {
   createModuloSchema,
   updateModuloSchema,
@@ -10,7 +12,7 @@ import {
 
 const router: Router = express.Router();
 
-// Rotas públicas (formandos podem visualizar)
+// Public routes (formandos podem visualizar)
 router.get('/', betterAuthMiddleware, moduloController.listarModulos);
 router.get(
   '/curso/:IDCurso',
@@ -23,11 +25,11 @@ router.get(
   moduloController.obterModulo
 );
 
-// Rotas protegidas (apenas admin)
+// Protected admin routes - require specific CONTEUDO permissions
 router.post(
   '/',
   betterAuthMiddleware,
-  adminOnly,
+  can(Resource.CONTEUDO, Action.CREATE),
   validateDto(createModuloSchema.shape.body),
   moduloController.criarModulo
 );
@@ -35,7 +37,7 @@ router.post(
 router.put(
   '/:IDModulo',
   betterAuthMiddleware,
-  adminOnly,
+  can(Resource.CONTEUDO, Action.UPDATE),
   validateDto(updateModuloSchema.shape.body),
   moduloController.atualizarModulo
 );
@@ -43,14 +45,15 @@ router.put(
 router.delete(
   '/:IDModulo',
   betterAuthMiddleware,
-  adminOnly,
+  can(Resource.CONTEUDO, Action.DELETE),
   moduloController.deletarModulo
 );
 
 router.put(
   '/curso/:IDCurso/reorder',
   betterAuthMiddleware,
-  adminOnly,
+  can(Resource.CONTEUDO, Action.UPDATE),
+  stateChangeRateLimiter,
   moduloController.reordenarModulos
 );
 

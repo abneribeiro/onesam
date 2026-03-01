@@ -1,9 +1,11 @@
 import express, { type Router } from 'express';
 import * as aulaController from '../controllers/aulaController';
 import betterAuthMiddleware from '../middlewares/betterAuthMiddleware';
-import { adminOnly } from '../middlewares/rbacMiddleware';
+import { can } from '../middlewares/rbacMiddleware';
 import { validateDto } from '../middlewares/validateDto';
 import { uploadVideo } from '../middlewares/uploadMiddleware';
+import { fileUploadRateLimiter, stateChangeRateLimiter } from '../middlewares/rateLimitMiddleware';
+import { Resource, Action } from '../types/permissions.types';
 import {
   createAulaSchema,
   updateAulaSchema,
@@ -31,7 +33,7 @@ router.get(
   aulaController.obterProgressoCurso
 );
 
-// Rotas públicas (formandos podem visualizar)
+// Public routes (formandos podem visualizar)
 router.get('/', betterAuthMiddleware, aulaController.listarAulas);
 
 router.get(
@@ -41,19 +43,21 @@ router.get(
   aulaController.listarAulasPorModulo
 );
 
-// Rotas protegidas (apenas admin) - devem vir antes de /:IDAula
+// Protected admin routes - require specific CONTEUDO permissions
 router.put(
   '/modulo/:IDModulo/reorder',
   betterAuthMiddleware,
-  adminOnly,
+  can(Resource.CONTEUDO, Action.UPDATE),
+  stateChangeRateLimiter,
   aulaController.reordenarAulas
 );
 
-// Rota de upload de vídeo (admin)
+// File upload route with enhanced security (admin only)
 router.post(
   '/upload-video',
   betterAuthMiddleware,
-  adminOnly,
+  can(Resource.CONTEUDO, Action.CREATE),
+  fileUploadRateLimiter,
   uploadVideo.single('video'),
   aulaController.uploadVideo
 );
@@ -69,7 +73,7 @@ router.get(
 router.post(
   '/',
   betterAuthMiddleware,
-  adminOnly,
+  can(Resource.CONTEUDO, Action.CREATE),
   validateDto(createAulaSchema.shape.body),
   aulaController.criarAula
 );
@@ -77,7 +81,7 @@ router.post(
 router.put(
   '/:IDAula',
   betterAuthMiddleware,
-  adminOnly,
+  can(Resource.CONTEUDO, Action.UPDATE),
   validateDto(updateAulaSchema),
   aulaController.atualizarAula
 );
@@ -85,7 +89,7 @@ router.put(
 router.delete(
   '/:IDAula',
   betterAuthMiddleware,
-  adminOnly,
+  can(Resource.CONTEUDO, Action.DELETE),
   validateDto(deleteAulaSchema),
   aulaController.deletarAula
 );
