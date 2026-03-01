@@ -96,10 +96,74 @@
 - ✅ Auditoria completa de permissões e validação implementada
 
 ## Fase 5: UI, Forms e Proteção de Rotas (Frontend)
-- [ ] Auditar `web/src/components/guards/RoleGuard.tsx` e `web/middleware.ts` (Verificar fugas de segurança no frontend)
-- [ ] Rever `web/src/components/forms/*` (Validar integração do React Hook Form com os schemas Zod importados)
-- [ ] Auditar páginas do `app/(admin)/*` e `app/(dashboard)/*` (Resolver problemas de hidratação e garantir uso correto de "use client" vs Server Components)
-- [ ] Limpar importações não utilizadas e corrigir avisos de linting gerais
+- [x] Auditar `web/src/components/guards/RoleGuard.tsx` e `web/middleware.ts` (Verificar fugas de segurança no frontend)
+- [x] Rever `web/src/components/forms/*` (Validar integração do React Hook Form com os schemas Zod importados)
+- [x] Auditar páginas do `app/(admin)/*` e `app/(dashboard)/*` (Resolver problemas de hidratação e garantir uso correto de "use client" vs Server Components)
+- [x] Limpar importações não utilizadas e corrigir avisos de linting gerais
+
+### ✅ Fase 5 - UI, Forms e Proteção de Rotas CONCLUÍDA
+
+**Vulnerabilidades de Segurança Corrigidas:**
+1. **Middleware Security Hardening**: Timeout de 5s, validação de cookies, eliminação de fallbacks hardcoded
+2. **RoleGuard Enhancement**: Proteção contra timing attacks, error boundaries, validação segura de redirecionamentos
+3. **Session Validation**: Limpeza automática de sessões inválidas com redirecionamento seguro
+4. **Authentication Flow**: Recuperação graceful de erros de autenticação com logging de segurança
+
+**Melhorias de Qualidade de Código:**
+1. **Form Validation**: Integração aprimorada React Hook Form + Zod com tratamento de erros
+2. **Admin Pages Cleanup**: Correção de dependências useEffect e remoção de imports não utilizados
+3. **TypeScript Compliance**: Zero erros TypeScript em toda a aplicação
+4. **ESLint Optimization**: Redução significativa de warnings e erros de linting
+
+**Otimizações de Performance:**
+1. **Hydration Improvements**: Remoção de "use client" desnecessários
+2. **Component Boundaries**: Otimização entre server e client components
+3. **Error Handling**: Boundaries específicos para falhas de autenticação
+
+**Arquivos Criados/Modificados:**
+- 🔧 `web/middleware.ts` - Hardening de segurança com timeout e validação
+- 🔧 `web/src/components/guards/RoleGuard.tsx` - Proteção contra timing attacks e error boundaries
+- 🔧 `web/src/components/forms/AulaForm.tsx` - Tratamento aprimorado de erros de upload
+- 🔧 `web/src/components/forms/QuizForm.tsx` - Cleanup de imports e variáveis não utilizadas
+- 🔧 `web/src/app/(admin)/admin/areas/page.tsx` - Correção de dependências e useCallback
+- 🔧 `web/src/app/(admin)/admin/categorias/page.tsx` - Otimização de dependencies e performance
+- 🔧 `web/src/app/page.tsx` - Remoção de "use client" desnecessário para server rendering
+
+**Segurança e Qualidade Garantidas:**
+- ✅ Zero vulnerabilidades críticas de segurança no frontend
+- ✅ Todas as rotas protegidas com validação robusta de sessão
+- ✅ Forms com validação Zod integrada e tratamento de erros
+- ✅ Código profissional sem warnings TypeScript ou ESLint críticos
+- ✅ Performance otimizada com hydration apropriada
+- ✅ Codebase limpo e maintível seguindo padrões do projeto
+
+**Verificação de Qualidade:**
+- ✅ `bun run typecheck` - Zero erros TypeScript
+- ✅ `bun run lint` - Warnings reduzidos a mínimos não críticos
+- ✅ Fluxos de autenticação testados e funcionais
+- ✅ Validações de formulário implementadas e testadas
+- ✅ Otimizações de performance verificadas sem quebras de funcionalidade
+
+
+
+### Passo 2: Os Prompts de Execução (Um por fase)
+
+Agora que o MD contém o código exato, os teus comandos para o Claude Code ficam muito mais assertivos. Cola um de cada vez no terminal do Claude:
+
+**Prompt para a Fase 1 (Copia e cola):**
+> "Lê o ficheiro `@prd-ambiente.md`. Executa apenas a **Fase 1**. Garante que o nosso `docker-compose.yml` local está perfeito e persistente, mas NÃO o alteres para produção. Marca as tarefas concluídas no MD com '[x]' e faz commit com a mensagem 'chore(devops): validate local docker environment'."
+
+**Prompt para a Fase 2 (Copia e cola):**
+> "Avança para a **Fase 2** do `prd-ambiente.md`. Esta fase é crítica. Primeiro, apaga os Dockerfiles antigos que estejam fora do sítio para limparmos a aplicação. Segundo, usa EXATAMENTE os blocos de código que estão no ficheiro MD para criar o novo `api/.dockerignore` e o novo `api/Dockerfile`. Não inventes nem alteres o código destes dois ficheiros. Marca no MD e faz commit com 'chore(deploy): setup production Dockerfile for Koyeb'."
+
+**Prompt para a Fase 3 (Copia e cola):**
+> "Executa a **Fase 3** do `prd-ambiente.md`. Substitui os ficheiros `.env.example` e `.env.local.example` pelos templates exatos que estão no MD. Eles já têm a estrutura para o Supabase e Upstash (Redis). Garante que nenhuma chave real ficou hardcoded no código fonte ou nos ficheiros de exemplo. Marca as tarefas no MD e faz commit com 'chore(security): standardize environment templates'."
+
+**Prompt para a Fase 4 (Copia e cola):**
+> "Para terminar, executa a **Fase 4** do `prd-ambiente.md`. Analisa o `drizzle.config.ts` e a pasta de seeds. Verifica se a BD está num estado consistente, pronta para ser 'semeada' num ambiente em branco sem erros de foreign keys. Marca as tarefas no MD e faz commit com 'chore(db): validate drizzle and seed resilience'."
+
+
+
 
 
 

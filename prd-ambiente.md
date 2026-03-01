@@ -17,8 +17,8 @@ Substitui o conteúdo do teu ficheiro `prd-ambiente.md` por este bloco de texto:
 - [x] Verificar se as credenciais base locais (postgres/minio) e portas estão mapeadas corretamente.
 
 ## Fase 2: Limpeza e Criação do Dockerfile de Produção (Backend)
-- [ ] Procurar e APAGAR qualquer `Dockerfile`, `docker-compose.prod.yml` ou ficheiro `.dockerignore` que esteja na raiz do projeto ou na pasta `web/`.
-- [ ] Criar o ficheiro `api/.dockerignore` EXATAMENTE com este conteúdo:
+- [x] Procurar e APAGAR qualquer `Dockerfile`, `docker-compose.prod.yml` ou ficheiro `.dockerignore` que esteja na raiz do projeto ou na pasta `web/`.
+- [x] Criar o ficheiro `api/.dockerignore` EXATAMENTE com este conteúdo:
 ```text
 node_modules
 dist
@@ -32,7 +32,7 @@ npm-debug.log*
 
 ```
 
-* [ ] Criar o ficheiro `api/Dockerfile` EXATAMENTE com este conteúdo (Multi-stage build para a Koyeb):
+* [x] Criar o ficheiro `api/Dockerfile` EXATAMENTE com este conteúdo (Multi-stage build para a Koyeb):
 
 ```dockerfile
 FROM oven/bun:1 AS builder
