@@ -32,7 +32,9 @@ export function SearchInput({
   const onChangeRef = useRef(onChange);
 
   // Manter referência atualizada do onChange sem causar re-render
-  onChangeRef.current = onChange;
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  });
 
   // Chamar onChange apenas quando debouncedValue realmente mudar
   useEffect(() => {
@@ -44,9 +46,7 @@ export function SearchInput({
 
   // Sync external value changes (quando value muda externamente)
   useEffect(() => {
-    if (value !== input && value !== debouncedValue) {
-      setInput(value);
-    }
+    setInput(value);
   }, [value]);
 
   const handleClear = useCallback(() => {

@@ -37,24 +37,20 @@ class AnalyticsService {
   }
 
   /**
-   * Downloads CSV export of enrollment data
+   * Downloads CSV export of enrollment data using enhanced API service
    */
   async exportarCSV(): Promise<Blob> {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics/exportar`, {
-        method: 'GET',
-        credentials: 'include',
+      // Use the enhanced API service's axios instance to get the blob response
+      const axiosInstance = apiService.getAxiosInstance();
+      const response = await axiosInstance.get('/admin/analytics/exportar', {
+        responseType: 'blob',
         headers: {
           'Accept': 'text/csv',
         },
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Erro ao exportar dados');
-      }
-
-      return await response.blob();
+      return response.data;
     } catch (error: unknown) {
       return handleApiError(error, 'exportar dados');
     }
