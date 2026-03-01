@@ -56,7 +56,7 @@ CMD ["bun", "run", "dist/app.js"]
 
 ## Fase 3: Segurança e Variáveis de Ambiente (Supabase + Upstash)
 
-* [ ] Atualizar `api/.env.example` EXATAMENTE com este template base (sem dados reais):
+* [x] Atualizar `api/.env.example` EXATAMENTE com este template base (sem dados reais):
 
 ```env
 NODE_ENV=production
@@ -72,7 +72,7 @@ BETTER_AUTH_SECRET=your_auth_secret_here
 
 ```
 
-* [ ] Atualizar `web/.env.local.example` EXATAMENTE com este template base:
+* [x] Atualizar `web/.env.local.example` EXATAMENTE com este template base:
 
 ```env
 NEXT_PUBLIC_API_URL=[https://tua-api.koyeb.app](https://tua-api.koyeb.app)
@@ -80,7 +80,7 @@ NEXT_PUBLIC_APP_URL=[https://teu-frontend.vercel.app](https://teu-frontend.verce
 
 ```
 
-* [ ] Fazer scan ao código e garantir que não ficaram JWT secrets ou chaves de DB reais esquecidas em nenhum ficheiro `.example` ou de configuração.
+* [x] Fazer scan ao código e garantir que não ficaram JWT secrets ou chaves de DB reais esquecidas em nenhum ficheiro `.example` ou de configuração.
 
 ## Fase 4: Resiliência da Base de Dados e Seeds
 
