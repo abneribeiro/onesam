@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { NivelBadge } from '@/components/features/StatusBadge';
-import { LoadingState } from '@/components/features/LoadingState';
+import { LoadingState } from '@/components/ui/loading-system';
 import { StatsCard } from '@/components/features/StatsCard';
 import { useAdminStats, useCursosPopulares } from '@/hooks/queries';
 

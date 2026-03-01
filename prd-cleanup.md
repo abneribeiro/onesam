@@ -5,10 +5,10 @@
 - [x] Procurar e APAGAR comentários conversacionais, óbvios ou desnecessários (ex: `// Esta função faz o login`, `// TODO`, `// Here is the implementation`). Manter apenas comentários de lógica complexa de negócio.
 - [x] Identificar e remover "Dead Code" (variáveis declaradas mas nunca usadas, imports não utilizados, ficheiros soltos sem referências).
 
-## Fase 2: Eliminação de Redundâncias e DRY (Frontend & Backend)
-- [ ] Auditar `web/src/utils/` e `api/src/utils/`. Identificar funções duplicadas (ex: formatação de datas, sanitização) e consolidar.
-- [ ] Auditar `web/src/components/features/` e `web/src/components/ui/`. Garantir que não existem componentes "custom" que reinventem a roda de componentes já existentes do Shadcn UI.
-- [ ] Verificar ficheiros de Tipos (`types/`). Eliminar tipos redundantes e usar Inferência do Zod (`z.infer`) sempre que um schema Zod já exista para aquela entidade.
+## Fase 2: Eliminação de Redundâncias e DRY (Frontend & Backend) ✅ CONCLUÍDA
+- [x] Auditar `web/src/utils/` e `api/src/utils/`. Identificar funções duplicadas (ex: formatação de datas, sanitização) e consolidar.
+- [x] Auditar `web/src/components/features/` e `web/src/components/ui/`. Garantir que não existem componentes "custom" que reinventem a roda de componentes já existentes do Shadcn UI.
+- [x] Verificar ficheiros de Tipos (`types/`). Eliminar tipos redundantes e usar Inferência do Zod (`z.infer`) sempre que um schema Zod já exista para aquela entidade.
 
 ## Fase 3: Sincronização Cliente/Servidor (Full Stack)
 - [ ] Mapear todas as rotas registadas em `api/src/routes/` e comparar com as chamadas feitas em `web/src/services/`.

@@ -22,7 +22,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field';
-import { LoadingState } from '@/components/features/LoadingState';
+import { LoadingState } from '@/components/ui/loading-system';
 import { utilizadorService } from '@/services/utilizador.service';
 import { toast } from 'sonner';
 import type { TipoPerfil } from '@/types';

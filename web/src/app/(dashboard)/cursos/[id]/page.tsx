@@ -28,7 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { NivelBadge, EstadoBadge } from '@/components/features/StatusBadge';
-import { LoadingState } from '@/components/features/LoadingState';
+import { LoadingState } from '@/components/ui/loading-system';
 import { useCurso, useInscreverCurso, useMinhaInscricaoCurso } from '@/hooks/queries';
 import { useReviewsPorCurso, useReviewStats, useMinhaReview, useCreateReview, useUpdateReview, useDeleteReview } from '@/hooks/queries/useReviews';
 import { ReviewForm } from '@/components/reviews/ReviewForm';

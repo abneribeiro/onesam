@@ -25,7 +25,6 @@ export { SkipToContent } from './SkipToContent';
 // State components
 export { EmptyState } from './EmptyState';
 export { ErrorState } from './ErrorState';
-export { LoadingState } from './LoadingState';
 
 // Layout components
 export { PageHeader } from './PageHeader';

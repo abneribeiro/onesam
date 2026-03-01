@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { useMinhasInscricoes } from '@/hooks/queries';
 import { EstadoBadge } from '@/components/features/StatusBadge';
-import { LoadingState } from '@/components/features/LoadingState';
+import { LoadingState } from '@/components/ui/loading-system';
 import { StatsCard } from '@/components/features/StatsCard';
 import { ActivityHeatmap } from '@/components/features/ActivityHeatmap';
 import { CircularProgress } from '@/components/features/CircularProgress';

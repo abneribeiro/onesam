@@ -58,6 +58,25 @@ export function sanitizeText(input: string): string {
 }
 
 /**
+ * Sanitizes text for safe HTML display by escaping entities
+ */
+export function sanitizeTextForDisplay(input: string): string {
+  if (!input || typeof input !== 'string') return '';
+
+  return input
+    .replace(/[<>&"']/g, (match) => {
+      switch (match) {
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '&': return '&amp;';
+        case '"': return '&quot;';
+        case "'": return '&#x27;';
+        default: return match;
+      }
+    });
+}
+
+/**
  * Validates and sanitizes URLs
  */
 export function sanitizeUrl(url: string): string | null {
@@ -95,7 +114,7 @@ export function sanitizeSearchQuery(query: string): string {
 
   return query
     .replace(/[<>&"'%\x00-\x1f\x7f-\x9f]/g, '') // Remove dangerous characters
-    .replace(/[^\w\s\-._@áàâãéêíóôõúçñü]/gi, '') // Allow alphanumeric, space, and Portuguese characters
+    .replace(/[^\w\s\-._@áàâãéêíóôõúçñü]/gi, '') // Allow alphanumeric, space, Portuguese chars, and safe symbols
     .trim()
     .slice(0, 100);
 }

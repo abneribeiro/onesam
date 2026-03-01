@@ -23,7 +23,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field';
-import { LoadingState } from '@/components/features/LoadingState';
+import { LoadingState } from '@/components/ui/loading-system';
 import { cursoService } from '@/services/curso.service';
 import { areaService } from '@/services/area.service';
 import { categoriaService } from '@/services/categoria.service';

@@ -63,7 +63,7 @@ import { ModuloForm } from '@/components/forms/ModuloForm';
 import { AulaForm } from '@/components/forms/AulaForm';
 import { PageHeader } from '@/components/features/PageHeader';
 import { Badge } from '@/components/ui/badge';
-import { LoadingState } from '@/components/features/LoadingState';
+import { LoadingState } from '@/components/ui/loading-system';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 

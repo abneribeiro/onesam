@@ -1,6 +1,12 @@
 /**
  * Tipos compartilhados entre Frontend e Backend
  * Este arquivo contém tipos que devem ser sincronizados entre as duas camadas
+ *
+ * NOTE: Para novos formulários, prefira usar z.infer diretamente dos schemas
+ * em vez de definir interfaces manuais aqui. Exemplos de uso correto:
+ * - ModuloForm.tsx usa z.infer<typeof moduloSchema>
+ * - AulaForm.tsx usa z.infer<typeof aulaSchema>
+ * - QuizForm.tsx usa z.infer<typeof quizSchema>
  */
 
 // Perfis de utilizador (simplificado: apenas admin e formando)
@@ -155,7 +161,9 @@ export interface ApiError {
   };
 }
 
-// Tipos para formulários (dados de input) - sincronizado com Schema DB
+// Tipos para formulários (dados de input)
+// NOTE: Para novos formulários, considere usar z.infer dos schemas correspondentes
+// para garantir sincronização automática entre tipos e validação
 export interface CursoInput {
   nome: string;
   descricao?: string;

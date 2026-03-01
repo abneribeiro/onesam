@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { NivelBadge, EstadoCursoBadge } from '@/components/features/StatusBadge';
-import { LoadingState } from '@/components/features/LoadingState';
+import { LoadingState } from '@/components/ui/loading-system';
 import { useCurso } from '@/hooks/queries';
 import { formatDate } from '@/lib/dateUtils';
 
