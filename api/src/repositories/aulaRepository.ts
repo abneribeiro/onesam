@@ -1,4 +1,4 @@
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, sql } from 'drizzle-orm';
 import { db } from '../database/db';
 import { aulas, progressoAulas } from '../database/schema';
 
@@ -133,10 +133,12 @@ export class AulaRepository {
   }
 
   async countByModuloId(moduloId: number): Promise<number> {
-    const result = await db.query.aulas.findMany({
-      where: eq(aulas.moduloId, moduloId),
-    });
-    return result.length;
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(aulas)
+      .where(eq(aulas.moduloId, moduloId));
+
+    return result[0]?.count ?? 0;
   }
 
   async reorder(moduloId: number, aulasOrdenadas: { id: number; ordem: number }[]): Promise<void> {
@@ -225,11 +227,21 @@ export class AulaRepository {
     aulasConcluidas: number;
     percentual: number;
   }> {
-    // Buscar todos os módulos do curso com suas aulas
+    // Buscar todos os módulos do curso com suas aulas e progresso do utilizador em uma única query
     const modulosDoCurso = await db.query.modulos.findMany({
       where: (modulos, { eq }) => eq(modulos.cursoId, cursoId),
       with: {
-        aulas: true,
+        aulas: {
+          with: {
+            progressos: {
+              where: (progressoAulas, { eq, and }) =>
+                and(
+                  eq(progressoAulas.utilizadorId, utilizadorId),
+                  eq(progressoAulas.concluida, true)
+                ),
+            },
+          },
+        },
       },
     });
 
@@ -240,20 +252,8 @@ export class AulaRepository {
       return { totalAulas: 0, aulasConcluidas: 0, percentual: 0 };
     }
 
-    // Buscar progresso do utilizador
-    const progressos = await db.query.progressoAulas.findMany({
-      where: (progressoAulas, { eq, and, inArray }) =>
-        and(
-          eq(progressoAulas.utilizadorId, utilizadorId),
-          eq(progressoAulas.concluida, true),
-          inArray(
-            progressoAulas.aulaId,
-            todasAulas.map((a) => a.id)
-          )
-        ),
-    });
-
-    const aulasConcluidas = progressos.length;
+    // Contar aulas concluídas baseado nos progressos já carregados
+    const aulasConcluidas = todasAulas.filter((aula) => aula.progressos.length > 0).length;
     const percentual = Math.round((aulasConcluidas / totalAulas) * 100);
 
     return { totalAulas, aulasConcluidas, percentual };

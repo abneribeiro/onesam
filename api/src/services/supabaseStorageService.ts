@@ -1,4 +1,5 @@
 import { supabaseAdmin, STORAGE_BUCKETS, type StorageBucket } from '../config/supabase';
+import { CustomError } from '../utils/errorHandler';
 import logger from '../utils/logger';
 import { randomUUID } from 'crypto';
 
@@ -22,7 +23,7 @@ export class SupabaseStorageService {
 
       if (error) {
         logger.error('Erro ao fazer upload de avatar', error instanceof Error ? error : new Error(String(error)));
-        throw new Error('Falha ao fazer upload do avatar');
+        throw new CustomError('Falha ao fazer upload do avatar', 500);
       }
 
       return this.getPublicUrl(STORAGE_BUCKETS.AVATARS, data.path);
@@ -50,7 +51,7 @@ export class SupabaseStorageService {
 
       if (error) {
         logger.error('Erro ao fazer upload de imagem de curso', error instanceof Error ? error : new Error(String(error)));
-        throw new Error('Falha ao fazer upload da imagem do curso');
+        throw new CustomError('Falha ao fazer upload da imagem do curso', 500);
       }
 
       return this.getPublicUrl(STORAGE_BUCKETS.COURSE_IMAGES, data.path);
@@ -77,7 +78,7 @@ export class SupabaseStorageService {
           bucket: STORAGE_BUCKETS.COURSE_CONTENT,
           error: bucketError?.message
         });
-        throw new Error(`Bucket de armazenamento "${STORAGE_BUCKETS.COURSE_CONTENT}" não está disponível. Verifique a configuração do Supabase.`);
+        throw new CustomError(`Bucket de armazenamento "${STORAGE_BUCKETS.COURSE_CONTENT}" não está disponível. Verifique a configuração do Supabase.`, 500);
       }
 
       const sanitizedFileName = this.sanitizeFileName(fileName);
@@ -110,9 +111,9 @@ export class SupabaseStorageService {
         logger.error('Erro ao fazer upload de conteúdo', errorDetails);
 
         if (error.message.includes('size') || error.message.includes('exceeded')) {
-          throw new Error(`Arquivo muito grande (${fileSizeMB}MB). O tamanho máximo permitido é 50MB.`);
+          throw new CustomError(`Arquivo muito grande (${fileSizeMB}MB). O tamanho máximo permitido é 50MB.`, 413);
         }
-        throw new Error('Falha ao fazer upload do conteúdo');
+        throw new CustomError('Falha ao fazer upload do conteúdo', 500);
       }
 
       const publicUrl = this.getPublicUrl(STORAGE_BUCKETS.COURSE_CONTENT, data.path);
@@ -143,7 +144,7 @@ export class SupabaseStorageService {
 
       if (error) {
         logger.error('Erro ao fazer upload de certificado', error instanceof Error ? error : new Error(String(error)));
-        throw new Error('Falha ao fazer upload do certificado');
+        throw new CustomError('Falha ao fazer upload do certificado', 500);
       }
 
       return this.getPublicUrl(STORAGE_BUCKETS.CERTIFICATES, data.path);
@@ -162,7 +163,7 @@ export class SupabaseStorageService {
 
       if (error) {
         logger.error('Erro ao deletar arquivo', error instanceof Error ? error : new Error(String(error)));
-        throw new Error('Falha ao deletar arquivo');
+        throw new CustomError('Falha ao deletar arquivo', 500);
       }
 
       logger.info('Arquivo deletado com sucesso', { bucket, filePath });
@@ -239,7 +240,7 @@ export class SupabaseStorageService {
 
       if (error) {
         logger.error('Erro ao criar URL assinada', error instanceof Error ? error : new Error(String(error)));
-        throw new Error('Falha ao criar URL assinada');
+        throw new CustomError('Falha ao criar URL assinada', 500);
       }
 
       return data.signedUrl;

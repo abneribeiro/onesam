@@ -2,6 +2,7 @@ import { cursoRepository, type CursoFiltros } from '../repositories/cursoReposit
 import { inscricaoRepository } from '../repositories/inscricaoRepository';
 import { areaRepository } from '../repositories/areaRepository';
 import { categoriaRepository } from '../repositories/categoriaRepository';
+import { CustomError } from '../utils/errorHandler';
 import logger from '../utils/logger';
 import type { NewCurso, Curso, EstadoCurso } from '../types';
 import type { PaginationParams, PaginatedResult } from '../utils/pagination';
@@ -48,10 +49,10 @@ export class CursoService {
       ]);
 
       if (!area) {
-        throw new Error('Área não encontrada');
+        throw new CustomError('Área não encontrada', 404);
       }
       if (!categoria || categoria.areaId !== data.IDArea) {
-        throw new Error('Categoria não encontrada ou não pertence à área');
+        throw new CustomError('Categoria não encontrada ou não pertence à área', 400);
       }
 
       const nivelCurso = (data.nivel as 'iniciante' | 'intermedio' | 'avancado') || 'iniciante';
@@ -88,14 +89,14 @@ export class CursoService {
 
     const missing = required.filter(field => !data[field as keyof CreateCursoDTO]);
     if (missing.length > 0) {
-      throw new Error(`Campos obrigatórios faltando: ${missing.join(', ')}`);
+      throw new CustomError(`Campos obrigatórios faltando: ${missing.join(', ')}`, 400);
     }
 
     const dataInicio = new Date(data.dataInicio);
     const dataFim = new Date(data.dataFim);
 
     if (dataInicio >= dataFim) {
-      throw new Error('Data de início deve ser anterior à data de fim');
+      throw new CustomError('Data de início deve ser anterior à data de fim', 400);
     }
 
     if (data.dataLimiteInscricao) {

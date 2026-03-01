@@ -1,4 +1,4 @@
-import { eq, asc, and } from 'drizzle-orm';
+import { eq, asc, and, sql } from 'drizzle-orm';
 import { db } from '../database/db';
 import { modulos } from '../database/schema';
 
@@ -91,10 +91,12 @@ export class ModuloRepository {
   }
 
   async countByCursoId(cursoId: number): Promise<number> {
-    const result = await db.query.modulos.findMany({
-      where: eq(modulos.cursoId, cursoId),
-    });
-    return result.length;
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(modulos)
+      .where(eq(modulos.cursoId, cursoId));
+
+    return result[0]?.count ?? 0;
   }
 
   async reorder(cursoId: number, modulosOrdenados: { id: number; ordem: number }[]): Promise<void> {

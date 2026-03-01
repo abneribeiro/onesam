@@ -1,4 +1,5 @@
 import { notificacaoRepository } from '../repositories/notificacaoRepository';
+import { CustomError } from '../utils/errorHandler';
 import type { Notificacao, TipoNotificacao } from '../types';
 
 interface CriarNotificacaoData {
@@ -37,17 +38,17 @@ class NotificacaoService {
     const notificacao = await notificacaoRepository.findById(id);
 
     if (!notificacao) {
-      throw new Error('Notificação não encontrada');
+      throw new CustomError('Notificação não encontrada', 404);
     }
 
     if (notificacao.utilizadorId !== utilizadorId) {
-      throw new Error('Você não tem permissão para marcar esta notificação como lida');
+      throw new CustomError('Você não tem permissão para marcar esta notificação como lida', 403);
     }
 
     const notificacaoAtualizada = await notificacaoRepository.marcarComoLida(id);
 
     if (!notificacaoAtualizada) {
-      throw new Error('Erro ao marcar notificação como lida');
+      throw new CustomError('Erro ao marcar notificação como lida', 500);
     }
 
     return notificacaoAtualizada;
@@ -61,11 +62,11 @@ class NotificacaoService {
     const notificacao = await notificacaoRepository.findById(id);
 
     if (!notificacao) {
-      throw new Error('Notificação não encontrada');
+      throw new CustomError('Notificação não encontrada', 404);
     }
 
     if (notificacao.utilizadorId !== utilizadorId) {
-      throw new Error('Você não tem permissão para deletar esta notificação');
+      throw new CustomError('Você não tem permissão para deletar esta notificação', 403);
     }
 
     await notificacaoRepository.delete(id);
