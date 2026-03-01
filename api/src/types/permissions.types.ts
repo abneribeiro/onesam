@@ -19,6 +19,7 @@ export enum Resource {
   CATEGORIA = 'categoria',
   NOTIFICACAO = 'notificacao',
   AUDIT_LOG = 'audit_log',
+  ADMIN = 'admin',
 }
 
 export type Permission = `${Resource}:${Action}`;

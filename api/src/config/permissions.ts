@@ -15,6 +15,7 @@ export const permissions: PermissionMatrix = {
     [Resource.CATEGORIA]: [Action.CREATE, Action.READ, Action.UPDATE, Action.DELETE],
     [Resource.NOTIFICACAO]: [Action.CREATE, Action.READ, Action.MANAGE],
     [Resource.AUDIT_LOG]: [Action.READ, Action.EXPORT],
+    [Resource.ADMIN]: [Action.READ, Action.EXPORT],
   },
   formando: {
     [Resource.CURSO]: [Action.READ],
