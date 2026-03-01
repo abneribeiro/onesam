@@ -8,20 +8,16 @@ class CertificadoService {
    */
   async downloadCertificado(cursoId: number): Promise<Blob> {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/certificados/download/${cursoId}`, {
-        method: 'GET',
-        credentials: 'include',
+      // Use the enhanced API service's axios instance to get the blob response
+      const axiosInstance = apiService.getAxiosInstance();
+      const response = await axiosInstance.get(`/certificados/download/${cursoId}`, {
+        responseType: 'blob',
         headers: {
           'Accept': 'application/pdf',
         },
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Erro ao baixar certificado');
-      }
-
-      return await response.blob();
+      return response.data;
     } catch (error: unknown) {
       return handleApiError(error, 'baixar certificado');
     }
@@ -70,19 +66,15 @@ class CertificadoService {
     codigoHash: string;
   }> {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/certificados/validar/${codigo}`, {
-        method: 'GET',
+      // Use the enhanced API service's axios instance for consistency
+      const axiosInstance = apiService.getAxiosInstance();
+      const response = await axiosInstance.get(`/certificados/validar/${codigo}`, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Certificado não encontrado');
-      }
-
-      return await response.json();
+      return response.data;
     } catch (error: unknown) {
       return handleApiError(error, 'validar certificado');
     }
