@@ -1,5 +1,5 @@
 import type { Request } from 'express';
-import type { TipoPerfil } from './index';
+import type { TipoPerfil } from './shared.types';
 
 export interface UtilizadorAuth {
   id: number;

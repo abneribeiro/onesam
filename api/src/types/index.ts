@@ -14,7 +14,14 @@ import {
   quizzes,
   quizPerguntas,
   quizTentativas,
-  certificados
+  certificados,
+  reviews,
+  modulos,
+  aulas,
+  progressoAulas,
+  session,
+  account,
+  auditLogs
 } from '../database/schema';
 
 // Infer types from Drizzle ORM schemas
@@ -49,6 +56,31 @@ export type NewQuizTentativa = typeof quizTentativas.$inferInsert;
 // Certificate System Types
 export type Certificado = typeof certificados.$inferSelect;
 export type NewCertificado = typeof certificados.$inferInsert;
+
+// Review Types
+export type Review = typeof reviews.$inferSelect;
+export type NewReview = typeof reviews.$inferInsert;
+
+// Module and Lesson Types
+export type Modulo = typeof modulos.$inferSelect;
+export type NewModulo = typeof modulos.$inferInsert;
+
+export type Aula = typeof aulas.$inferSelect;
+export type NewAula = typeof aulas.$inferInsert;
+
+export type ProgressoAula = typeof progressoAulas.$inferSelect;
+export type NewProgressoAula = typeof progressoAulas.$inferInsert;
+
+// Auth System Types
+export type Session = typeof session.$inferSelect;
+export type NewSession = typeof session.$inferInsert;
+
+export type Account = typeof account.$inferSelect;
+export type NewAccount = typeof account.$inferInsert;
+
+// Audit System Types
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type NewAuditLog = typeof auditLogs.$inferInsert;
 
 // Quiz-specific types for frontend
 export interface QuizOpcao {
