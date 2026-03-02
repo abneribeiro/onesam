@@ -1056,34 +1056,6 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 NEXT_PUBLIC_APP_URL=http://localhost:3001
 ```
 
-### Docker (Opcional)
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-
-services:
-  api:
-    build: ./api
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-    env_file:
-      - ./api/.env
-
-  web:
-    build: ./web
-    ports:
-      - "3001:3001"
-    environment:
-      - NODE_ENV=production
-    env_file:
-      - ./web/.env.local
-    depends_on:
-      - api
-```
-
 ---
 
 ## 📜 Scripts Disponíveis
