@@ -91,7 +91,7 @@ export function RoleGuard({ children, allowedRoles, redirectTo }: RoleGuardProps
     // Apply minimum timing to prevent timing-based attacks
     redirectTimeoutRef.current = setTimeout(performAuthCheck, remainingTime);
 
-  }, [currentUser, loading, initialCheckDone, isAuthenticated, allowedRoles, redirectTo, router]);
+  }, [currentUser, loading, initialCheckDone, isAuthenticated, allowedRoles, redirectTo, router, mountTime]);
 
   // Show error state if auth check failed
   if (authError) {

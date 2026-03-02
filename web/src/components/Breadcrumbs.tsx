@@ -83,7 +83,7 @@ export function Breadcrumbs() {
     };
 
     fetchDynamicLabels();
-  }, [pathname]);
+  }, [pathname, segments]);
 
   const allBreadcrumbs: BreadcrumbItem[] = segments.map((segment, index) => {
     const path = '/' + segments.slice(0, index + 1).join('/');

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -59,8 +59,26 @@ export function QuizPlayer({ quizId, onComplete, onCancel }: QuizPlayerProps) {
   });
 
   const quiz = quizData?.quiz;
-  const perguntas = quiz?.perguntas || [];
+  const perguntas = useMemo(() => quiz?.perguntas || [], [quiz?.perguntas]);
   const progresso = ((perguntaAtual + 1) / perguntas.length) * 100;
+
+  const handleSubmit = useCallback(async () => {
+    const formData = form.getValues();
+    const quizRespostas: QuizResposta[] = perguntas.map(pergunta => ({
+      perguntaId: pergunta.id,
+      respostaSelecionada: parseInt(formData.respostas[pergunta.id.toString()] || '0')
+    }));
+
+    try {
+      await submeterQuiz.mutateAsync({
+        id: quizId,
+        respostas: quizRespostas
+      });
+      onComplete?.();
+    } catch (error) {
+      console.error('Erro ao submeter quiz:', error);
+    }
+  }, [form, perguntas, submeterQuiz, quizId, onComplete]);
 
   // Timer para quiz com limite de tempo (se implementado no futuro)
   useEffect(() => {
@@ -73,7 +91,7 @@ export function QuizPlayer({ quizId, onComplete, onCancel }: QuizPlayerProps) {
       // Auto-submit quando tempo acaba
       handleSubmit();
     }
-  }, [tempoRestante]);
+  }, [tempoRestante, handleSubmit]);
 
   if (isLoading) {
     return (
@@ -171,24 +189,6 @@ export function QuizPlayer({ quizId, onComplete, onCancel }: QuizPlayerProps) {
   const perguntaAnterior = () => {
     if (perguntaAtual > 0) {
       setPerguntaAtual(perguntaAtual - 1);
-    }
-  };
-
-  const handleSubmit = async () => {
-    const formData = form.getValues();
-    const quizRespostas: QuizResposta[] = perguntas.map(pergunta => ({
-      perguntaId: pergunta.id,
-      respostaSelecionada: parseInt(formData.respostas[pergunta.id.toString()] || '0')
-    }));
-
-    try {
-      await submeterQuiz.mutateAsync({
-        id: quizId,
-        respostas: quizRespostas
-      });
-      onComplete?.();
-    } catch (error) {
-      console.error('Erro ao submeter quiz:', error);
     }
   };
 

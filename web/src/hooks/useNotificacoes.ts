@@ -1,14 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificacaoService } from '../services/notificacao.service';
+import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 
 export function useNotificacoes() {
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
 
   const { data: notificacoes = [], isLoading, refetch } = useQuery({
     queryKey: ['notificacoes'],
     queryFn: () => notificacaoService.listarNotificacoes(),
     staleTime: 60000,
+    enabled: isAuthenticated,
   });
 
   const marcarComoLidaMutation = useMutation({
@@ -59,11 +62,14 @@ export function useNotificacoes() {
 }
 
 export function useNotificacoesNaoLidasCount() {
+  const { isAuthenticated } = useAuth();
+
   const { data, isLoading } = useQuery({
     queryKey: ['notificacoes-nao-lidas-count'],
     queryFn: () => notificacaoService.contarNaoLidas(),
     staleTime: 30000,
     refetchInterval: 60000,
+    enabled: isAuthenticated,
   });
 
   return {
