@@ -77,41 +77,25 @@ export default function CreateEditCurso() {
 
   const areaId = watch('areaId');
 
-  useEffect(() => {
-    loadAreas();
-  }, []);
-
-  useEffect(() => {
-    if (areaId && areaId > 0) {
-      loadCategoriasByArea(areaId);
-    }
-  }, [areaId]);
-
-  useEffect(() => {
-    if (isEdit && id) {
-      loadCurso(parseInt(id));
-    }
-  }, [id, isEdit]);
-
-  const loadAreas = async () => {
+  const loadAreas = useCallback(async () => {
     try {
       const data = await areaService.getAll();
       setAreas(Array.isArray(data) ? data : []);
     } catch {
       toast.error('Erro ao carregar areas');
     }
-  };
+  }, []);
 
-  const loadCategoriasByArea = async (areaId: number) => {
+  const loadCategoriasByArea = useCallback(async (areaId: number) => {
     try {
       const data = await categoriaService.getByArea(areaId);
       setCategorias(Array.isArray(data) ? data : []);
     } catch {
       toast.error('Erro ao carregar categorias');
     }
-  };
+  }, []);
 
-  const loadCurso = async (cursoId: number) => {
+  const loadCurso = useCallback(async (cursoId: number) => {
     try {
       setLoading(true);
       const curso = await cursoService.buscarCurso(cursoId);
@@ -135,7 +119,23 @@ export default function CreateEditCurso() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [reset, router]);
+
+  useEffect(() => {
+    loadAreas();
+  }, [loadAreas]);
+
+  useEffect(() => {
+    if (areaId && areaId > 0) {
+      loadCategoriasByArea(areaId);
+    }
+  }, [areaId, loadCategoriasByArea]);
+
+  useEffect(() => {
+    if (isEdit && id) {
+      loadCurso(parseInt(id));
+    }
+  }, [id, isEdit, loadCurso]);
 
   const onSubmit = useCallback(
     async (data: CursoFormValues) => {

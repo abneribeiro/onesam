@@ -4,7 +4,7 @@ import React, { useCallback, useState, useEffect, useRef } from 'react';
 import type { Aula } from '@/services/aula.service';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, FileText, Video, AlertCircle, Download, FileIcon, Eye, RefreshCw } from 'lucide-react';
+import { ExternalLink, FileText, AlertCircle, Download, FileIcon, Eye, RefreshCw } from 'lucide-react';
 import { VideoPlayer } from '@/components/content/VideoPlayer';
 import { sanitizeUrl } from '@/utils/sanitize';
 

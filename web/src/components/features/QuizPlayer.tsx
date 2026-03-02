@@ -25,7 +25,6 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  RotateCcw,
   Trophy,
   AlertTriangle,
   HelpCircle
@@ -132,7 +131,7 @@ export function QuizPlayer({ quizId, onComplete, onCancel }: QuizPlayerProps) {
             <div className="space-y-2">
               <h4 className="font-medium">Histórico de Tentativas:</h4>
               <div className="space-y-1 max-h-32 overflow-y-auto">
-                {quizData.tentativas.map((tentativa, index) => (
+                {quizData.tentativas.map((tentativa) => (
                   <div key={tentativa.id} className="flex justify-between items-center text-sm">
                     <span>Tentativa {tentativa.tentativa}</span>
                     <div className="flex items-center gap-2">

@@ -18,7 +18,6 @@ import {
   BookOpen,
   Hash
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export default function ValidarCertificadoPage() {
   const [codigo, setCodigo] = useState('');

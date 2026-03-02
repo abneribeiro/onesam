@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useMemo } from 'react';
 import {
   ArrowLeft,
@@ -103,11 +104,12 @@ export default function AdminCourseDetailsPage() {
       {/* Imagem e informações principais */}
       <div className="relative w-full h-64 bg-gradient-to-r from-[var(--brand-500)] to-[var(--accent-500)] rounded-lg overflow-hidden">
         {curso.imagemCurso ? (
-          <img
+          <Image
             src={curso.imagemCurso}
             alt={curso.nome}
-            className="w-full h-full object-cover"
-            loading="eager"
+            fill
+            className="object-cover"
+            priority
           />
         ) : (
           <div className="flex items-center justify-center h-full">

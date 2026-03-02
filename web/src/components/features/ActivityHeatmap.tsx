@@ -250,16 +250,14 @@ export const ActivityHeatmap = memo(function ActivityHeatmap({
     // Organize days into weeks (columns) with days of week as rows
     const gridDays: (Date | null)[][] = [];
     let currentWeek: (Date | null)[] = new Array(7).fill(null);
-    let weekIndex = 0;
 
-    allDays.forEach((day, index) => {
+    allDays.forEach((day) => {
       const dayOfWeek = getDay(day); // 0 = Sunday, 6 = Saturday
 
       // Start a new week if needed
-      if (index > 0 && dayOfWeek === 0) {
+      if (gridDays.length > 0 && dayOfWeek === 0) {
         gridDays.push(currentWeek);
         currentWeek = new Array(7).fill(null);
-        weekIndex++;
       }
 
       currentWeek[dayOfWeek] = day;

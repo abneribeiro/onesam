@@ -19,7 +19,6 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import type { TipoPerfil } from "@/types"
 
