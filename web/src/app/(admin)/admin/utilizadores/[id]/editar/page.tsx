@@ -61,13 +61,7 @@ export default function CreateEditUtilizador() {
 
   const ativo = watch('ativo');
 
-  useEffect(() => {
-    if (isEdit && id) {
-      loadUtilizador(parseInt(id));
-    }
-  }, [id, isEdit]);
-
-  const loadUtilizador = async (utilizadorId: number) => {
+  const loadUtilizador = useCallback(async (utilizadorId: number) => {
     try {
       setLoading(true);
       const utilizador = await utilizadorService.getById(utilizadorId);
@@ -83,7 +77,13 @@ export default function CreateEditUtilizador() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [reset, router]);
+
+  useEffect(() => {
+    if (isEdit && id) {
+      loadUtilizador(parseInt(id));
+    }
+  }, [id, isEdit, loadUtilizador]);
 
   const onSubmit = useCallback(
     async (data: UtilizadorFormValues) => {
