@@ -2,7 +2,7 @@ import express, { type Router } from 'express';
 import * as cursoController from '../controllers/cursoController';
 import betterAuthMiddleware, { optionalAuthMiddleware } from '../middlewares/betterAuthMiddleware';
 import { can } from '../middlewares/rbacMiddleware';
-import { validateDto } from '../middlewares/validateDto';
+import { validateDto, validateQuery } from '../middlewares/validateDto';
 import {
   bulkOperationsRateLimiter,
   stateChangeRateLimiter,
@@ -16,14 +16,14 @@ import {
   alterarEstadoSchema,
   deletarCursoSchema,
   deletarCursosEmMassaSchema,
-  listarCursosSchema
+  listarCursosQuerySchema
 } from '../schemas/cursoSchemas';
 import { uploadCourseImage } from '../middlewares/uploadMiddleware';
 
 const router: Router = express.Router();
 
 // Rotas públicas com autenticação opcional para personalizar resposta
-router.get('/', optionalAuthMiddleware, validateDto(listarCursosSchema), cursoController.listarCursos);
+router.get('/', optionalAuthMiddleware, validateQuery(listarCursosQuerySchema), cursoController.listarCursos);
 router.get('/:id', optionalAuthMiddleware, validateDto(getCursoSchema), cursoController.obterCurso);
 
 router.use(betterAuthMiddleware);

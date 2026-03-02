@@ -132,49 +132,52 @@ export const deletarCursosEmMassaSchema = z.object({
   }),
 });
 
+// Schema for listing courses query parameters
+export const listarCursosQuerySchema = z.object({
+  page: z
+    .string()
+    .optional()
+    .default('1')
+    .transform(Number)
+    .refine((val) => val >= 1, 'Página deve ser pelo menos 1'),
+  limit: z
+    .string()
+    .optional()
+    .default('10')
+    .transform(Number)
+    .refine((val) => val >= 1 && val <= 100, 'Limite deve estar entre 1 e 100'),
+  search: z.string().max(255, 'Termo de busca muito longo').optional(),
+  areaId: z
+    .string()
+    .optional()
+    .transform((val) => val ? Number(val) : undefined)
+    .refine((val) => val === undefined || val > 0, 'ID de área inválido'),
+  categoriaId: z
+    .string()
+    .optional()
+    .transform((val) => val ? Number(val) : undefined)
+    .refine((val) => val === undefined || val > 0, 'ID de categoria inválido'),
+  nivel: nivelEnum.optional(),
+  estado: estadoEnum.optional(),
+  visivel: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      return undefined;
+    }),
+  sortBy: z
+    .string()
+    .regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/, 'Campo de ordenação inválido')
+    .optional(),
+  sortOrder: z
+    .enum(['asc', 'desc'], { message: 'Direção deve ser "asc" ou "desc"' })
+    .optional()
+    .default('asc'),
+});
+
 // Schema for listing courses with filters
 export const listarCursosSchema = z.object({
-  query: z.object({
-    pagina: z
-      .string()
-      .optional()
-      .default('1')
-      .transform(Number)
-      .refine((val) => val >= 1, 'Página deve ser pelo menos 1'),
-    limite: z
-      .string()
-      .optional()
-      .default('10')
-      .transform(Number)
-      .refine((val) => val >= 1 && val <= 100, 'Limite deve estar entre 1 e 100'),
-    busca: z.string().max(255, 'Termo de busca muito longo').optional(),
-    areaId: z
-      .string()
-      .optional()
-      .transform((val) => val ? Number(val) : undefined)
-      .refine((val) => val === undefined || val > 0, 'ID de área inválido'),
-    categoriaId: z
-      .string()
-      .optional()
-      .transform((val) => val ? Number(val) : undefined)
-      .refine((val) => val === undefined || val > 0, 'ID de categoria inválido'),
-    nivel: nivelEnum.optional(),
-    estado: estadoEnum.optional(),
-    visivel: z
-      .string()
-      .optional()
-      .transform((val) => {
-        if (val === 'true') return true;
-        if (val === 'false') return false;
-        return undefined;
-      }),
-    ordenarPor: z
-      .string()
-      .regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/, 'Campo de ordenação inválido')
-      .optional(),
-    direcao: z
-      .enum(['asc', 'desc'], { message: 'Direção deve ser "asc" ou "desc"' })
-      .optional()
-      .default('asc'),
-  }),
+  query: listarCursosQuerySchema,
 });
