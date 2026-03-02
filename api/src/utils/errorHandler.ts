@@ -78,6 +78,22 @@ export const errorHandler = (
 ): void => {
   const authReq = req as AuthRequest;
 
+  // Enhanced error details for debugging in development
+  if (process.env.NODE_ENV === 'development') {
+    logger.error('DETAILED ERROR DEBUG', {
+      errorName: err.name,
+      errorMessage: err.message,
+      errorStack: err.stack,
+      requestUrl: req.originalUrl,
+      requestMethod: req.method,
+      requestHeaders: req.headers,
+      requestQuery: req.query,
+      requestBody: req.body,
+      errorConstructor: err.constructor.name,
+      errorType: typeof err,
+    });
+  }
+
   // Log estruturado do erro
   logger.error('Error intercepted', {
     name: err.name,
