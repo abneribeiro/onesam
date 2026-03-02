@@ -1,20 +1,14 @@
 import { defineConfig } from 'drizzle-kit';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
+import config from './src/config/environment';
 
 export default defineConfig({
   schema: './src/database/schema/*',
   out: './src/database/drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
-    // SSL configuration: secure for production, flexible for development
-    ssl: process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: true }
-      : process.env.DATABASE_SSL === 'false'
-        ? false
-        : { rejectUnauthorized: false }
+    url: config.database.url,
+    // Supabase always uses SSL
+    ssl: config.database.ssl ? { rejectUnauthorized: false } : false
   },
   verbose: true,
   strict: true,

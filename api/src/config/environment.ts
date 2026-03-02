@@ -16,9 +16,9 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().url('FRONTEND_URL must be a valid URL').default('http://localhost:3001'),
   PORT: z.string().regex(/^\d+$/, 'PORT must be a number').default('3000').transform(Number),
 
-  // Database configuration (required in production)
+  // Database configuration (Supabase always uses SSL)
   DATABASE_URL: z.string().url('DATABASE_URL must be a valid URL'),
-  DATABASE_SSL: z.string().default('false').transform(val => val === 'true'),
+  DATABASE_SSL: z.string().default('true').transform(val => val === 'true'),
 
   // JWT Configuration
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
