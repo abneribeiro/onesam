@@ -8,11 +8,11 @@ import {
   deletarNotificacao,
 } from '../controllers/notificacaoController';
 import betterAuthMiddleware from '../middlewares/betterAuthMiddleware';
-import { validateDto } from '../middlewares/validateDto';
+import { validateDto, validateQuery } from '../middlewares/validateDto';
 import {
-  listarNotificacoesSchema,
-  listarNotificacoesNaoLidasSchema,
-  contarNotificacoesNaoLidasSchema,
+  listarNotificacoesQuerySchema,
+  listarNotificacoesNaoLidasQuerySchema,
+  contarNotificacoesNaoLidasQuerySchema,
   marcarComoLidaSchema,
   marcarTodasComoLidasSchema,
   deletarNotificacaoSchema
@@ -23,9 +23,9 @@ const router: Router = Router();
 router.use(betterAuthMiddleware);
 
 // Rotas estáticas primeiro (sem parâmetros dinâmicos) com validação
-router.get('/', validateDto(listarNotificacoesSchema), listarNotificacoes);
-router.get('/nao-lidas', validateDto(listarNotificacoesNaoLidasSchema), listarNotificacoesNaoLidas);
-router.get('/nao-lidas/count', validateDto(contarNotificacoesNaoLidasSchema), contarNotificacoesNaoLidas);
+router.get('/', validateQuery(listarNotificacoesQuerySchema), listarNotificacoes);
+router.get('/nao-lidas', validateQuery(listarNotificacoesNaoLidasQuerySchema), listarNotificacoesNaoLidas);
+router.get('/nao-lidas/count', validateQuery(contarNotificacoesNaoLidasQuerySchema), contarNotificacoesNaoLidas);
 router.put('/marcar-todas-lidas', validateDto(marcarTodasComoLidasSchema), marcarTodasComoLidas);
 
 // Rotas com parâmetros dinâmicos por último com validação
