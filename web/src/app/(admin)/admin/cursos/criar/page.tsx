@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -418,9 +419,11 @@ export default function CriarCursoPage() {
               </div>
               {previewUrl && (
                 <div className="relative w-full max-w-md rounded-lg border overflow-hidden">
-                  <img
+                  <Image
                     src={previewUrl}
                     alt="Preview"
+                    width={400}
+                    height={192}
                     className="w-full h-48 object-cover"
                   />
                 </div>

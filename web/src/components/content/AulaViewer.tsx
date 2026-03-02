@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import type { Aula } from '@/services/aula.service';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,7 +41,6 @@ function VideoViewer({ url, aula, onProgressUpdate }: VideoViewerProps) {
   const savedTimeKey = `aula-${aula.id}-time`;
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const mountedRef = useRef(true);
 
   // Reset error state when URL changes
@@ -49,7 +49,6 @@ function VideoViewer({ url, aula, onProgressUpdate }: VideoViewerProps) {
     const timeout = setTimeout(() => {
       setHasError(false);
       setErrorMessage(null);
-      setIsLoading(true);
     }, 0);
 
     // Log for debugging
@@ -148,13 +147,11 @@ function VideoViewer({ url, aula, onProgressUpdate }: VideoViewerProps) {
 
     setHasError(true);
     setErrorMessage('Não foi possível reproduzir este vídeo. Verifique se a URL está correta ou se o vídeo está disponível.');
-    setIsLoading(false);
   }, [aula.id, url]);
 
   const handleRetry = useCallback(() => {
     setHasError(false);
     setErrorMessage(null);
-    setIsLoading(true);
   }, []);
 
   if (!url || !isValidVideoUrl(url)) {
@@ -307,9 +304,11 @@ function DocumentoViewer({ url, titulo }: { url: string; titulo: string }) {
           <div className="mt-6 border-t pt-6">
             <p className="text-xs text-muted-foreground mb-4">Pré-visualização:</p>
             <div className="relative w-full bg-muted/50 rounded-lg overflow-hidden">
-              <img
+              <Image
                 src={url}
                 alt={titulo}
+                width={800}
+                height={384}
                 className="max-w-full max-h-96 mx-auto object-contain"
                 onError={() => setPreviewError(true)}
               />
