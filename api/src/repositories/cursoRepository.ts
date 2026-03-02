@@ -22,15 +22,17 @@ export class CursoRepository {
   }
 
   async findAll(options?: { includeRelations?: boolean }): Promise<Curso[]> {
-    return await db.query.cursos.findMany({
-      ...(options?.includeRelations && {
+    if (options?.includeRelations) {
+      return await db.query.cursos.findMany({
         with: {
           area: true,
           categoria: true,
-        }
-      }),
-      orderBy: [desc(cursos.dataCriacao)],
-    });
+        },
+        orderBy: [desc(cursos.dataCriacao)],
+      });
+    } else {
+      return await db.select().from(cursos).orderBy(desc(cursos.dataCriacao));
+    }
   }
 
   async findAllPaginated(
@@ -87,7 +89,8 @@ export class CursoRepository {
     const countQuery = db
       .select({ count: count() })
       .from(cursos)
-      .where(whereClause);
+      .where(whereClause)
+      .execute();
 
     return executePaginatedQuery<Curso>(query, countQuery, pagination);
   }

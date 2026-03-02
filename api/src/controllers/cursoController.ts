@@ -37,45 +37,47 @@ export const listarCursos = async (req: Request, res: Response, next: NextFuncti
   try {
     const { page, limit, sortBy, sortOrder, search, areaId, categoriaId, estado, nivel } = req.query;
 
-    if (page || limit) {
-      const filtros: {
-        search?: string;
-        areaId?: number;
-        categoriaId?: number;
-        estado?: 'planeado' | 'em_curso' | 'terminado' | 'arquivado';
-        nivel?: 'iniciante' | 'intermedio' | 'avancado';
-        visivel?: boolean;
-      } = {
-        search: search as string | undefined,
-        areaId: areaId ? Number(areaId) : undefined,
-        categoriaId: categoriaId ? Number(categoriaId) : undefined,
-        estado: estado as 'planeado' | 'em_curso' | 'terminado' | 'arquivado' | undefined,
-        nivel: nivel as 'iniciante' | 'intermedio' | 'avancado' | undefined,
-      };
+    const filtros: {
+      search?: string;
+      areaId?: number;
+      categoriaId?: number;
+      estado?: 'planeado' | 'em_curso' | 'terminado' | 'arquivado';
+      nivel?: 'iniciante' | 'intermedio' | 'avancado';
+      visivel?: boolean;
+    } = {
+      search: search as string | undefined,
+      areaId: areaId ? Number(areaId) : undefined,
+      categoriaId: categoriaId ? Number(categoriaId) : undefined,
+      estado: estado as 'planeado' | 'em_curso' | 'terminado' | 'arquivado' | undefined,
+      nivel: nivel as 'iniciante' | 'intermedio' | 'avancado' | undefined,
+    };
 
-      // SECURITY: Se não houver utilizador autenticado, forçar filtros de segurança
-      // Apenas cursos visíveis e em curso devem ser acessíveis publicamente
-      const authReq = req as AuthenticatedRequest;
-      if (!authReq.utilizador) {
-        filtros.visivel = true;
-        filtros.estado = 'em_curso';
-      }
+    // SECURITY: Se não houver utilizador autenticado, forçar filtros de segurança
+    // Apenas cursos visíveis e em curso devem ser acessíveis publicamente
+    const authReq = req as AuthenticatedRequest;
+    if (!authReq.utilizador) {
+      filtros.visivel = true;
+      filtros.estado = 'em_curso';
+    }
 
-      const result = await cursoService.listarCursosPaginados(
-        {
-          page: page ? Number(page) : undefined,
-          limit: limit ? Number(limit) : undefined,
-        },
-        {
-          sortBy: sortBy as string | undefined,
-          sortOrder: sortOrder as 'asc' | 'desc' | undefined,
-        },
-        filtros
-      );
-      sendData(res, result);
+    // Always use paginated method to ensure filters are applied consistently
+    const result = await cursoService.listarCursosPaginados(
+      {
+        page: page ? Number(page) : 1,
+        limit: limit ? Number(limit) : 50,
+      },
+      {
+        sortBy: sortBy as string | undefined,
+        sortOrder: sortOrder as 'asc' | 'desc' | undefined,
+      },
+      filtros
+    );
+
+    // For non-paginated requests, return just the data array
+    if (!page && !limit) {
+      sendData(res, result.data);
     } else {
-      const cursos = await cursoService.listarCursos();
-      sendData(res, cursos);
+      sendData(res, result);
     }
   } catch (error) {
     next(error);
