@@ -35,23 +35,14 @@ class NotificacaoService {
   }
 
   async marcarComoLida(id: number, utilizadorId: number): Promise<Notificacao> {
-    const notificacao = await notificacaoRepository.findById(id);
-
-    if (!notificacao) {
-      throw new CustomError('Notificação não encontrada', 404);
-    }
-
-    if (notificacao.utilizadorId !== utilizadorId) {
-      throw new CustomError('Você não tem permissão para marcar esta notificação como lida', 403);
-    }
-
-    const notificacaoAtualizada = await notificacaoRepository.marcarComoLida(id);
-
-    if (!notificacaoAtualizada) {
+    try {
+      return await notificacaoRepository.marcarComoLida(id, utilizadorId);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Notificação não encontrada ou sem permissão') {
+        throw new CustomError('Notificação não encontrada', 404);
+      }
       throw new CustomError('Erro ao marcar notificação como lida', 500);
     }
-
-    return notificacaoAtualizada;
   }
 
   async marcarTodasComoLidas(utilizadorId: number): Promise<void> {
@@ -59,17 +50,14 @@ class NotificacaoService {
   }
 
   async deletar(id: number, utilizadorId: number): Promise<void> {
-    const notificacao = await notificacaoRepository.findById(id);
-
-    if (!notificacao) {
-      throw new CustomError('Notificação não encontrada', 404);
+    try {
+      await notificacaoRepository.delete(id, utilizadorId);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Notificação não encontrada ou sem permissão') {
+        throw new CustomError('Notificação não encontrada', 404);
+      }
+      throw new CustomError('Erro ao deletar notificação', 500);
     }
-
-    if (notificacao.utilizadorId !== utilizadorId) {
-      throw new CustomError('Você não tem permissão para deletar esta notificação', 403);
-    }
-
-    await notificacaoRepository.delete(id);
   }
 
   async criarNotificacaoInscricaoAprovada(utilizadorId: number, nomeCurso: string, cursoId: number): Promise<Notificacao> {

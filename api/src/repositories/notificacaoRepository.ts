@@ -53,15 +53,25 @@ class NotificacaoRepository {
     return result?.count || 0;
   }
 
-  async marcarComoLida(id: number): Promise<Notificacao | undefined> {
+  async marcarComoLida(id: number, utilizadorId: number): Promise<Notificacao> {
     const [notificacao] = await db
       .update(notificacoes)
       .set({
         lida: true,
         dataLeitura: new Date(),
       })
-      .where(eq(notificacoes.id, id))
+      .where(
+        and(
+          eq(notificacoes.id, id),
+          eq(notificacoes.utilizadorId, utilizadorId)
+        )
+      )
       .returning();
+
+    if (!notificacao) {
+      throw new Error('Notificação não encontrada ou sem permissão');
+    }
+
     return notificacao;
   }
 
@@ -80,8 +90,20 @@ class NotificacaoRepository {
       );
   }
 
-  async delete(id: number): Promise<void> {
-    await db.delete(notificacoes).where(eq(notificacoes.id, id));
+  async delete(id: number, utilizadorId: number): Promise<void> {
+    const result = await db
+      .delete(notificacoes)
+      .where(
+        and(
+          eq(notificacoes.id, id),
+          eq(notificacoes.utilizadorId, utilizadorId)
+        )
+      )
+      .returning({ id: notificacoes.id });
+
+    if (result.length === 0) {
+      throw new Error('Notificação não encontrada ou sem permissão');
+    }
   }
 }
 
