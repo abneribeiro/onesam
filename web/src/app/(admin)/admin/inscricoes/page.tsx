@@ -90,7 +90,21 @@ export default function AdminInscricoesList() {
   const { data: response, isLoading, isFetching } = useTodasInscricoesPaginadas(pagination, filtros);
 
   // Track previous filter values to detect changes
-  const prevFiltersRef = useRef({ search: debouncedSearchTerm, estado: estadoFilter });
+  const prevFiltersRef = useRef<{
+    search: string;
+    estado: string;
+  }>({
+    search: '',
+    estado: 'todos',
+  });
+
+  // Update ref after render to avoid stale closure bug
+  useEffect(() => {
+    prevFiltersRef.current = {
+      search: debouncedSearchTerm,
+      estado: estadoFilter,
+    };
+  }, [debouncedSearchTerm, estadoFilter]);
 
   useEffect(() => {
     if (response?.meta) {
@@ -108,8 +122,6 @@ export default function AdminInscricoesList() {
     if (filtersChanged && pagination.page !== 1) {
       setPage(1);
     }
-
-    prevFiltersRef.current = { search: debouncedSearchTerm, estado: estadoFilter };
   }, [debouncedSearchTerm, estadoFilter, pagination.page, setPage]);
 
   const handleAprovar = async () => {

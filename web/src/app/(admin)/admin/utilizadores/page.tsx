@@ -86,7 +86,21 @@ export default function UtilizadoresList() {
   const [rowSelection, setRowSelection] = useState({});
 
   // Track previous filter values to detect actual changes
-  const prevFiltersRef = useRef({ search: debouncedSearchTerm, perfil: perfilFilter });
+  const prevFiltersRef = useRef<{
+    search: string;
+    perfil: string;
+  }>({
+    search: '',
+    perfil: 'all',
+  });
+
+  // Update ref after render to avoid stale closure bug
+  useEffect(() => {
+    prevFiltersRef.current = {
+      search: debouncedSearchTerm,
+      perfil: perfilFilter,
+    };
+  }, [debouncedSearchTerm, perfilFilter]);
 
   const { data: response, isLoading: loading, isFetching, refetch } = useQuery({
     queryKey: ['utilizadores-paginated', pagination],
@@ -144,8 +158,6 @@ export default function UtilizadoresList() {
     if (filtersChanged && pagination.page !== 1) {
       setPage(1);
     }
-
-    prevFiltersRef.current = { search: debouncedSearchTerm, perfil: perfilFilter };
   }, [debouncedSearchTerm, perfilFilter, pagination.page, setPage]);
 
   const handleDelete = async () => {

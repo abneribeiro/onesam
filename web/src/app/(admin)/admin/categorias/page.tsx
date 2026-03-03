@@ -119,7 +119,21 @@ export default function CategoriasList() {
   const [rowSelection, setRowSelection] = useState({});
 
   // Track previous filter values to detect changes
-  const prevFiltersRef = useRef({ search: debouncedSearchTerm, area: areaFilter });
+  const prevFiltersRef = useRef<{
+    search: string;
+    area: string;
+  }>({
+    search: '',
+    area: 'all',
+  });
+
+  // Update ref after render to avoid stale closure bug
+  useEffect(() => {
+    prevFiltersRef.current = {
+      search: debouncedSearchTerm,
+      area: areaFilter,
+    };
+  }, [debouncedSearchTerm, areaFilter]);
 
   const loading = loadingCategorias || loadingAreas;
 
@@ -133,8 +147,6 @@ export default function CategoriasList() {
     if (filtersChanged && currentPage !== 1) {
       setCurrentPage(1);
     }
-
-    prevFiltersRef.current = { search: debouncedSearchTerm, area: areaFilter };
   }, [debouncedSearchTerm, areaFilter, currentPage]);
 
   const bulkDeleteMutation = useMutation({
