@@ -193,6 +193,106 @@ const expensiveCalculation = useMemo(() => {
 
 A auditoria da arquitetura Next.js revelou uma implementação **fundamentalmente sólida** do App Router com boundaries client/server corretos e middleware seguro. No entanto, foram identificados **2 problemas críticos** relacionados a race conditions em URL state management que podem causar loops infinitos e impactar significativamente a performance da aplicação. Os problemas são concentrados em padrões específicos que se repetem em múltiplos componentes, facilitando uma correção sistemática.
 ## Fase 4: Lógica de Negócio, Notificações e Logs
-*Esta secção analisará os ficheiros de log e o fluxo de notificações à procura de exceções silenciosas.*
 
+### Resultados da Auditoria de Logs e Sistema de Notificações (Data: 03/03/2026)
 
+#### 📊 **Estado dos Logs de Aplicação**
+- **Error Log (`api/logs/error.log`)**: ✅ Vazio - nenhum erro registrado
+- **Application Log (`api/logs/application.log`)**: ✅ 9 entradas normais de funcionamento
+- **Sistema de Jobs**: Job de atualização de estados executa de hora em hora sem alterações reportadas
+- **Logging**: Estrutura JSON bem implementada com metadados adequados
+
+#### 🚨 **Vulnerabilidades Críticas no Sistema de Notificações**
+
+##### Race Conditions e Problemas de Concorrência (CRÍTICO)
+- [ ] **Race Condition em Contagem**: Queries paralelas `contarNaoLidas()` + `listarNaoLidas()` podem resultar em inconsistências
+- [ ] **Operação Não-Atômica**: `marcarComoLida()` tem TOCTOU vulnerability - verificação e atualização não são atômicas
+- [ ] **Cache Invalidation Race**: Duas invalidações separadas em `useNotificacoes.ts` (linhas 20-21, 31-32) criam janela de inconsistência
+
+##### Error Handling Silencioso (CRÍTICO)
+- [ ] **Error Swallowing**: `handleApiError()` em `notificacao.service.ts` converte todos os erros para Error genérico
+- [ ] **Validation Errors Perdidos**: Informação específica do Zod é mascarada no frontend
+- [ ] **Falta de Context**: Frontend não consegue distinguir tipos de erro para retry diferenciado
+
+#### ⚠️ **Problemas de Alta Prioridade**
+
+##### Validação e Paginação
+- [ ] **Frontend Ignora Validação Backend**: `notificacaoSchemas.ts` define limite 50 mas frontend não aplica
+- [ ] **Paginação Não Implementada**: Backend suporta paginação mas frontend busca todas as notificações
+- [ ] **Performance Risk**: Com muitas notificações, frontend pode travar sem paginação
+
+##### Timeout e Retry Logic
+- [ ] **Sem Timeout Configurado**: TanStack Query não tem timeout, requests longos podem travar UI
+- [ ] **Retry Logic Inadequado**: Usa retry padrão (3x) sem customização para operações críticas
+- [ ] **Network Failure Handling**: Falhas temporárias aparecem como permanentes
+
+#### 📋 **Problemas de Média Prioridade**
+
+##### Monitoramento e Observabilidade
+- [ ] **Falta de Telemetria**: Nenhuma métrica para detectar race conditions em produção
+- [ ] **Logging Insuficiente**: Possível supressão de erros - logs vazios podem indicar problema
+- [ ] **Circuit Breaker Missing**: Sem proteção para chamadas frequentes de contagem
+
+##### Patterns Problemáticos Identificados
+- [ ] **Dual Query Pattern**: `useNotificacoesNaoLidasCount()` e `useNotificacoes()` executam independentemente
+- [ ] **State Consistency**: UI pode mostrar contagem inconsistente com lista durante mudanças
+
+#### 🔍 **Análise de Código de Notificações**
+
+**Arquivos Analisados:**
+- `api/src/services/notificacaoService.ts` - Lógica de negócio com vulnerabilidade TOCTOU
+- `api/src/repositories/notificacaoRepository.ts` - Operações DB sem SELECT FOR UPDATE
+- `api/src/controllers/notificacaoController.ts` - Controllers bem estruturados
+- `api/src/routes/notificacaoRoutes.ts` - Rotas com validação Zod adequada
+- `web/src/services/notificacao.service.ts` - Error handling problemático
+- `web/src/hooks/useNotificacoes.ts` - Race conditions no cache invalidation
+
+### Prioridade de Correção - Fase 4
+
+#### 🚨 **CRÍTICA (Resolver Imediatamente)**
+1. **Implementar Transações Atômicas**: Operações de verificação+atualização em transação DB
+2. **Corrigir Error Handling**: Preservar tipos de erro específicos no frontend
+3. **Cache Invalidation Atômica**: Usar callback único para invalidar múltiplas queries
+
+#### ⚠️ **ALTA (Próxima Sprint)**
+1. **Implementar Paginação Frontend**: Adicionar controles de paginação na UI
+2. **Timeout e Retry Logic**: Configurar timeouts adequados e retry diferenciado
+3. **Logging de Erros Críticos**: Adicionar logs estruturados para falhas
+
+#### 📋 **MÉDIA (2-3 Sprints)**
+1. **Circuit Breaker Pattern**: Para chamadas frequentes de contagem
+2. **Telemetria de Performance**: Métricas para detectar race conditions
+3. **Testes de Concorrência**: Suite de testes para cenários multi-usuário
+
+### Impacto de Risco Identificado
+
+#### **Cenários de Falha Possível:**
+1. **Inconsistência de Dados**: Usuário vê contagem diferente da lista real
+2. **TOCTOU Attack**: Operação concurrent pode corromper estado das notificações
+3. **UI Freeze**: Requests longos sem timeout podem travar interface
+4. **Error Masking**: Problemas reais podem passar despercebidos devido ao error swallowing
+
+### Conclusão da Fase 4
+
+A auditoria de logs e sistema de notificações revelou **3 vulnerabilidades críticas** relacionadas a race conditions, operações não-atômicas e error handling inadequado. Embora os logs mostrem funcionamento normal, a análise do código identificou padrões problemáticos que podem causar inconsistências de dados e falhas silenciosas em produção. O sistema de notificações, sendo crítico para a experiência do usuário, requer correções imediatas nos padrões de concorrência e tratamento de erros.
+
+## Conclusão Geral da Auditoria
+
+### Resumo Executivo das 4 Fases
+
+#### **Status por Fase:**
+- ✅ **Fase 1 (Análise Estática)**: PASSOU - Zero erros TypeScript/ESLint
+- 🚨 **Fase 2 (Sincronização Full-Stack)**: 3 problemas críticos de nomenclatura
+- 🚨 **Fase 3 (Arquitetura Next.js)**: 2 problemas críticos de race conditions
+- 🚨 **Fase 4 (Logs e Notificações)**: 3 vulnerabilidades críticas de concorrência
+
+#### **Problemas Críticos Totais Identificados: 8**
+1. Review parameter mismatch (cursoId vs IDCurso)
+2. URL state management race conditions (2 arquivos)
+3. Race conditions em contagem de notificações
+4. Operações não-atômicas (TOCTOU vulnerability)
+5. Error handling silencioso no frontend
+6. Cache invalidation race conditions
+
+#### **Recomendação Final:**
+O OneSAM tem uma base sólida com código bem estruturado e sem erros estáticos, mas apresenta **vulnerabilidades críticas de concorrência** que podem causar inconsistências de dados e falhas silenciosas em produção. Priorizar correção imediata dos 8 problemas críticos antes de deploy em ambiente de alta concorrência.
