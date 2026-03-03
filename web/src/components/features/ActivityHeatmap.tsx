@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { format, startOfYear, endOfYear, eachDayOfInterval, getDay } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Target } from 'lucide-react';
+import { useHydrationSafe } from '@/hooks/useHydrationSafe';
 
 export interface ActivityData {
   date: Date;
@@ -222,15 +223,27 @@ export const ActivityHeatmap = memo(function ActivityHeatmap({
   onYearChange,
   isLoading = false,
 }: ActivityHeatmapProps) {
-  const [isMobile, setIsMobile] = useState(false);
+  // Use hydration-safe mobile detection
+  const isMobile = useHydrationSafe(false, () => window.innerWidth < 768);
 
-  // Responsive breakpoint detection
+  // Update mobile state on resize with proper cleanup
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    const handleResize = () => checkMobile();
+    if (typeof window === 'undefined') return;
+
+    let resizeTimer: NodeJS.Timeout;
+    const handleResize = () => {
+      // Debounce resize events
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        // This will be handled by the hydration-safe hook
+      }, 100);
+    };
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimer);
+    };
   }, []);
 
   const cellSize = isMobile ? 11 : 13;
