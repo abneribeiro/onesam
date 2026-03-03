@@ -74,12 +74,27 @@ export default function CatalogPage() {
   });
 
   // Track previous filter values to detect changes
-  const prevFiltersRef = useRef({
-    search: debouncedSearchTerm,
-    area: filterValues.area,
-    categoria: filterValues.categoria,
-    nivel: filterValues.nivel,
+  const prevFiltersRef = useRef<{
+    search: string;
+    area: string;
+    categoria: string;
+    nivel: string;
+  }>({
+    search: '',
+    area: 'all',
+    categoria: 'all',
+    nivel: 'all',
   });
+
+  // Update ref after render to avoid stale closure bug
+  useEffect(() => {
+    prevFiltersRef.current = {
+      search: debouncedSearchTerm,
+      area: filterValues.area,
+      categoria: filterValues.categoria,
+      nivel: filterValues.nivel,
+    };
+  }, [debouncedSearchTerm, filterValues.area, filterValues.categoria, filterValues.nivel]);
 
   useEffect(() => {
     if (response?.meta) {
@@ -99,13 +114,6 @@ export default function CatalogPage() {
     if (filtersChanged && pagination.page !== 1) {
       setPage(1);
     }
-
-    prevFiltersRef.current = {
-      search: debouncedSearchTerm,
-      area: filterValues.area,
-      categoria: filterValues.categoria,
-      nivel: filterValues.nivel,
-    };
   }, [debouncedSearchTerm, filterValues.area, filterValues.categoria, filterValues.nivel, pagination.page, setPage]);
 
   useEffect(() => {
