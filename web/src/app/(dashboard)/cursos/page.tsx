@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Filter } from 'lucide-react';
@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CardGridSkeleton } from '@/components/CardSkeleton';
 import { DataPagination } from '@/components/DataPagination';
 import { useServerPagination } from '@/hooks/useServerPagination';
-import { useDebounce } from '@/hooks/useDebounce';
+import { useSearchState } from '@/hooks/useSearchState';
+import { useUrlState } from '@/hooks/useUrlState';
 import { cursoService } from '@/services/curso.service';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,63 +32,24 @@ export default function CatalogPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Initialize search from URL
-  const initialSearch = searchParams.get('search') || '';
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  // Use new URL state management hooks
+  const { searchTerm, debouncedSearchTerm, handleSearchChange, clearSearch } = useSearchState(
+    searchParams.get('search') || '',
+    { pathname: '/cursos', debounceMs: 300 }
+  );
 
-  // Track if user is typing to avoid URL update conflicts
-  const isTypingRef = useRef(false);
-
-  const selectedArea = searchParams.get('area') || 'all';
-  const selectedCategoria = searchParams.get('categoria') || 'all';
-  const selectedNivel = searchParams.get('nivel') || 'all';
+  const { values: filterValues, updateState: updateFilter } = useUrlState(
+    '/cursos',
+    { area: 'all', categoria: 'all', nivel: 'all' },
+    { resetPageOnChange: true }
+  );
 
   const { pagination, meta, setPage, setMeta } = useServerPagination(1, 9, 'dataCriacao', 'desc');
 
-  // Update URL when debounced search changes
-  useEffect(() => {
-    // Only update URL if the debounced value differs from URL
-    const urlSearch = searchParams.get('search') || '';
-    if (debouncedSearchTerm !== urlSearch) {
-      const params = new URLSearchParams(searchParams.toString());
-      if (debouncedSearchTerm) {
-        params.set('search', debouncedSearchTerm);
-      } else {
-        params.delete('search');
-      }
-      params.set('page', '1');
-      router.replace(`/cursos?${params.toString()}`, { scroll: false });
-    }
-  }, [debouncedSearchTerm, router, searchParams]);
-
-  // Sync searchTerm with URL when navigating (but not while typing)
-  useEffect(() => {
-    const urlSearch = searchParams.get('search') || '';
-    if (urlSearch !== searchTerm && !isTypingRef.current) {
-      // Use a timeout to avoid direct setState in effect
-      const timeout = setTimeout(() => {
-        setSearchTerm(urlSearch);
-      }, 0);
-      return () => clearTimeout(timeout);
-    }
-  }, [searchParams, searchTerm]);
-
-  const updateSearchParam = useCallback((key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value === 'all' || value === '') {
-      params.delete(key);
-    } else {
-      params.set(key, value);
-    }
-    params.set('page', '1');
-    router.replace(`/cursos?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
-
   const filtros: CursoFiltros = {
-    areaId: selectedArea !== 'all' ? parseInt(selectedArea) : undefined,
-    categoriaId: selectedCategoria !== 'all' ? parseInt(selectedCategoria) : undefined,
-    nivel: selectedNivel !== 'all' ? (selectedNivel as 'iniciante' | 'intermedio' | 'avancado') : undefined,
+    areaId: filterValues.area !== 'all' ? parseInt(filterValues.area) : undefined,
+    categoriaId: filterValues.categoria !== 'all' ? parseInt(filterValues.categoria) : undefined,
+    nivel: filterValues.nivel !== 'all' ? (filterValues.nivel as 'iniciante' | 'intermedio' | 'avancado') : undefined,
     estado: 'em_curso',
     search: debouncedSearchTerm || undefined,
   };
@@ -114,9 +76,9 @@ export default function CatalogPage() {
   // Track previous filter values to detect changes
   const prevFiltersRef = useRef({
     search: debouncedSearchTerm,
-    area: selectedArea,
-    categoria: selectedCategoria,
-    nivel: selectedNivel,
+    area: filterValues.area,
+    categoria: filterValues.categoria,
+    nivel: filterValues.nivel,
   });
 
   useEffect(() => {
@@ -126,13 +88,13 @@ export default function CatalogPage() {
   }, [response?.meta, setMeta]);
 
   // Reset to page 1 only when filters actually change
-  useEffect(() => {
+  const filterChangeCallback = useCallback(() => {
     const prevFilters = prevFiltersRef.current;
     const filtersChanged =
       prevFilters.search !== debouncedSearchTerm ||
-      prevFilters.area !== selectedArea ||
-      prevFilters.categoria !== selectedCategoria ||
-      prevFilters.nivel !== selectedNivel;
+      prevFilters.area !== filterValues.area ||
+      prevFilters.categoria !== filterValues.categoria ||
+      prevFilters.nivel !== filterValues.nivel;
 
     if (filtersChanged && pagination.page !== 1) {
       setPage(1);
@@ -140,40 +102,27 @@ export default function CatalogPage() {
 
     prevFiltersRef.current = {
       search: debouncedSearchTerm,
-      area: selectedArea,
-      categoria: selectedCategoria,
-      nivel: selectedNivel,
+      area: filterValues.area,
+      categoria: filterValues.categoria,
+      nivel: filterValues.nivel,
     };
-  }, [debouncedSearchTerm, selectedArea, selectedCategoria, selectedNivel, pagination.page, setPage]);
+  }, [debouncedSearchTerm, filterValues.area, filterValues.categoria, filterValues.nivel, pagination.page, setPage]);
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    isTypingRef.current = true;
-    setSearchTerm(e.target.value);
-    // Reset typing flag after debounce
-    setTimeout(() => {
-      isTypingRef.current = false;
-    }, 350);
-  }, []);
-
-  const handleClearSearch = useCallback(() => {
-    setSearchTerm('');
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete('search');
-    params.set('page', '1');
-    router.replace(`/cursos?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
+  useEffect(() => {
+    filterChangeCallback();
+  }, [filterChangeCallback]);
 
   const activeFiltersCount = [
-    selectedArea !== 'all',
-    selectedCategoria !== 'all',
-    selectedNivel !== 'all',
+    filterValues.area !== 'all',
+    filterValues.categoria !== 'all',
+    filterValues.nivel !== 'all',
     searchTerm.length > 0
   ].filter(Boolean).length;
 
   const clearFilters = useCallback(() => {
-    setSearchTerm('');
-    router.replace('/cursos?page=1', { scroll: false });
-  }, [router]);
+    clearSearch();
+    updateFilter({ area: 'all', categoria: 'all', nivel: 'all' });
+  }, [clearSearch, updateFilter]);
 
   // Show initial loading only for areas/categories (static data)
   const initialLoading = loadingAreas || loadingCategorias;
@@ -229,7 +178,7 @@ export default function CatalogPage() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
-                  onClick={handleClearSearch}
+                  onClick={clearSearch}
                   aria-label="Limpar pesquisa"
                 >
                   <X className="h-4 w-4" />
@@ -237,8 +186,8 @@ export default function CatalogPage() {
               )}
             </div>
             <Select
-              value={selectedArea}
-              onValueChange={(value) => updateSearchParam('area', value)}
+              value={filterValues.area}
+              onValueChange={(value) => updateFilter({ area: value })}
               disabled={initialLoading}
             >
               <SelectTrigger aria-label="Filtrar por area">
@@ -254,8 +203,8 @@ export default function CatalogPage() {
               </SelectContent>
             </Select>
             <Select
-              value={selectedCategoria}
-              onValueChange={(value) => updateSearchParam('categoria', value)}
+              value={filterValues.categoria}
+              onValueChange={(value) => updateFilter({ categoria: value })}
               disabled={initialLoading}
             >
               <SelectTrigger aria-label="Filtrar por categoria">
@@ -271,8 +220,8 @@ export default function CatalogPage() {
               </SelectContent>
             </Select>
             <Select
-              value={selectedNivel}
-              onValueChange={(value) => updateSearchParam('nivel', value)}
+              value={filterValues.nivel}
+              onValueChange={(value) => updateFilter({ nivel: value })}
             >
               <SelectTrigger aria-label="Filtrar por nivel">
                 <SelectValue placeholder="Todos os Niveis" />
