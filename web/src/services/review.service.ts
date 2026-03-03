@@ -28,7 +28,7 @@ export interface ReviewStats {
 }
 
 export interface ReviewInput {
-  IDCurso: number;
+  cursoId: number;
   rating: number;
   comentario?: string;
 }

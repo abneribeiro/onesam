@@ -100,7 +100,7 @@ export default function CourseDetailsPage() {
   }, [curso, validacoes.podeInscrever, inscricaoMutation]);
 
   const handleCreateReview = useCallback(async (data: { rating: number; comentario?: string }) => {
-    await createReview.mutateAsync({ IDCurso: cursoId, ...data });
+    await createReview.mutateAsync({ cursoId, ...data });
     setShowReviewForm(false);
   }, [createReview, cursoId]);
 

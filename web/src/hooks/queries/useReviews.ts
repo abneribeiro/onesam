@@ -35,9 +35,9 @@ export function useCreateReview() {
   return useMutation({
     mutationFn: (data: ReviewInput) => reviewService.criar(data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['reviews', 'curso', variables.IDCurso] });
-      queryClient.invalidateQueries({ queryKey: ['reviews', 'stats', variables.IDCurso] });
-      queryClient.invalidateQueries({ queryKey: ['reviews', 'minha', variables.IDCurso] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'curso', variables.cursoId] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'stats', variables.cursoId] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'minha', variables.cursoId] });
       toast.success('Avaliação criada com sucesso!');
     },
     onError: (error: unknown) => {
