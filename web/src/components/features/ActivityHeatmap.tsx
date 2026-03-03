@@ -227,12 +227,14 @@ export const ActivityHeatmap = memo(function ActivityHeatmap({
   const [isMobileState, setIsMobileState] = useState(false);
   const isMobile = useHydrationSafe(false, () => isMobileState);
 
-  // Update mobile state on resize with proper cleanup
+  // Update mobile state on resize with proper cleanup and hydration safety
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const updateMobileState = () => {
-      setIsMobileState(window.innerWidth < 768);
+      if (typeof window !== 'undefined') {
+        setIsMobileState(window.innerWidth < 768);
+      }
     };
 
     // Set initial state
@@ -255,7 +257,7 @@ export const ActivityHeatmap = memo(function ActivityHeatmap({
   const cellSize = isMobile ? 11 : 13;
   const cellGap = isMobile ? 2 : 3;
 
-  // Build the grid structure for the selected year
+  // Build the grid structure for the selected year - optimized dependencies
   const { grid, months, totalWeeks } = useMemo(() => {
     const today = new Date();
     const isCurrentYear = selectedYear === today.getFullYear();
@@ -306,7 +308,7 @@ export const ActivityHeatmap = memo(function ActivityHeatmap({
     });
 
     return { grid: gridDays, months: monthLabels, totalWeeks: gridDays.length };
-  }, [selectedYear]);
+  }, [selectedYear]); // Only recalculate when year changes
 
   // Create a lookup map for activity data (optimized O(1) lookup)
   const activityMap = useMemo(() => {
@@ -316,9 +318,9 @@ export const ActivityHeatmap = memo(function ActivityHeatmap({
       map.set(key, activity);
     });
     return map;
-  }, [data]);
+  }, [data]); // Only when data actually changes
 
-  // Get activity for a specific date
+  // Get activity for a specific date - memoized to prevent recreation
   const getActivity = useCallback((date: Date): { level: 0 | 1 | 2 | 3 | 4; count: number } => {
     const key = format(date, 'yyyy-MM-dd');
     const activity = activityMap.get(key);

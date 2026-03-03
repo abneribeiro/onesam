@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Filter } from 'lucide-react';
@@ -73,7 +73,7 @@ export default function CatalogPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Track previous filter values to detect changes
+  // Track previous filter values to detect changes - optimized to prevent race conditions
   const prevFiltersRef = useRef<{
     search: string;
     area: string;
@@ -86,15 +86,13 @@ export default function CatalogPage() {
     nivel: 'all',
   });
 
-  // Update ref after render to avoid stale closure bug
-  useEffect(() => {
-    prevFiltersRef.current = {
-      search: debouncedSearchTerm,
-      area: filterValues.area,
-      categoria: filterValues.categoria,
-      nivel: filterValues.nivel,
-    };
-  }, [debouncedSearchTerm, filterValues.area, filterValues.categoria, filterValues.nivel]);
+  // Memoized filter comparison to prevent stale closures
+  const currentFilters = useMemo(() => ({
+    search: debouncedSearchTerm,
+    area: filterValues.area,
+    categoria: filterValues.categoria,
+    nivel: filterValues.nivel,
+  }), [debouncedSearchTerm, filterValues.area, filterValues.categoria, filterValues.nivel]);
 
   useEffect(() => {
     if (response?.meta) {
@@ -102,23 +100,22 @@ export default function CatalogPage() {
     }
   }, [response?.meta, setMeta]);
 
-  // Reset to page 1 only when filters actually change
-  const filterChangeCallback = useCallback(() => {
+  // Consolidated filter change detection to prevent race conditions
+  useEffect(() => {
     const prevFilters = prevFiltersRef.current;
     const filtersChanged =
-      prevFilters.search !== debouncedSearchTerm ||
-      prevFilters.area !== filterValues.area ||
-      prevFilters.categoria !== filterValues.categoria ||
-      prevFilters.nivel !== filterValues.nivel;
+      prevFilters.search !== currentFilters.search ||
+      prevFilters.area !== currentFilters.area ||
+      prevFilters.categoria !== currentFilters.categoria ||
+      prevFilters.nivel !== currentFilters.nivel;
 
     if (filtersChanged && pagination.page !== 1) {
       setPage(1);
     }
-  }, [debouncedSearchTerm, filterValues.area, filterValues.categoria, filterValues.nivel, pagination.page, setPage]);
 
-  useEffect(() => {
-    filterChangeCallback();
-  }, [filterChangeCallback]);
+    // Update ref after filter change detection
+    prevFiltersRef.current = currentFilters;
+  }, [currentFilters, pagination.page, setPage]);
 
   const activeFiltersCount = [
     filterValues.area !== 'all',
