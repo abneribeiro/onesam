@@ -15,21 +15,21 @@ import {
 const router: Router = express.Router();
 
 router.get(
-  '/curso/:IDCurso',
+  '/curso/:cursoId',
   betterAuthMiddleware,
   validateDto(listReviewsByCursoSchema),
   reviewController.listarReviewsPorCurso
 );
 
 router.get(
-  '/curso/:IDCurso/stats',
+  '/curso/:cursoId/stats',
   betterAuthMiddleware,
   validateDto(getStatsSchema),
   reviewController.obterEstatisticas
 );
 
 router.get(
-  '/curso/:IDCurso/minha',
+  '/curso/:cursoId/minha',
   betterAuthMiddleware,
   validateDto(getMyReviewSchema),
   reviewController.obterMinhaReview
@@ -42,7 +42,7 @@ router.get(
 );
 
 router.get(
-  '/:IDReview',
+  '/:id',
   betterAuthMiddleware,
   validateDto(getReviewSchema),
   reviewController.obterReview
@@ -56,14 +56,14 @@ router.post(
 );
 
 router.put(
-  '/:IDReview',
+  '/:id',
   betterAuthMiddleware,
   validateDto(updateReviewSchema),
   reviewController.atualizarReview
 );
 
 router.delete(
-  '/:IDReview',
+  '/:id',
   betterAuthMiddleware,
   validateDto(deleteReviewSchema),
   reviewController.deletarReview

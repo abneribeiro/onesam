@@ -5,9 +5,9 @@ import { sendData, sendCreated, sendSuccess } from '../utils/responseHelper';
 
 export const criarReview = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDCurso, ...resto } = req.body;
+    const { cursoId, ...resto } = req.body;
     const review = await reviewService.create({
-      cursoId: IDCurso,
+      cursoId,
       utilizadorId: req.utilizador!.id,
       ...resto
     });
@@ -19,8 +19,8 @@ export const criarReview = async (req: AuthRequest, res: Response, next: NextFun
 
 export const listarReviewsPorCurso = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDCurso } = req.params;
-    const reviews = await reviewService.findByCursoId(Number(IDCurso));
+    const { cursoId } = req.params;
+    const reviews = await reviewService.findByCursoId(Number(cursoId));
     sendData(res, { reviews });
   } catch (error) {
     next(error);
@@ -38,8 +38,8 @@ export const listarMinhasReviews = async (req: AuthRequest, res: Response, next:
 
 export const obterReview = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDReview } = req.params;
-    const review = await reviewService.findById(Number(IDReview));
+    const { id } = req.params;
+    const review = await reviewService.findById(Number(id));
     sendData(res, { review });
   } catch (error) {
     next(error);
@@ -48,8 +48,8 @@ export const obterReview = async (req: AuthRequest, res: Response, next: NextFun
 
 export const obterMinhaReview = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDCurso } = req.params;
-    const review = await reviewService.getMyReview(req.utilizador!.id, Number(IDCurso));
+    const { cursoId } = req.params;
+    const review = await reviewService.getMyReview(req.utilizador!.id, Number(cursoId));
     sendData(res, { review });
   } catch (error) {
     next(error);
@@ -58,8 +58,8 @@ export const obterMinhaReview = async (req: AuthRequest, res: Response, next: Ne
 
 export const atualizarReview = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDReview } = req.params;
-    const review = await reviewService.update(Number(IDReview), req.utilizador!.id, req.body);
+    const { id } = req.params;
+    const review = await reviewService.update(Number(id), req.utilizador!.id, req.body);
     sendSuccess(res, 200, 'Avaliação atualizada com sucesso', { review });
   } catch (error) {
     next(error);
@@ -68,9 +68,9 @@ export const atualizarReview = async (req: AuthRequest, res: Response, next: Nex
 
 export const deletarReview = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDReview } = req.params;
+    const { id } = req.params;
     const isAdmin = req.utilizador?.tipoPerfil === 'admin';
-    await reviewService.delete(Number(IDReview), req.utilizador!.id, isAdmin);
+    await reviewService.delete(Number(id), req.utilizador!.id, isAdmin);
     sendSuccess(res, 200, 'Avaliação deletada com sucesso');
   } catch (error) {
     next(error);
@@ -79,8 +79,8 @@ export const deletarReview = async (req: AuthRequest, res: Response, next: NextF
 
 export const obterEstatisticas = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDCurso } = req.params;
-    const stats = await reviewService.getStatsByCursoId(Number(IDCurso));
+    const { cursoId } = req.params;
+    const stats = await reviewService.getStatsByCursoId(Number(cursoId));
     sendData(res, { stats });
   } catch (error) {
     next(error);
