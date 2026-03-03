@@ -223,20 +223,26 @@ export const ActivityHeatmap = memo(function ActivityHeatmap({
   onYearChange,
   isLoading = false,
 }: ActivityHeatmapProps) {
-  // Use hydration-safe mobile detection
-  const isMobile = useHydrationSafe(false, () => window.innerWidth < 768);
+  // Proper state-based mobile detection that updates on resize
+  const [isMobileState, setIsMobileState] = useState(false);
+  const isMobile = useHydrationSafe(false, () => isMobileState);
 
   // Update mobile state on resize with proper cleanup
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    const updateMobileState = () => {
+      setIsMobileState(window.innerWidth < 768);
+    };
+
+    // Set initial state
+    updateMobileState();
+
+    // Debounced resize handler that actually updates state
     let resizeTimer: NodeJS.Timeout;
     const handleResize = () => {
-      // Debounce resize events
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        // This will be handled by the hydration-safe hook
-      }, 100);
+      resizeTimer = setTimeout(updateMobileState, 100);
     };
 
     window.addEventListener('resize', handleResize);
