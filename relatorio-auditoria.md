@@ -103,18 +103,96 @@ Os seguintes endpoints estão bem sincronizados entre backend e frontend:
 
 A análise cross-reference identificou **3 problemas críticos** relacionados principalmente à nomenclatura inconsistente de parâmetros entre frontend e backend, especialmente na funcionalidade de Reviews. Os endpoints estão funcionalmente corretos mas têm problemas de sincronização de parâmetros que podem causar falhas em tempo de execução.
 ## Fase 3: Arquitetura Next.js, UI e Tailwind
-*Esta secção usará as regras do Next.js (Server/Client, hidratação) e erros do Tailwind para listar anomalias.*
+
+### Resultados da Auditoria de Arquitetura (Data: 03/03/2026)
+
+#### ✅ **Validações Bem-Sucedidas**
+
+##### App Router Implementation
+- **Estrutura de Rotas**: Organização correta com grupos (admin), (auth) e (dashboard)
+- **Layout Hierarchy**: Hierarquia de layouts adequada com boundaries client/server claramente definidos
+- **Server Components**: Todos os componentes server (layout.tsx, not-found.tsx) implementados corretamente sem hooks client
+
+##### Middleware e Autenticação
+- **Middleware Security**: Implementação segura com validação de sessão e timeout handling
+- **Route Protection**: Separação clara de rotas públicas/admin/formando
+- **Input Validation**: Validação adequada para session cookies
+
+#### 🚨 **Problemas Críticos Identificados**
+
+##### Race Conditions em URL State Management
+- [ ] **HomePageClient.tsx (linhas 58-83)**: Padrão duplo de useEffect para sincronização URL ↔ Estado pode causar loops infinitos
+- [ ] **cursos/page.tsx (linhas 48-74)**: Padrão idêntico de race condition - dual useEffect sem coordenação adequada
+
+#### ⚠️ **Problemas de Alta Prioridade**
+
+##### Dependencies e Performance Issues
+- [ ] **ActivityHeatmap.tsx (linha 290)**: Dependencies complexas em useEffect causam recalculações caras em mudanças de ano
+- [ ] **HomePageClient.tsx (linha 156)**: Dependencies em falta na lógica de comparação de filtros podem causar stale closures
+- [ ] **cursos/page.tsx (linha 147)**: Mesmo problema de dependencies em falta na lógica de filtros
+
+#### 🔍 **Problemas de Média Prioridade**
+
+##### Hydration Safety e Otimizações
+- [ ] **ActivityHeatmap.tsx (linha 229)**: Acesso direto ao `window` object sem verificação de hydration pode causar SSR mismatch
+- [ ] **Multiple Files**: Processamento redundante de URL com múltiplas chamadas `searchParams.get()` que poderiam ser consolidadas
+
+#### 📋 **Problemas de Baixa Prioridade**
+
+##### Cleanup e Memory Management
+- [ ] **HomePageClient.tsx (linhas 161-163)**: setTimeout sem cleanup adequado na typing flag
+
+### Análise Detalhada dos Padrões Problemáticos
+
+#### URL State Management Anti-Pattern
+```typescript
+// Padrão problemático encontrado em 2 arquivos:
+// 1. HomePageClient.tsx linhas 58-83
+// 2. cursos/page.tsx linhas 48-74
+
+useEffect(() => {
+  // Atualiza URL baseado no estado local
+}, [localState]);
+
+useEffect(() => {
+  // Atualiza estado local baseado na URL
+}, [searchParams]);
+```
+**Problema**: Pode causar loops infinitos quando ambos os useEffect disparam simultaneamente.
+
+#### Dependencies Pattern Issues
+```typescript
+// ActivityHeatmap.tsx linha 290 - Dependencies caras
+const expensiveCalculation = useMemo(() => {
+  // Recalculação cara toda vez que o ano muda
+}, [year, otherExpensiveDeps]);
+```
+
+### Recomendações de Correção
+
+#### 🚨 **Críticas (Implementar Imediatamente)**
+1. **Refactor URL State Pattern**: Implementar pattern de coordenação única para evitar race conditions
+2. **Consolidate URL Processing**: Usar um único ponto de processamento de searchParams por componente
+
+#### ⚠️ **Alta Prioridade (Próxima Sprint)**
+1. **Optimize Dependencies**: Implementar `useCallback` para callbacks caros e otimizar arrays de dependencies
+2. **Add Hydration Checks**: Verificar `typeof window !== 'undefined'` antes de acessar APIs do browser
+
+#### 🔧 **Manutenção (2-3 Sprints)**
+1. **Timeout Cleanup**: Adicionar cleanup adequado para todos os setTimeout/setInterval
+2. **Performance Monitoring**: Implementar monitoring de re-renders desnecessários
+
+### Arquivos Analisados
+- `web/src/app/HomePageClient.tsx` - Cliente principal com problemas de URL state
+- `web/src/app/(dashboard)/cursos/page.tsx` - Página de cursos com padrão idêntico
+- `web/src/components/features/ActivityHeatmap.tsx` - Heatmap com issues de hydration
+- `web/src/hooks/useDebounce.ts` - ✅ Bom exemplo de cleanup pattern
+- `web/src/middleware.ts` - ✅ Implementação segura validada
+
+### Conclusão da Fase 3
+
+A auditoria da arquitetura Next.js revelou uma implementação **fundamentalmente sólida** do App Router com boundaries client/server corretos e middleware seguro. No entanto, foram identificados **2 problemas críticos** relacionados a race conditions em URL state management que podem causar loops infinitos e impactar significativamente a performance da aplicação. Os problemas são concentrados em padrões específicos que se repetem em múltiplos componentes, facilitando uma correção sistemática.
 ## Fase 4: Lógica de Negócio, Notificações e Logs
 *Esta secção analisará os ficheiros de log e o fluxo de notificações à procura de exceções silenciosas.*
 
 
-
-Avança para a Fase 2 da auditoria. MODO READ-ONLY: NÃO alteres código.
-Faz um scan cruzado entre o backend (api/src/routes e api/src/schemas) e o frontend (web/src/services e web/src/hooks/queries). Procura por:
-
-    Endpoints que o frontend chama, mas que não existem ou mudaram de URL na API.
-
-    Mismatches de tipagem (ex: o frontend envia userId, mas o Zod da API exige utilizadorId).
-
-    Parâmetros em falta nos Axios interceptors.
-    Documenta cada anomalia encontrada como uma micro-tarefa [ ] no ficheiro relatorio-auditoria.md sob a 'Fase 2'. Atualiza o Markdown e faz commit
