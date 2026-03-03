@@ -25,9 +25,20 @@ export function useSearchState(
   const isTypingRef = useRef(false);
   const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  // Update URL when debounced search changes (single source of truth: local state → URL)
+  // Single effect: Handle both State → URL sync and navigation detection
   useEffect(() => {
     const urlSearch = searchParams.get('search') || '';
+
+    // Handle navigation case (when URL changes but we're not typing)
+    if (urlSearch !== searchTerm && !isTypingRef.current) {
+      // Use setTimeout to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        setSearchTerm(urlSearch);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+
+    // Handle state → URL sync (when debounced term changes)
     if (debouncedSearchTerm !== urlSearch) {
       const params = new URLSearchParams(searchParams.toString());
       if (debouncedSearchTerm) {
@@ -38,34 +49,23 @@ export function useSearchState(
       params.set('page', '1');
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
-  }, [debouncedSearchTerm, pathname, router, searchParams]);
+  }, [debouncedSearchTerm, searchTerm, pathname, router, searchParams]);
 
-  // Sync local state from URL when navigating (only when not typing)
-  useEffect(() => {
-    const urlSearch = searchParams.get('search') || '';
-    if (urlSearch !== searchTerm && !isTypingRef.current) {
-      // Use setTimeout to avoid synchronous setState in effect
-      const timer = setTimeout(() => {
-        setSearchTerm(urlSearch);
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [searchParams, searchTerm]);
-
-  // Handle search input changes with typing state management
+  // Handle search input changes with improved typing state management
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
     isTypingRef.current = true;
-    setSearchTerm(e.target.value);
+    setSearchTerm(value);
 
     // Clean up previous timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
-    // Reset typing flag after debounce + buffer
+    // Reset typing flag after debounce + buffer with improved timing
     timeoutRef.current = setTimeout(() => {
       isTypingRef.current = false;
-    }, debounceMs + 50);
+    }, debounceMs + 100); // Increased buffer for better reliability
   }, [debounceMs]);
 
   // Clear search function
