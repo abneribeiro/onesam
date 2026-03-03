@@ -124,25 +124,25 @@ export const updateAulaSchema = z.object({
       }
     ),
   params: z.object({
-    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDAula
+    aulaId: z.string().regex(/^\d+$/, 'ID inválido'),
   }),
 });
 
 export const getAulaSchema = z.object({
   params: z.object({
-    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDAula
+    aulaId: z.string().regex(/^\d+$/, 'ID inválido'),
   }),
 });
 
 export const deleteAulaSchema = z.object({
   params: z.object({
-    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDAula
+    aulaId: z.string().regex(/^\d+$/, 'ID inválido'),
   }),
 });
 
 export const listAulasByModuloSchema = z.object({
   params: z.object({
-    id: z.string().regex(/^\d+$/, 'ID do módulo inválido'), // Padronizado de IDModulo
+    moduloId: z.string().regex(/^\d+$/, 'ID do módulo inválido'),
   }),
 });
 
@@ -151,6 +151,24 @@ export const marcarAulaConcluidaSchema = z.object({
     tempoGasto: z.number().int().nonnegative('O tempo gasto deve ser um número positivo').optional(),
   }),
   params: z.object({
-    id: z.string().regex(/^\d+$/, 'ID da aula inválido'), // Padronizado de IDAula
+    aulaId: z.string().regex(/^\d+$/, 'ID da aula inválido'),
+  }),
+});
+
+export const progressoCursoSchema = z.object({
+  params: z.object({
+    cursoId: z.string().regex(/^\d+$/, 'ID do curso inválido'),
+  }),
+});
+
+export const reorderAulasSchema = z.object({
+  params: z.object({
+    moduloId: z.string().regex(/^\d+$/, 'ID do módulo inválido'),
+  }),
+  body: z.object({
+    aulas: z.array(z.object({
+      id: z.number().int().positive('ID deve ser um número positivo'),
+      ordem: z.number().int().nonnegative('Ordem deve ser um número positivo'),
+    })),
   }),
 });

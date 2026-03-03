@@ -26,18 +26,18 @@ export const idsParamSchema = z.object({
  * Provides sensible defaults and limits
  */
 export const paginationSchema = z.object({
-  pagina: z
+  page: z
     .string()
     .optional()
     .default('1')
     .transform(Number)
-    .refine((val) => val >= 1, 'Página deve ser pelo menos 1'),
-  limite: z
+    .refine((val) => val >= 1, 'Page deve ser pelo menos 1'),
+  limit: z
     .string()
     .optional()
     .default('10')
     .transform(Number)
-    .refine((val) => val >= 1 && val <= 100, 'Limite deve estar entre 1 e 100'),
+    .refine((val) => val >= 1 && val <= 100, 'Limit deve estar entre 1 e 100'),
 });
 
 /**
@@ -45,11 +45,11 @@ export const paginationSchema = z.object({
  * Ensures safe field names and valid directions
  */
 export const sortingSchema = z.object({
-  ordenarPor: z
+  sortBy: z
     .string()
     .regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/, 'Campo de ordenação inválido')
     .optional(),
-  direcao: z
+  sortOrder: z
     .enum(['asc', 'desc'], { message: 'Direção deve ser "asc" ou "desc"' })
     .optional()
     .default('asc'),
@@ -60,7 +60,7 @@ export const sortingSchema = z.object({
  * Used for text-based filtering across entities
  */
 export const searchSchema = z.object({
-  busca: z
+  search: z
     .string()
     .max(255, 'Termo de busca muito longo')
     .optional(),

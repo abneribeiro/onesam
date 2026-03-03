@@ -25,24 +25,36 @@ export const updateModuloSchema = z.object({
     ordem: z.number().int().nonnegative('A ordem deve ser um número inteiro positivo').optional(),
   }),
   params: z.object({
-    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDModulo
+    moduloId: z.string().regex(/^\d+$/, 'ID inválido'),
   }),
 });
 
 export const getModuloSchema = z.object({
   params: z.object({
-    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDModulo
+    moduloId: z.string().regex(/^\d+$/, 'ID inválido'),
   }),
 });
 
 export const deleteModuloSchema = z.object({
   params: z.object({
-    id: z.string().regex(/^\d+$/, 'ID inválido'), // Padronizado de IDModulo
+    moduloId: z.string().regex(/^\d+$/, 'ID inválido'),
   }),
 });
 
 export const listModulosByCursoSchema = z.object({
   params: z.object({
-    id: z.string().regex(/^\d+$/, 'ID do curso inválido'), // Padronizado de IDCurso
+    cursoId: z.string().regex(/^\d+$/, 'ID do curso inválido'),
+  }),
+});
+
+export const reorderModulosSchema = z.object({
+  params: z.object({
+    cursoId: z.string().regex(/^\d+$/, 'ID do curso inválido'),
+  }),
+  body: z.object({
+    modulos: z.array(z.object({
+      id: z.number().int().positive('ID deve ser um número positivo'),
+      ordem: z.number().int().nonnegative('Ordem deve ser um número positivo'),
+    })),
   }),
 });

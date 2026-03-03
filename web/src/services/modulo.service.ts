@@ -17,7 +17,7 @@ export interface ModuloInput {
   titulo: string;
   descricao?: string;
   ordem?: number;
-  IDCurso: number;
+  cursoId: number;
 }
 
 export interface ModuloUpdate {

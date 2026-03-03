@@ -45,7 +45,7 @@ export function useCreateAula() {
   return useMutation({
     mutationFn: (data: AulaInput) => aulaService.criarAula(data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: aulaKeys.byModulo(variables.IDModulo) });
+      queryClient.invalidateQueries({ queryKey: aulaKeys.byModulo(variables.moduloId) });
       queryClient.invalidateQueries({ queryKey: aulaKeys.lists() });
       // Also invalidate modules to update lesson counts
       queryClient.invalidateQueries({ queryKey: moduloKeys.all });

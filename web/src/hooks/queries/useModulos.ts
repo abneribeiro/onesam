@@ -41,10 +41,10 @@ export function useCreateModulo() {
   return useMutation({
     mutationFn: (data: ModuloInput) => moduloService.criarModulo(data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: moduloKeys.byCurso(variables.IDCurso) });
+      queryClient.invalidateQueries({ queryKey: moduloKeys.byCurso(variables.cursoId) });
       queryClient.invalidateQueries({ queryKey: moduloKeys.lists() });
       // Also invalidate the course detail to update module counts
-      queryClient.invalidateQueries({ queryKey: cursoKeys.detail(variables.IDCurso) });
+      queryClient.invalidateQueries({ queryKey: cursoKeys.detail(variables.cursoId) });
       toast.success('Módulo criado com sucesso!');
     },
     onError: (error: Error) => {

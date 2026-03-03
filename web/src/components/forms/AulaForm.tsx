@@ -181,7 +181,7 @@ export function AulaForm({ moduloId, cursoId, aula, onSuccess, onCancel }: AulaF
       } else {
         await createAula.mutateAsync({
           ...aulaData,
-          IDModulo: moduloId
+          moduloId: moduloId
         });
       }
       onSuccess();

@@ -20,7 +20,7 @@ export function ConteudoCurso({ cursoId, isAdmin = false }: ConteudoCursoProps) 
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Conteúdo do Curso</h2>
         {isAdmin && (
-          <Button onClick={() => createModulo.mutate({ titulo: 'Novo Módulo', IDCurso: cursoId })}>
+          <Button onClick={() => createModulo.mutate({ titulo: 'Novo Módulo', cursoId: cursoId })}>
             <Plus className="mr-2 h-4 w-4" /> Adicionar Módulo
           </Button>
         )}
@@ -69,7 +69,7 @@ function ModuloContent({ moduloId, isAdmin }: { moduloId: number; isAdmin: boole
         <Button
           variant="outline"
           size="sm"
-          onClick={() => createAula.mutate({ titulo: 'Nova Aula', tipo: 'video', IDModulo: moduloId })}
+          onClick={() => createAula.mutate({ titulo: 'Nova Aula', tipo: 'video', moduloId: moduloId })}
         >
           <Plus className="mr-2 h-4 w-4" /> Adicionar Aula
         </Button>

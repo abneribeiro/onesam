@@ -54,7 +54,7 @@ export function ModuloForm({ cursoId, modulo, onSuccess, onCancel }: ModuloFormP
       } else {
         await createModulo.mutateAsync({
           ...data,
-          IDCurso: cursoId
+          cursoId: cursoId
         });
       }
       onSuccess();

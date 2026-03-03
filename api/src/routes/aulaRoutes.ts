@@ -13,6 +13,8 @@ import {
   deleteAulaSchema,
   listAulasByModuloSchema,
   marcarAulaConcluidaSchema,
+  progressoCursoSchema,
+  reorderAulasSchema,
 } from '../schemas/aulaSchemas';
 
 const router: Router = express.Router();
@@ -28,8 +30,9 @@ router.get(
 );
 
 router.get(
-  '/progresso/curso/:IDCurso',
+  '/progresso/curso/:cursoId',
   betterAuthMiddleware,
+  validateDto(progressoCursoSchema),
   aulaController.obterProgressoCurso
 );
 
@@ -37,7 +40,7 @@ router.get(
 router.get('/', betterAuthMiddleware, aulaController.listarAulas);
 
 router.get(
-  '/modulo/:IDModulo',
+  '/modulo/:moduloId',
   betterAuthMiddleware,
   validateDto(listAulasByModuloSchema),
   aulaController.listarAulasPorModulo
@@ -45,10 +48,11 @@ router.get(
 
 // Protected admin routes - require specific CONTEUDO permissions
 router.put(
-  '/modulo/:IDModulo/reorder',
+  '/modulo/:moduloId/reorder',
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.UPDATE),
   stateChangeRateLimiter,
+  validateDto(reorderAulasSchema),
   aulaController.reordenarAulas
 );
 
@@ -62,9 +66,9 @@ router.post(
   aulaController.uploadVideo
 );
 
-// Rotas com parâmetro dinâmico /:IDAula - devem vir por último
+// Rotas com parâmetro dinâmico /:aulaId - devem vir por último
 router.get(
-  '/:IDAula',
+  '/:aulaId',
   betterAuthMiddleware,
   validateDto(getAulaSchema),
   aulaController.obterAula
@@ -79,7 +83,7 @@ router.post(
 );
 
 router.put(
-  '/:IDAula',
+  '/:aulaId',
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.UPDATE),
   validateDto(updateAulaSchema),
@@ -87,7 +91,7 @@ router.put(
 );
 
 router.delete(
-  '/:IDAula',
+  '/:aulaId',
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.DELETE),
   validateDto(deleteAulaSchema),
@@ -95,14 +99,14 @@ router.delete(
 );
 
 router.post(
-  '/:IDAula/concluir',
+  '/:aulaId/concluir',
   betterAuthMiddleware,
-  validateDto(marcarAulaConcluidaSchema.shape.body),
+  validateDto(marcarAulaConcluidaSchema),
   aulaController.marcarAulaConcluida
 );
 
 router.delete(
-  '/:IDAula/concluir',
+  '/:aulaId/concluir',
   betterAuthMiddleware,
   validateDto(getAulaSchema),
   aulaController.desmarcarAulaConcluida

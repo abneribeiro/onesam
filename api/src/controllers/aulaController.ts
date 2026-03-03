@@ -7,9 +7,9 @@ import { CustomError } from '../utils/errorHandler';
 
 export const criarAula = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDModulo, ...resto } = req.body;
+    const { moduloId, ...resto } = req.body;
     const aula = await aulaService.create({
-      moduloId: IDModulo,
+      moduloId: moduloId,
       ...resto
     });
     sendCreated(res, 'Aula criada com sucesso', { aula });
@@ -29,8 +29,8 @@ export const listarAulas = async (_req: Request, res: Response, next: NextFuncti
 
 export const listarAulasPorModulo = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { IDModulo } = req.params;
-    const aulas = await aulaService.findByModuloId(Number(IDModulo));
+    const { moduloId } = req.params;
+    const aulas = await aulaService.findByModuloId(Number(moduloId));
     sendData(res, { aulas });
   } catch (error) {
     next(error);
@@ -39,16 +39,16 @@ export const listarAulasPorModulo = async (req: Request, res: Response, next: Ne
 
 export const obterAula = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDAula } = req.params;
+    const { aulaId } = req.params;
     const utilizadorId = req.utilizador?.id;
 
     if (utilizadorId) {
       // Se usuário autenticado, incluir progresso
-      const aula = await aulaService.findByIdWithProgresso(Number(IDAula), utilizadorId);
+      const aula = await aulaService.findByIdWithProgresso(Number(aulaId), utilizadorId);
       sendData(res, { aula });
     } else {
       // Sem autenticação, apenas a aula
-      const aula = await aulaService.findById(Number(IDAula), true);
+      const aula = await aulaService.findById(Number(aulaId), true);
       sendData(res, { aula });
     }
   } catch (error) {
@@ -58,8 +58,8 @@ export const obterAula = async (req: AuthRequest, res: Response, next: NextFunct
 
 export const atualizarAula = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDAula } = req.params;
-    const aula = await aulaService.update(Number(IDAula), req.body);
+    const { aulaId } = req.params;
+    const aula = await aulaService.update(Number(aulaId), req.body);
     sendSuccess(res, 200, 'Aula atualizada com sucesso', { aula });
   } catch (error) {
     next(error);
@@ -68,8 +68,8 @@ export const atualizarAula = async (req: AuthRequest, res: Response, next: NextF
 
 export const deletarAula = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDAula } = req.params;
-    await aulaService.delete(Number(IDAula));
+    const { aulaId } = req.params;
+    await aulaService.delete(Number(aulaId));
     sendSuccess(res, 200, 'Aula deletada com sucesso');
   } catch (error) {
     next(error);
@@ -78,10 +78,10 @@ export const deletarAula = async (req: AuthRequest, res: Response, next: NextFun
 
 export const reordenarAulas = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDModulo } = req.params;
+    const { moduloId } = req.params;
     const { aulas } = req.body; // Array de { id, ordem }
 
-    await aulaService.reorder(Number(IDModulo), aulas);
+    await aulaService.reorder(Number(moduloId), aulas);
     sendSuccess(res, 200, 'Aulas reordenadas com sucesso');
   } catch (error) {
     next(error);
@@ -92,11 +92,11 @@ export const reordenarAulas = async (req: AuthRequest, res: Response, next: Next
 
 export const marcarAulaConcluida = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDAula } = req.params;
+    const { aulaId } = req.params;
     const { tempoGasto } = req.body;
     const utilizadorId = req.utilizador!.id;
 
-    const progresso = await aulaService.marcarConcluida(Number(IDAula), utilizadorId, tempoGasto);
+    const progresso = await aulaService.marcarConcluida(Number(aulaId), utilizadorId, tempoGasto);
     sendSuccess(res, 200, 'Aula marcada como concluída', { progresso });
   } catch (error) {
     next(error);
@@ -105,10 +105,10 @@ export const marcarAulaConcluida = async (req: AuthRequest, res: Response, next:
 
 export const desmarcarAulaConcluida = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDAula } = req.params;
+    const { aulaId } = req.params;
     const utilizadorId = req.utilizador!.id;
 
-    const progresso = await aulaService.desmarcarConcluida(Number(IDAula), utilizadorId);
+    const progresso = await aulaService.desmarcarConcluida(Number(aulaId), utilizadorId);
     sendSuccess(res, 200, 'Conclusão da aula removida', { progresso });
   } catch (error) {
     next(error);
@@ -117,10 +117,10 @@ export const desmarcarAulaConcluida = async (req: AuthRequest, res: Response, ne
 
 export const obterProgressoCurso = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { IDCurso } = req.params;
+    const { cursoId } = req.params;
     const utilizadorId = req.utilizador!.id;
 
-    const progresso = await aulaService.calcularProgressoCurso(Number(IDCurso), utilizadorId);
+    const progresso = await aulaService.calcularProgressoCurso(Number(cursoId), utilizadorId);
     sendData(res, { progresso });
   } catch (error) {
     next(error);

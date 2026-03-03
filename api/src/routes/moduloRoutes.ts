@@ -8,6 +8,10 @@ import { Resource, Action } from '../types/permissions.types';
 import {
   createModuloSchema,
   updateModuloSchema,
+  getModuloSchema,
+  deleteModuloSchema,
+  listModulosByCursoSchema,
+  reorderModulosSchema,
 } from '../schemas/moduloSchemas';
 
 const router: Router = express.Router();
@@ -15,13 +19,15 @@ const router: Router = express.Router();
 // Public routes (formandos podem visualizar)
 router.get('/', betterAuthMiddleware, moduloController.listarModulos);
 router.get(
-  '/curso/:IDCurso',
+  '/curso/:cursoId',
   betterAuthMiddleware,
+  validateDto(listModulosByCursoSchema),
   moduloController.listarModulosPorCurso
 );
 router.get(
-  '/:IDModulo',
+  '/:moduloId',
   betterAuthMiddleware,
+  validateDto(getModuloSchema),
   moduloController.obterModulo
 );
 
@@ -35,25 +41,27 @@ router.post(
 );
 
 router.put(
-  '/:IDModulo',
+  '/:moduloId',
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.UPDATE),
-  validateDto(updateModuloSchema.shape.body),
+  validateDto(updateModuloSchema),
   moduloController.atualizarModulo
 );
 
 router.delete(
-  '/:IDModulo',
+  '/:moduloId',
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.DELETE),
+  validateDto(deleteModuloSchema),
   moduloController.deletarModulo
 );
 
 router.put(
-  '/curso/:IDCurso/reorder',
+  '/curso/:cursoId/reorder',
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.UPDATE),
   stateChangeRateLimiter,
+  validateDto(reorderModulosSchema),
   moduloController.reordenarModulos
 );
 

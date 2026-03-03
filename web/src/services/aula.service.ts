@@ -45,7 +45,7 @@ export interface AulaInput {
   duracao?: number;
   ordem?: number;
   obrigatoria?: boolean;
-  IDModulo: number;
+  moduloId: number;
 }
 
 export interface AulaUpdate {
