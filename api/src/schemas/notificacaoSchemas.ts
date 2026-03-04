@@ -1,25 +1,19 @@
 import { z } from 'zod';
 
-/**
- * Validation schemas for notification operations
- */
-
-// Schema for notification ID parameter validation
-export const notificacaoIdParamSchema = z.object({
-  params: z.object({
-    id: z.string().regex(/^\d+$/, 'ID da notificação inválido'),
-  }),
+// Flat schema for validating notification ID from route params (used with validateParams)
+export const notificacaoIdSchema = z.object({
+  id: z.string().regex(/^\d+$/, 'ID da notificação inválido'),
 });
 
-// Schema for listing notifications query parameters only
+// Schema for listing notifications query parameters (used with validateQuery)
 export const listarNotificacoesQuerySchema = z.object({
-  pagina: z
+  page: z
     .string()
     .optional()
     .default('1')
     .transform(Number)
     .refine((val) => val >= 1, 'Página deve ser pelo menos 1'),
-  limite: z
+  limit: z
     .string()
     .optional()
     .default('10')
@@ -58,39 +52,18 @@ export const listarNotificacoesQuerySchema = z.object({
   }
 );
 
-// Schema for listing notifications with pagination and filters (for body validation)
-export const listarNotificacoesSchema = z.object({
-  query: listarNotificacoesQuerySchema,
-});
-
-// Schema for marking notification as read
-export const marcarComoLidaSchema = notificacaoIdParamSchema;
-
-// Schema for deleting notification
-export const deletarNotificacaoSchema = notificacaoIdParamSchema;
-
-// Schema for marking all notifications as read (no parameters needed)
-export const marcarTodasComoLidasSchema = z.object({
-  query: z.object({}).optional(),
-});
-
-// Schema for counting unread notifications query parameters only (empty but defined)
+// Schema for counting unread notifications query parameters (empty, used with validateQuery)
 export const contarNotificacoesNaoLidasQuerySchema = z.object({});
 
-// Schema for counting unread notifications (for body validation)
-export const contarNotificacoesNaoLidasSchema = z.object({
-  query: contarNotificacoesNaoLidasQuerySchema,
-});
-
-// Schema for listing unread notifications query parameters only
+// Schema for listing unread notifications query parameters (used with validateQuery)
 export const listarNotificacoesNaoLidasQuerySchema = z.object({
-  pagina: z
+  page: z
     .string()
     .optional()
     .default('1')
     .transform(Number)
     .refine((val) => val >= 1, 'Página deve ser pelo menos 1'),
-  limite: z
+  limit: z
     .string()
     .optional()
     .default('10')
@@ -99,9 +72,4 @@ export const listarNotificacoesNaoLidasQuerySchema = z.object({
   tipo: z
     .enum(['inscricao', 'curso', 'sistema', 'certificado'], { message: 'Tipo de notificação inválido' })
     .optional(),
-});
-
-// Schema for listing unread notifications with pagination (for body validation)
-export const listarNotificacoesNaoLidasSchema = z.object({
-  query: listarNotificacoesNaoLidasQuerySchema,
 });

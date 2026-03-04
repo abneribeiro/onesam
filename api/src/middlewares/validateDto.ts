@@ -2,9 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import logger from '../utils/logger';
 
-/**
- * Middleware genérico de validação com Zod
- */
 export const validateDto = <T extends z.ZodTypeAny>(schema: T) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -18,7 +15,7 @@ export const validateDto = <T extends z.ZodTypeAny>(schema: T) => {
           message: err.message,
         }));
 
-        logger.warn('Erro de validação', {
+        logger.warn('Erro de validação no body', {
           path: req.path,
           method: req.method,
           errors,
@@ -35,8 +32,9 @@ export const validateDto = <T extends z.ZodTypeAny>(schema: T) => {
         return;
       }
 
-      // Erro desconhecido
-      logger.error('Erro desconhecido na validação', {
+      logger.error('Erro desconhecido na validação do body', {
+        path: req.path,
+        method: req.method,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
 
@@ -51,14 +49,17 @@ export const validateDto = <T extends z.ZodTypeAny>(schema: T) => {
   };
 };
 
-/**
- * Middleware para validar query params
- */
 export const validateQuery = <T extends z.ZodTypeAny>(schema: T) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const validated = await schema.parseAsync(req.query);
-      (req as any).query = validated;
+      // Express 5 defines req.query as a getter-only property.
+      // Override it with an own data property via Object.defineProperty.
+      Object.defineProperty(req, 'query', {
+        configurable: true,
+        enumerable: true,
+        value: validated,
+      });
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -66,6 +67,12 @@ export const validateQuery = <T extends z.ZodTypeAny>(schema: T) => {
           field: err.path.join('.'),
           message: err.message,
         }));
+
+        logger.warn('Erro de validação nos query params', {
+          path: req.path,
+          method: req.method,
+          errors,
+        });
 
         res.status(422).json({
           success: false,
@@ -78,6 +85,12 @@ export const validateQuery = <T extends z.ZodTypeAny>(schema: T) => {
         return;
       }
 
+      logger.error('Erro desconhecido na validação de query params', {
+        path: req.path,
+        method: req.method,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+
       res.status(500).json({
         success: false,
         error: {
@@ -89,14 +102,17 @@ export const validateQuery = <T extends z.ZodTypeAny>(schema: T) => {
   };
 };
 
-/**
- * Middleware para validar params de rota
- */
 export const validateParams = <T extends z.ZodTypeAny>(schema: T) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const validated = await schema.parseAsync(req.params);
-      (req as any).params = validated;
+      // Express 5 may define req.params as getter-only.
+      // Override it with an own data property via Object.defineProperty.
+      Object.defineProperty(req, 'params', {
+        configurable: true,
+        enumerable: true,
+        value: validated,
+      });
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -104,6 +120,12 @@ export const validateParams = <T extends z.ZodTypeAny>(schema: T) => {
           field: err.path.join('.'),
           message: err.message,
         }));
+
+        logger.warn('Erro de validação nos route params', {
+          path: req.path,
+          method: req.method,
+          errors,
+        });
 
         res.status(422).json({
           success: false,
@@ -115,6 +137,12 @@ export const validateParams = <T extends z.ZodTypeAny>(schema: T) => {
         });
         return;
       }
+
+      logger.error('Erro desconhecido na validação de route params', {
+        path: req.path,
+        method: req.method,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
 
       res.status(500).json({
         success: false,

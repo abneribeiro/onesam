@@ -7,29 +7,26 @@ import {
   marcarTodasComoLidas,
   deletarNotificacao,
 } from '../controllers/notificacaoController';
-import betterAuthMiddleware from '../middlewares/betterAuthMiddleware';
-import { validateDto, validateQuery } from '../middlewares/validateDto';
+import { validateQuery, validateParams } from '../middlewares/validateDto';
 import {
   listarNotificacoesQuerySchema,
   listarNotificacoesNaoLidasQuerySchema,
   contarNotificacoesNaoLidasQuerySchema,
-  marcarComoLidaSchema,
-  marcarTodasComoLidasSchema,
-  deletarNotificacaoSchema
+  notificacaoIdSchema,
 } from '../schemas/notificacaoSchemas';
 
 const router: Router = Router();
 
-router.use(betterAuthMiddleware);
+// betterAuthMiddleware is already applied at the app.ts level for /api/notificacoes
 
-// Rotas estáticas primeiro (sem parâmetros dinâmicos) com validação
+// Static routes (no dynamic params)
 router.get('/', validateQuery(listarNotificacoesQuerySchema), listarNotificacoes);
 router.get('/nao-lidas', validateQuery(listarNotificacoesNaoLidasQuerySchema), listarNotificacoesNaoLidas);
 router.get('/nao-lidas/count', validateQuery(contarNotificacoesNaoLidasQuerySchema), contarNotificacoesNaoLidas);
-router.put('/marcar-todas-lidas', validateDto(marcarTodasComoLidasSchema), marcarTodasComoLidas);
+router.put('/marcar-todas-lidas', marcarTodasComoLidas);
 
-// Rotas com parâmetros dinâmicos por último com validação
-router.put('/:id/marcar-lida', validateDto(marcarComoLidaSchema), marcarComoLida);
-router.delete('/:id', validateDto(deletarNotificacaoSchema), deletarNotificacao);
+// Dynamic param routes
+router.put('/:id/marcar-lida', validateParams(notificacaoIdSchema), marcarComoLida);
+router.delete('/:id', validateParams(notificacaoIdSchema), deletarNotificacao);
 
 export default router;
