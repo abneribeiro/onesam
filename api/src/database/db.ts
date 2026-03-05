@@ -15,18 +15,20 @@ const sslConfig = config.database.ssl ? {
   rejectUnauthorized: false,
 } : false;
 
-// Supabase connection configuration with transaction pooling settings
+// Connection configuration adapts to test vs production environments
+const isTestEnv = config.app.isTest;
+
 const client = postgres(connectionString, {
   ssl: sslConfig,
-  max: 1, // Single connection for transaction pooling
-  idle_timeout: 0, // Disable idle timeout for pooler
+  max: isTestEnv ? 5 : 1,
+  idle_timeout: isTestEnv ? 20 : 0,
   connect_timeout: config.database.timeout,
-  prepare: false, // Required for transaction pooling
+  prepare: isTestEnv ? true : false,
   transform: {
     undefined: null,
   },
   connection: {
-    application_name: 'OneSAM-API',
+    application_name: isTestEnv ? 'OneSAM-API-Test' : 'OneSAM-API',
   },
   onnotice: (notice) => {
     if (config.app.isDevelopment) {

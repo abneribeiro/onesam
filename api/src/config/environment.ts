@@ -2,13 +2,14 @@ import { z } from 'zod';
 import dotenv from 'dotenv';
 import logger from '../utils/logger';
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from the correct file based on NODE_ENV
+const envFile = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
+dotenv.config({ path: envFile });
 
 // Environment validation schema
 const envSchema = z.object({
   // Node environment
-  NODE_ENV: z.enum(['development', 'staging', 'production']).default('development'),
+  NODE_ENV: z.enum(['development', 'staging', 'production', 'test']).default('development'),
 
   // Application settings
   APP_NAME: z.string().default('OneSAM LMS'),
@@ -116,6 +117,7 @@ const config = {
     isDevelopment: validatedEnv.NODE_ENV === 'development',
     isProduction: validatedEnv.NODE_ENV === 'production',
     isStaging: validatedEnv.NODE_ENV === 'staging',
+    isTest: validatedEnv.NODE_ENV === 'test',
   },
 
   database: {
@@ -133,7 +135,7 @@ const config = {
     betterAuthSecret: validatedEnv.BETTER_AUTH_SECRET,
     betterAuthUrl: validatedEnv.BETTER_AUTH_URL,
     bcryptRounds: validatedEnv.BCRYPT_ROUNDS,
-    disableAuth: validatedEnv.DISABLE_AUTH && validatedEnv.NODE_ENV === 'development',
+    disableAuth: validatedEnv.DISABLE_AUTH && (validatedEnv.NODE_ENV === 'development' || validatedEnv.NODE_ENV === 'test'),
   },
 
   supabase: {
