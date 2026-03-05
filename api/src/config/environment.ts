@@ -17,8 +17,15 @@ const envSchema = z.object({
   PORT: z.string().regex(/^\d+$/, 'PORT must be a number').default('3000').transform(Number),
 
   // Database configuration (Supabase always uses SSL)
-  DATABASE_URL: z.string().url('DATABASE_URL must be a valid URL'),
+  DATABASE_URL: z.string()
+    .url('DATABASE_URL must be a valid URL')
+    .refine(
+      (url) => url.includes('supabase.co') || url.includes('localhost') || url.includes('127.0.0.1'),
+      'DATABASE_URL must be a Supabase URL or localhost for development'
+    ),
   DATABASE_SSL: z.string().default('true').transform(val => val === 'true'),
+  DATABASE_MAX_CONNECTIONS: z.string().regex(/^\d+$/, 'DATABASE_MAX_CONNECTIONS must be a number').default('10').transform(Number),
+  DATABASE_TIMEOUT: z.string().regex(/^\d+$/, 'DATABASE_TIMEOUT must be a number').default('60').transform(Number),
 
   // JWT Configuration
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
@@ -114,6 +121,8 @@ const config = {
   database: {
     url: validatedEnv.DATABASE_URL,
     ssl: validatedEnv.DATABASE_SSL,
+    maxConnections: validatedEnv.DATABASE_MAX_CONNECTIONS,
+    timeout: validatedEnv.DATABASE_TIMEOUT,
   },
 
   auth: {

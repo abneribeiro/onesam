@@ -188,12 +188,51 @@ app.use(notFound);
 // Middleware de tratamento de erros global
 app.use(errorHandler);
 
+// Database connection test with retry logic
+const testDatabaseConnection = async (maxRetries = 3, retryDelay = 2000): Promise<void> => {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      logger.info(`Testing database connection (attempt ${attempt}/${maxRetries})`, {
+        databaseUrl: config.database.url.replace(/:[^:]*@/, ':***@'), // Mask password
+        sslEnabled: config.database.ssl,
+        maxConnections: config.database.maxConnections,
+        timeout: config.database.timeout
+      });
+
+      await db.execute(sql`SELECT 1 as test_connection`);
+      logger.info('Database connection established successfully (Drizzle ORM)', {
+        attempt,
+        connectionTime: new Date().toISOString()
+      });
+      return;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      logger.warn(`Database connection attempt ${attempt} failed`, {
+        error: lastError.message,
+        attempt,
+        maxRetries,
+        willRetry: attempt < maxRetries
+      });
+
+      if (attempt < maxRetries) {
+        logger.info(`Retrying database connection in ${retryDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+        retryDelay *= 1.5; // Exponential backoff
+      }
+    }
+  }
+
+  // If we get here, all attempts failed
+  throw new Error(`Database connection failed after ${maxRetries} attempts. Last error: ${lastError?.message}`);
+};
+
 // Função para iniciar o servidor
 const iniciarServidor = async () => {
   try {
-    // Testar conexão com o banco de dados Drizzle
-    await db.execute(sql`SELECT 1`);
-    logger.info('Database connection established successfully (Drizzle ORM)');
+    // Test database connection with retry logic
+    await testDatabaseConnection();
 
     // Ensure Supabase storage buckets exist
     await ensureStorageBuckets();
@@ -236,7 +275,26 @@ const iniciarServidor = async () => {
 
   } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error(String(err));
-    logger.error('Failed to start server', { error: error.message, stack: error.stack });
+
+    // Enhanced error logging for database connection issues
+    if (error.message.includes('Database connection failed')) {
+      logger.error('❌ Database connection error', {
+        error: error.message,
+        databaseUrl: config.database.url.replace(/:[^:]*@/, ':***@'),
+        suggestions: [
+          'Check if DATABASE_URL is correctly set in .env file',
+          'Verify Supabase project is active and accessible',
+          'Ensure network connectivity to Supabase',
+          'Check if database credentials are valid'
+        ]
+      });
+    } else {
+      logger.error('❌ Failed to start server', {
+        error: error.message,
+        stack: error.stack
+      });
+    }
+
     process.exit(1);
   }
 };
