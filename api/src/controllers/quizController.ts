@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import type { AuthRequest } from '../types/auth.types';
 import { quizService, type CreateQuizDTO } from '../services/quizService';
-import { sendData, sendCreated, sendSuccess, sendBadRequest, sendNotFound } from '../utils/responseHelper';
+import { sendData, sendSuccess, sendBadRequest, sendNotFound } from '../utils/responseHelper';
 import type { QuizSubmissao } from '../types';
 
 export const criarQuiz = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const data: CreateQuizDTO = req.body;
     const quiz = await quizService.criarQuiz(data);
-    sendCreated(res, 'Quiz criado com sucesso', { quiz });
+    sendData(res, quiz, 201);
   } catch (error: unknown) {
     if (error instanceof Error) {
       sendBadRequest(res, error.message);
@@ -107,7 +107,7 @@ export const atualizarQuiz = async (req: AuthRequest, res: Response, next: NextF
     const { id } = req.params;
     const data: Partial<CreateQuizDTO> = req.body;
     const quiz = await quizService.atualizarQuiz(Number(id), data);
-    sendSuccess(res, 200, 'Quiz atualizado com sucesso', { quiz });
+    sendData(res, quiz);
   } catch (error: unknown) {
     if (error instanceof Error) {
       sendBadRequest(res, error.message);
@@ -141,7 +141,7 @@ export const submeterQuiz = async (req: AuthRequest, res: Response, next: NextFu
     };
 
     const resultado = await quizService.submeterQuiz(utilizadorId, submissao);
-    sendCreated(res, 'Quiz submetido com sucesso', resultado);
+    sendData(res, resultado, 201);
   } catch (error: unknown) {
     if (error instanceof Error) {
       sendBadRequest(res, error.message);

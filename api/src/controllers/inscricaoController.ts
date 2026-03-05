@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import type { AuthRequest } from '../types/auth.types';
-import { sendData, sendCreated, sendSuccess, sendBadRequest, sendForbidden } from '../utils/responseHelper';
+import { sendData, sendSuccess, sendBadRequest, sendForbidden } from '../utils/responseHelper';
 import { inscricaoService } from '../services/inscricaoService';
 import type { EstadoInscricao } from '../types';
 
@@ -11,11 +11,7 @@ export const inscreverFormando = async (req: AuthRequest, res: Response, next: N
 
     const inscricao = await inscricaoService.inscreverFormando(utilizadorId, IDCurso);
 
-    const mensagem = inscricao.estado === 'aceite'
-      ? 'Inscrição realizada com sucesso! Você já tem acesso ao curso.'
-      : 'Inscrição realizada com sucesso e aguarda aprovação';
-
-    sendCreated(res, mensagem, { inscricao });
+    sendData(res, inscricao, 201);
   } catch (error: unknown) {
     if (error instanceof Error) {
       sendBadRequest(res, error.message);
@@ -113,7 +109,7 @@ export const aprovarInscricao = async (req: AuthRequest, res: Response, next: Ne
   try {
     const { id } = req.params;
     const inscricaoAtualizada = await inscricaoService.aprovarInscricao(Number(id));
-    sendSuccess(res, 200, "Inscrição aprovada com sucesso", { inscricao: inscricaoAtualizada });
+    sendData(res, inscricaoAtualizada);
   } catch (error: unknown) {
     if (error instanceof Error) {
       sendBadRequest(res, error.message);
@@ -128,7 +124,7 @@ export const rejeitarInscricao = async (req: AuthRequest, res: Response, next: N
     const { id } = req.params;
     const { motivo } = req.body;
     const inscricaoAtualizada = await inscricaoService.rejeitarInscricao(Number(id), motivo);
-    sendSuccess(res, 200, "Inscrição rejeitada", { inscricao: inscricaoAtualizada });
+    sendData(res, inscricaoAtualizada);
   } catch (error: unknown) {
     if (error instanceof Error) {
       sendBadRequest(res, error.message);

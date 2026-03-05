@@ -38,7 +38,7 @@ export const marcarComoLida = async (req: AuthenticatedRequest, res: Response, n
     const { id } = req.params;
     const utilizadorId = req.utilizador!.id;
     const notificacao = await notificacaoService.marcarComoLida(Number(id), utilizadorId);
-    sendSuccess(res, 200, 'Notificação marcada como lida', { notificacao });
+    sendData(res, notificacao);
   } catch (error: any) {
     next(error);
   }

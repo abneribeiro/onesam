@@ -101,7 +101,7 @@ export const atualizarUtilizador = async (req: AuthRequest, res: Response, next:
 
     const utilizadorAtualizado = await utilizadorRepository.update(id, updateData);
 
-    sendSuccess(res, 200, 'Utilizador atualizado com sucesso', { utilizador: utilizadorAtualizado });
+    sendData(res, utilizadorAtualizado);
   } catch (error) {
     next(error);
   }
@@ -170,7 +170,7 @@ export const atualizarAvatar = async (req: AuthRequest, res: Response, next: Nex
       avatar: avatarUrl
     });
 
-    sendSuccess(res, 200, 'Avatar atualizado com sucesso', { avatar: avatarUrl });
+    sendData(res, { avatarUrl });
   } catch (error) {
     next(error);
   }
@@ -230,7 +230,7 @@ export const criarUtilizador = async (req: AuthRequest, res: Response, next: Nex
       await utilizadorRepository.updatePassword(novoUtilizador.id, senha);
     }
 
-    sendSuccess(res, 201, 'Utilizador criado com sucesso', { utilizador: novoUtilizador });
+    sendData(res, novoUtilizador, 201);
   } catch (error) {
     next(error);
   }
@@ -274,7 +274,7 @@ export const atualizarUtilizadorAdmin = async (req: AuthRequest, res: Response, 
       await utilizadorRepository.updatePassword(Number(id), senha);
     }
 
-    sendSuccess(res, 200, 'Utilizador atualizado com sucesso', { utilizador: utilizadorAtualizado });
+    sendData(res, utilizadorAtualizado);
   } catch (error) {
     next(error);
   }
@@ -291,9 +291,9 @@ export const toggleAtivo = async (req: AuthRequest, res: Response, next: NextFun
     }
 
     const novoEstado = !utilizador.ativo;
-    await utilizadorRepository.update(Number(id), { ativo: novoEstado });
+    const utilizadorAtualizado = await utilizadorRepository.update(Number(id), { ativo: novoEstado });
 
-    sendSuccess(res, 200, `Utilizador ${novoEstado ? 'ativado' : 'desativado'} com sucesso`, { ativo: novoEstado });
+    sendData(res, utilizadorAtualizado);
   } catch (error) {
     next(error);
   }

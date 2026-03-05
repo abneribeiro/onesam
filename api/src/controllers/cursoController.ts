@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import type { AuthRequest } from '../types/auth.types';
 import type { AuthenticatedRequest } from '../middlewares/betterAuthMiddleware';
 import { cursoRepository } from '../repositories/cursoRepository';
-import { sendData, sendCreated, sendSuccess, sendBadRequest } from '../utils/responseHelper';
+import { sendData, sendSuccess, sendBadRequest } from '../utils/responseHelper';
 import { SupabaseStorageService } from '../services/supabaseStorageService';
 import { cursoService } from '../services/cursoService';
 
@@ -19,11 +19,11 @@ export const criarCurso = async (req: AuthRequest, res: Response, next: NextFunc
         req.file.mimetype
       );
       const cursoAtualizado = await cursoRepository.update(curso.id, { imagemCurso: imagemUrl });
-      sendCreated(res, 'Curso criado com sucesso', { curso: cursoAtualizado });
+      sendData(res, cursoAtualizado, 201);
       return;
     }
 
-    sendCreated(res, 'Curso criado com sucesso', { curso });
+    sendData(res, curso, 201);
   } catch (error: unknown) {
     if (error instanceof Error) {
       sendBadRequest(res, error.message);
@@ -120,7 +120,7 @@ export const atualizarCurso = async (req: AuthRequest, res: Response, next: Next
 
     const cursoAtualizado = await cursoService.atualizarCurso(cursoId, updateData);
 
-    sendSuccess(res, 200, 'Curso atualizado com sucesso', { curso: cursoAtualizado });
+    sendData(res, cursoAtualizado);
   } catch (error: unknown) {
     if (error instanceof Error) {
       sendBadRequest(res, error.message);
@@ -149,7 +149,7 @@ export const alterarEstado = async (req: Request, res: Response, next: NextFunct
     const { id } = req.params;
     const { estado } = req.body;
     const curso = await cursoService.alterarEstado(Number(id), estado);
-    sendSuccess(res, 200, 'Estado do curso atualizado com sucesso', { curso });
+    sendData(res, curso);
   } catch (error: unknown) {
     if (error instanceof Error) {
       sendBadRequest(res, error.message);

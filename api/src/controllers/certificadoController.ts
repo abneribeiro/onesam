@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import type { AuthRequest } from '../types/auth.types';
 import { certificadoService } from '../services/certificadoService';
-import { sendData, sendCreated, sendBadRequest, sendNotFound } from '../utils/responseHelper';
+import { sendData, sendBadRequest, sendNotFound } from '../utils/responseHelper';
 
 export const downloadCertificado = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -62,7 +62,7 @@ export const gerarCertificado = async (req: AuthRequest, res: Response, next: Ne
     const utilizadorId = req.utilizador!.id;
 
     const certificado = await certificadoService.gerarCertificado(utilizadorId, Number(cursoId));
-    sendCreated(res, 'Certificado gerado com sucesso', { certificado });
+    sendData(res, certificado, 201);
   } catch (error: unknown) {
     if (error instanceof Error) {
       sendBadRequest(res, error.message);
