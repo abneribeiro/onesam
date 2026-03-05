@@ -129,9 +129,7 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 // Documentação da API - Scalar
 app.use('/api/reference', apiReference({
-  spec: {
-    content: swaggerSpec,
-  },
+  content: swaggerSpec,
   theme: 'purple',
 }));
 
