@@ -55,6 +55,9 @@ api/logs/
 api/tmp/
 api/temp/
 
+# Uploads (user-generated content)
+api/uploads/
+
 # Banco de dados (SQLite, etc)
 api/*.sqlite
 api/*.sqlite-journal
@@ -69,6 +72,9 @@ api/config/*.pem
 # Build e produção
 api/dist/
 api/coverage/
+
+# Generated files
+lista_de_arquivos.txt
 
 # ======================
 # Geral (IDE/Editor/Sistema)
