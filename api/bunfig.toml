@@ -1,0 +1,17 @@
+[test]
+preload = ["./src/__tests__/setup.ts"]
+coverageSkipTestFiles = true
+coverageReporter = ["text", "lcov"]
+coverageDir = "coverage"
+coveragePathIgnorePatterns = [
+  "src/types/**",
+  "src/config/**",
+  "src/database/schema/**",
+  "src/database/seeds/**",
+  "src/database/drizzle/**",
+  "src/database/db.ts",
+  "src/scripts/**",
+  "src/docs/**",
+  "src/app.ts",
+  "src/lib/**",
+]

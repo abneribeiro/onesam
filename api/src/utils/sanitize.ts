@@ -11,8 +11,8 @@ export function sanitizeHtml(input: string): string {
   // Remove script tags and their content
   let sanitized = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
 
-  // Remove dangerous event handlers
-  sanitized = sanitized.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '');
+  // Remove dangerous event handlers (quoted and unquoted values)
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*(?:["'][^"']*["']|[^\s>]*)/gi, '');
 
   // Remove javascript: and data: links (except safe data:image/)
   sanitized = sanitized.replace(/href\s*=\s*["']javascript:[^"']*["']/gi, '');
@@ -89,6 +89,7 @@ export function sanitizeUrl(url: string): string | null {
     trimmed.startsWith('javascript:') ||
     trimmed.startsWith('vbscript:') ||
     trimmed.startsWith('file:') ||
+    (trimmed.startsWith('data:') && !trimmed.startsWith('data:image/')) ||
     trimmed.includes('<script') ||
     trimmed.includes('javascript:')
   ) {

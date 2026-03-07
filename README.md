@@ -1220,3 +1220,18 @@ Este projeto está licenciado sob a **Licença MIT** - consulte o ficheiro [LICE
 <p align="center">
   <a href="#-onesam---plataforma-de-formação">⬆️ Voltar ao Topo</a>
 </p>
+
+
+ Usage
+
+  # Start the test database manually
+  cd api && bun run db:test:up
+
+  # Push schema to test DB
+  bun run db:test:push
+
+  # Run tests (pretest hook auto-starts the container)
+  bun test
+
+  # Stop test database
+  bun run db:test:down

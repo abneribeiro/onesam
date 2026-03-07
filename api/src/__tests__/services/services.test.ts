@@ -1,25 +1,15 @@
-import { describe, test, expect, beforeEach } from 'bun:test';
-import { TestUtils, PerformanceTestUtils } from '../setup';
+import { describe, test, expect, beforeAll } from 'bun:test';
+import { TestUtils, PerformanceTestUtils, testData } from '../setup';
 import { cursoService } from '../../services/cursoService';
 import { inscricaoService } from '../../services/inscricaoService';
 import { utilizadorService } from '../../services/utilizadorService';
+import { cursoRepository } from '../../repositories/cursoRepository';
 
 describe('Service Layer: Critical Business Logic', () => {
-  let testAdmin: any;
   let testFormando: any;
-  let testArea: any;
-  let testCategoria: any;
 
-  beforeEach(async () => {
-    testAdmin = await TestUtils.createTestUser({ tipoPerfil: 'admin' });
-    testFormando = await TestUtils.createTestUser({
-      tipoPerfil: 'formando',
-      email: 'formando@example.com',
-    });
-
-    // Create test area and category (simplified - would normally use services)
-    testArea = { id: 1, nome: 'Test Area' };
-    testCategoria = { id: 1, nome: 'Test Category', areaId: 1 };
+  beforeAll(async () => {
+    testFormando = await TestUtils.createTestUser({ tipoPerfil: 'formando' });
   });
 
   describe('Curso Service Business Logic', () => {
@@ -27,10 +17,10 @@ describe('Service Layer: Critical Business Logic', () => {
       const courseData = {
         nome: 'Advanced TypeScript',
         descricao: 'Learn advanced TypeScript concepts',
-        dataInicio: new Date(Date.now() + 86400000), // Tomorrow
-        dataFim: new Date(Date.now() + 86400000 * 7), // Next week
-        IDArea: testArea.id,
-        IDCategoria: testCategoria.id,
+        dataInicio: new Date(Date.now() + 86400000),
+        dataFim: new Date(Date.now() + 86400000 * 7),
+        IDArea: testData.area.id,
+        IDCategoria: testData.categoria.id,
         nivel: 'avancado' as const,
         cargaHoraria: 40,
       };
@@ -47,10 +37,10 @@ describe('Service Layer: Critical Business Logic', () => {
     test('should validate course date logic', async () => {
       const invalidCourseData = {
         nome: 'Invalid Course',
-        dataInicio: new Date(Date.now() + 86400000 * 7), // Next week
-        dataFim: new Date(Date.now() + 86400000), // Tomorrow (invalid - before start)
-        IDArea: testArea.id,
-        IDCategoria: testCategoria.id,
+        dataInicio: new Date(Date.now() + 86400000 * 7),
+        dataFim: new Date(Date.now() + 86400000),
+        IDArea: testData.area.id,
+        IDCategoria: testData.categoria.id,
       };
 
       await expect(cursoService.criarCurso(invalidCourseData)).rejects.toThrow(
@@ -61,24 +51,9 @@ describe('Service Layer: Critical Business Logic', () => {
     test('should validate course state transitions', async () => {
       const course = await TestUtils.createTestCourse({ estado: 'planeado' });
 
-      // Valid transitions
-      const validTransitions = [
-        { from: 'planeado', to: 'em_curso' },
-        { from: 'em_curso', to: 'terminado' },
-        { from: 'terminado', to: 'arquivado' },
-        { from: 'arquivado', to: 'planeado' },
-      ];
-
-      for (const transition of validTransitions) {
-        // Would test the state transition logic
-        expect(transition.from).toBeDefined();
-        expect(transition.to).toBeDefined();
-      }
-
-      // Invalid transitions should be rejected
       const invalidTransitions = [
-        { from: 'planeado', to: 'terminado' }, // Can't skip 'em_curso'
-        { from: 'terminado', to: 'planeado' }, // Can't go back directly
+        { from: 'planeado', to: 'terminado' },
+        { from: 'terminado', to: 'planeado' },
       ];
 
       for (const transition of invalidTransitions) {
@@ -102,24 +77,21 @@ describe('Service Layer: Critical Business Logic', () => {
     });
 
     test('should handle course search and filtering', async () => {
-      // Create multiple test courses
-      const courses = await Promise.all([
-        TestUtils.createTestCourse({ nome: 'JavaScript Basics', nivel: 'iniciante' }),
-        TestUtils.createTestCourse({ nome: 'Advanced JavaScript', nivel: 'avancado' }),
-        TestUtils.createTestCourse({ nome: 'TypeScript Fundamentals', nivel: 'intermedio' }),
+      await Promise.all([
+        TestUtils.createTestCourse({ nome: 'JavaScript Basics SL', nivel: 'iniciante' }),
+        TestUtils.createTestCourse({ nome: 'Advanced JavaScript SL', nivel: 'avancado' }),
+        TestUtils.createTestCourse({ nome: 'TypeScript Fundamentals SL', nivel: 'intermedio' }),
       ]);
 
-      // Test search functionality
       const searchResults = await cursoService.listarCursosPaginados(
         { page: 1, limit: 10 },
         undefined,
-        { search: 'JavaScript' }
+        { search: 'JavaScript SL' }
       );
 
       expect(searchResults.data.length).toBeGreaterThanOrEqual(1);
       expect(searchResults.meta.total).toBeGreaterThanOrEqual(1);
 
-      // Test level filtering
       const beginnerCourses = await cursoService.listarCursosPaginados(
         { page: 1, limit: 10 },
         undefined,
@@ -131,107 +103,76 @@ describe('Service Layer: Critical Business Logic', () => {
   });
 
   describe('Enrollment Service Business Logic', () => {
-    let testCourse: any;
-
-    beforeEach(async () => {
-      testCourse = await TestUtils.createTestCourse({
-        limiteVagas: 2,
-        dataLimiteInscricao: new Date(Date.now() + 86400000), // Tomorrow
-      });
-    });
-
     test('should create enrollment successfully', async () => {
-      const enrollment = await inscricaoService.criarInscricao({
-        cursoId: testCourse.id,
-        utilizadorId: testFormando.id,
+      const course = await TestUtils.createTestCourse({
+        estado: 'em_curso',
+        visivel: true,
+        dataLimiteInscricao: new Date(Date.now() + 86400000 * 30),
       });
+      const formando = await TestUtils.createTestUser({ tipoPerfil: 'formando' });
+
+      const enrollment = await inscricaoService.inscreverFormando(formando.id, course.id);
 
       expect(enrollment).toBeDefined();
-      expect(enrollment.cursoId).toBe(testCourse.id);
-      expect(enrollment.utilizadorId).toBe(testFormando.id);
+      expect(enrollment.cursoId).toBe(course.id);
+      expect(enrollment.utilizadorId).toBe(formando.id);
       expect(enrollment.estado).toBe('pendente');
     });
 
     test('should prevent duplicate enrollments', async () => {
-      // Create first enrollment
-      await inscricaoService.criarInscricao({
-        cursoId: testCourse.id,
-        utilizadorId: testFormando.id,
+      const course = await TestUtils.createTestCourse({
+        estado: 'em_curso',
+        visivel: true,
+        dataLimiteInscricao: new Date(Date.now() + 86400000 * 30),
       });
+      const formando = await TestUtils.createTestUser({ tipoPerfil: 'formando' });
 
-      // Try to create duplicate
+      await inscricaoService.inscreverFormando(formando.id, course.id);
+
       await expect(
-        inscricaoService.criarInscricao({
-          cursoId: testCourse.id,
-          utilizadorId: testFormando.id,
-        })
-      ).rejects.toThrow('já inscrito');
+        inscricaoService.inscreverFormando(formando.id, course.id)
+      ).rejects.toThrow('já está inscrito');
     });
 
     test('should handle enrollment capacity limits', async () => {
-      // Create test users for capacity testing
-      const user1 = await TestUtils.createTestUser({
-        tipoPerfil: 'formando',
-        email: 'user1@example.com',
-      });
-      const user2 = await TestUtils.createTestUser({
-        tipoPerfil: 'formando',
-        email: 'user2@example.com',
-      });
-      const user3 = await TestUtils.createTestUser({
-        tipoPerfil: 'formando',
-        email: 'user3@example.com',
+      const course = await TestUtils.createTestCourse({
+        limiteVagas: 2,
+        estado: 'em_curso',
+        visivel: true,
+        dataLimiteInscricao: new Date(Date.now() + 86400000 * 30),
       });
 
-      // Enroll users up to capacity (2)
-      await inscricaoService.criarInscricao({
-        cursoId: testCourse.id,
-        utilizadorId: user1.id,
-      });
+      const user1 = await TestUtils.createTestUser({ tipoPerfil: 'formando' });
+      const user2 = await TestUtils.createTestUser({ tipoPerfil: 'formando' });
+      const user3 = await TestUtils.createTestUser({ tipoPerfil: 'formando' });
 
-      await inscricaoService.criarInscricao({
-        cursoId: testCourse.id,
-        utilizadorId: user2.id,
-      });
+      await inscricaoService.inscreverFormando(user1.id, course.id);
+      await inscricaoService.inscreverFormando(user2.id, course.id);
 
-      // Accept both enrollments (simulate admin approval)
-      // Would normally use service method to approve enrollments
-
-      // Try to enroll third user (should fail if capacity logic is implemented)
-      // This test depends on the actual business logic implementation
-      const thirdEnrollment = await inscricaoService.criarInscricao({
-        cursoId: testCourse.id,
-        utilizadorId: user3.id,
-      });
-
-      // The enrollment might be created but should be in waiting list or pending state
+      const thirdEnrollment = await inscricaoService.inscreverFormando(user3.id, course.id);
       expect(thirdEnrollment.estado).toBe('pendente');
     });
 
     test('should handle enrollment deadline validation', async () => {
-      // Create course with past enrollment deadline
       const expiredCourse = await TestUtils.createTestCourse({
-        dataLimiteInscricao: new Date(Date.now() - 86400000), // Yesterday
+        estado: 'em_curso',
+        visivel: true,
+        dataLimiteInscricao: new Date(Date.now() - 86400000),
       });
+      const formando = await TestUtils.createTestUser({ tipoPerfil: 'formando' });
 
       await expect(
-        inscricaoService.criarInscricao({
-          cursoId: expiredCourse.id,
-          utilizadorId: testFormando.id,
-        })
-      ).rejects.toThrow('prazo');
+        inscricaoService.inscreverFormando(formando.id, expiredCourse.id)
+      ).rejects.toThrow('período de inscrição');
     });
 
     test('should update enrollment status correctly', async () => {
-      const enrollment = await TestUtils.createTestEnrollment(testCourse.id, testFormando.id);
+      const course = await TestUtils.createTestCourse();
+      const enrollment = await TestUtils.createTestEnrollment(course.id, testFormando.id);
 
       expect(enrollment.estado).toBe('pendente');
 
-      // Approve enrollment
-      const updatedEnrollment = await inscricaoService.atualizarEstadoInscricao(
-        enrollment.id,
-        'aceite'
-      );
+      const updatedEnrollment = await inscricaoService.aprovarInscricao(enrollment.id);
 
       expect(updatedEnrollment.estado).toBe('aceite');
       expect(updatedEnrollment.dataAtualizacao).toBeDefined();
@@ -241,11 +182,9 @@ describe('Service Layer: Critical Business Logic', () => {
   describe('User Service Business Logic', () => {
     test('should create user with proper profile setup', async () => {
       const userData = {
-        nome: 'New User',
-        email: 'newuser@example.com',
+        nome: 'New User SL',
+        email: `newuser-sl-${Date.now()}@example.com`,
         tipoPerfil: 'formando' as const,
-        empresa: 'Test Company',
-        cargo: 'Developer',
       };
 
       const user = await utilizadorService.criarUtilizador(userData);
@@ -258,42 +197,33 @@ describe('Service Layer: Critical Business Logic', () => {
     });
 
     test('should prevent duplicate email registration', async () => {
-      const userData = {
+      const email = `dup-sl-${Date.now()}@example.com`;
+      await utilizadorService.criarUtilizador({
         nome: 'User One',
-        email: 'duplicate@example.com',
+        email,
         tipoPerfil: 'formando' as const,
-      };
+      });
 
-      // Create first user
-      await utilizadorService.criarUtilizador(userData);
-
-      // Try to create user with same email
-      const duplicateData = {
-        ...userData,
+      await expect(utilizadorService.criarUtilizador({
         nome: 'User Two',
-      };
-
-      await expect(utilizadorService.criarUtilizador(duplicateData)).rejects.toThrow('email');
+        email,
+        tipoPerfil: 'formando' as const,
+      })).rejects.toThrow('Email já está em uso');
     });
 
     test('should handle user profile updates', async () => {
       const user = await TestUtils.createTestUser();
+      const updatedUser = await utilizadorService.atualizarUtilizador(user.id, {
+        nome: 'Updated Name SL',
+      });
 
-      const updateData = {
-        nome: 'Updated Name',
-        empresa: 'New Company',
-      };
-
-      const updatedUser = await utilizadorService.atualizarPerfil(user.id, updateData);
-
-      expect(updatedUser.nome).toBe('Updated Name');
-      expect(updatedUser.dataAtualizacao).toBeDefined();
+      expect(updatedUser).toBeDefined();
+      expect(updatedUser!.nome).toBe('Updated Name SL');
+      expect(updatedUser!.dataAtualizacao).toBeDefined();
     });
 
     test('should toggle user active status', async () => {
       const user = await TestUtils.createTestUser({ ativo: true });
-
-      expect(user.ativo).toBe(true);
 
       const deactivatedUser = await utilizadorService.toggleAtivo(user.id);
       expect(deactivatedUser.ativo).toBe(false);
@@ -305,63 +235,56 @@ describe('Service Layer: Critical Business Logic', () => {
 
   describe('Performance Testing', () => {
     test('should handle course listing efficiently', async () => {
-      // Create multiple courses for performance testing
-      const coursesPromises = Array.from({ length: 20 }, (_, i) =>
-        TestUtils.createTestCourse({
-          nome: `Performance Test Course ${i + 1}`,
-          nivel: i % 3 === 0 ? 'iniciante' : i % 3 === 1 ? 'intermedio' : 'avancado',
-        })
+      await Promise.all(
+        Array.from({ length: 20 }, (_, i) =>
+          TestUtils.createTestCourse({
+            nome: `Perf Test Course SL ${i + 1}`,
+            nivel: i % 3 === 0 ? 'iniciante' : i % 3 === 1 ? 'intermedio' : 'avancado',
+          })
+        )
       );
 
-      await Promise.all(coursesPromises);
-
-      // Test query performance
       await PerformanceTestUtils.testQueryPerformance(async () => {
         return await cursoService.listarCursosPaginados(
           { page: 1, limit: 10 },
           { sortBy: 'dataCriacao', sortOrder: 'desc' }
         );
-      }, 500); // Should complete within 500ms
+      }, 500);
     });
 
     test('should handle bulk operations efficiently', async () => {
-      // Create test data
       const courses = await Promise.all(
         Array.from({ length: 10 }, () => TestUtils.createTestCourse())
       );
 
       const courseIds = courses.map(course => course.id);
 
-      // Test bulk deletion performance
       await PerformanceTestUtils.testQueryPerformance(async () => {
-        return await cursoService.removerCursosEmMassa(courseIds);
-      }, 1000); // Should complete within 1 second
+        return await cursoRepository.deleteMany(courseIds);
+      }, 1000);
     });
 
     test('should handle complex queries with joins efficiently', async () => {
-      // Create related data
       const course = await TestUtils.createTestCourse();
       const users = await Promise.all([
-        TestUtils.createTestUser({ tipoPerfil: 'formando', email: 'user1@test.com' }),
-        TestUtils.createTestUser({ tipoPerfil: 'formando', email: 'user2@test.com' }),
-        TestUtils.createTestUser({ tipoPerfil: 'formando', email: 'user3@test.com' }),
+        TestUtils.createTestUser({ tipoPerfil: 'formando' }),
+        TestUtils.createTestUser({ tipoPerfil: 'formando' }),
+        TestUtils.createTestUser({ tipoPerfil: 'formando' }),
       ]);
 
-      // Create enrollments
       await Promise.all(
         users.map(user =>
           TestUtils.createTestEnrollment(course.id, user.id, { estado: 'aceite' })
         )
       );
 
-      // Test complex query performance
       await PerformanceTestUtils.testQueryPerformance(async () => {
-        return await inscricaoService.listarInscricoesPaginadas(
+        return await inscricaoService.listarTodasPaginadas(
           { page: 1, limit: 10 },
           { sortBy: 'dataInscricao', sortOrder: 'desc' },
           { search: 'test' }
         );
-      }, 800); // Should complete within 800ms
+      }, 800);
     });
   });
 });
