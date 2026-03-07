@@ -31,6 +31,10 @@ mock.module('../../repositories/cursoRepository', () => ({
 }));
 
 mock.module('../../services/supabaseStorageService', () => ({
+  supabaseStorageService: {
+    uploadCourseImage: mockUploadCourseImage,
+    deleteOldCourseImage: mockDeleteOldCourseImage,
+  },
   SupabaseStorageService: class {
     uploadCourseImage = mockUploadCourseImage;
     deleteOldCourseImage = mockDeleteOldCourseImage;

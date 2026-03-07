@@ -426,7 +426,7 @@ export class MockUtils {
   }
 
   static createMockNext(): NextFunction {
-    return mock((() => {}) as NextFunction);
+    return mock((() => {}) as any) as NextFunction;
   }
 }
 

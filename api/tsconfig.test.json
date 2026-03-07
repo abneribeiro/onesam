@@ -1,14 +1,10 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "types": ["bun-types"]
+    "types": ["bun-types"],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
-  "extends": "../tsconfig.json"
+  "include": ["src/__tests__/**/*", "src/database/seeds/test-seed.ts"],
+  "exclude": ["node_modules", "dist"]
 }

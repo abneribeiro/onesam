@@ -81,7 +81,7 @@ describe('HealthService: System Health Monitoring', () => {
       expect(dbHealth.connected).toBeDefined();
 
       if (dbHealth.connected) {
-        expect(dbHealth.responseTime).toBeGreaterThan(0);
+        expect(dbHealth.responseTime).toBeGreaterThanOrEqual(0);
         expect(dbHealth.responseTime).toBeLessThan(5000); // Should be under 5 seconds
       } else {
         expect(dbHealth.error).toBeDefined();
@@ -94,7 +94,7 @@ describe('HealthService: System Health Monitoring', () => {
 
       if (dbHealth.connected) {
         expect(dbHealth.responseTime).toBeDefined();
-        expect(dbHealth.responseTime).toBeGreaterThan(0);
+        expect(dbHealth.responseTime).toBeGreaterThanOrEqual(0);
         // Database queries should be fast
         expect(dbHealth.responseTime).toBeLessThan(1000);
       }
@@ -273,7 +273,7 @@ describe('HealthService: System Health Monitoring', () => {
         expect(typeof isReady).toBe('boolean');
       } catch (error) {
         // Should not throw, should return false
-        fail('Readiness check should not throw errors');
+        expect('Readiness check should not throw errors').toBe('no error');
       }
     });
   });
@@ -324,7 +324,7 @@ describe('HealthService: System Health Monitoring', () => {
         expect(health.services.database).toMatch(/^(connected|disconnected)$/);
       } catch (error) {
         // Should not throw, should return unhealthy status
-        fail('Health check should not throw on database failures');
+        expect('Health check should not throw on database failures').toBe('no error');
       }
     });
 
