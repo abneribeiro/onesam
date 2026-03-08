@@ -191,7 +191,7 @@ describe('InscricaoController', () => {
 
       await listarTodasInscricoes(req as any, res as any, next);
 
-      const callArgs = mockInscricaoService.listarTodasPaginadas.mock.calls[0];
+      const callArgs = (mockInscricaoService.listarTodasPaginadas.mock.calls as any[])[0];
       expect(callArgs[2]).toMatchObject({ estado: 'pendente', search: 'test' });
     });
 

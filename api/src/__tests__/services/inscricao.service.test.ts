@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { TestUtils, testData } from '../setup';
+import { TestUtils } from '../setup';
 import { inscricaoService } from '../../services/inscricaoService';
 
 describe('InscricaoService', () => {

@@ -52,7 +52,7 @@ const {
 describe('UtilizadorController', () => {
   beforeEach(() => {
     mockUtilizadorRepository.findAll.mockReset();
-    mockUtilizadorRepository.findAll.mockImplementation(() => Promise.resolve([{ id: 1, nome: 'User', email: 'u@t.com' }]));
+    mockUtilizadorRepository.findAll.mockImplementation((() => Promise.resolve([{ id: 1, nome: 'User', email: 'u@t.com' }])) as any);
     mockUtilizadorRepository.findAllPaginated.mockReset();
     mockUtilizadorRepository.findAllPaginated.mockImplementation(() => Promise.resolve({ data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: false } }));
     mockUtilizadorRepository.findById.mockReset();
@@ -155,7 +155,7 @@ describe('UtilizadorController', () => {
     });
 
     test('user not found returns 404', async () => {
-      mockUtilizadorRepository.findById.mockImplementation(() => Promise.resolve(undefined));
+      mockUtilizadorRepository.findById.mockImplementation((() => Promise.resolve(undefined)) as any);
       const req = MockUtils.createMockAuthRequest({ id: 1, tipoPerfil: 'admin' });
       req.params = { id: '999' };
       const res = MockUtils.createMockResponse();
@@ -180,7 +180,7 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 404 when user not found', async () => {
-      mockUtilizadorRepository.findById.mockImplementation(() => Promise.resolve(undefined));
+      mockUtilizadorRepository.findById.mockImplementation((() => Promise.resolve(undefined)) as any);
       const req = MockUtils.createMockAuthRequest({ id: 999 });
       const res = MockUtils.createMockResponse();
       const next = MockUtils.createMockNext();
@@ -205,7 +205,7 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 404 when user not found', async () => {
-      mockUtilizadorRepository.findById.mockImplementation(() => Promise.resolve(undefined));
+      mockUtilizadorRepository.findById.mockImplementation((() => Promise.resolve(undefined)) as any);
       const req = MockUtils.createMockAuthRequest({ id: 999 });
       req.body = { nome: 'Name' };
       const res = MockUtils.createMockResponse();
@@ -217,12 +217,12 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 400 when email already in use', async () => {
-      mockUtilizadorRepository.findById.mockImplementation(() =>
+      mockUtilizadorRepository.findById.mockImplementation((() =>
         Promise.resolve({ id: 1, nome: 'User', email: 'old@test.com', tipoPerfil: 'formando', ativo: true })
-      );
-      mockUtilizadorRepository.findByEmail.mockImplementation(() =>
+      ) as any);
+      mockUtilizadorRepository.findByEmail.mockImplementation((() =>
         Promise.resolve({ id: 2, email: 'taken@test.com' })
-      );
+      ) as any);
       const req = MockUtils.createMockAuthRequest({ id: 1 });
       req.body = { email: 'taken@test.com' };
       const res = MockUtils.createMockResponse();
@@ -261,7 +261,7 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 404 when user not found', async () => {
-      mockUtilizadorRepository.findById.mockImplementation(() => Promise.resolve(undefined));
+      mockUtilizadorRepository.findById.mockImplementation((() => Promise.resolve(undefined)) as any);
       const req = MockUtils.createMockAuthRequest({ id: 999 });
       req.body = { senhaAtual: 'old', novaSenha: 'new' };
       const res = MockUtils.createMockResponse();
@@ -273,7 +273,7 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 400 when no password configured', async () => {
-      mockUtilizadorRepository.getPasswordHash.mockImplementation(() => Promise.resolve(null));
+      mockUtilizadorRepository.getPasswordHash.mockImplementation((() => Promise.resolve(null)) as any);
       const req = MockUtils.createMockAuthRequest({ id: 1 });
       req.body = { senhaAtual: 'old', novaSenha: 'new' };
       const res = MockUtils.createMockResponse();
@@ -324,7 +324,7 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 404 when user not found', async () => {
-      mockUtilizadorRepository.findById.mockImplementation(() => Promise.resolve(undefined));
+      mockUtilizadorRepository.findById.mockImplementation((() => Promise.resolve(undefined)) as any);
       const req = MockUtils.createMockAuthRequest({ id: 999 });
       (req as any).file = { buffer: Buffer.from('img'), mimetype: 'image/jpeg' };
       const res = MockUtils.createMockResponse();
@@ -362,7 +362,7 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 404 when user not found', async () => {
-      mockUtilizadorRepository.findById.mockImplementation(() => Promise.resolve(undefined));
+      mockUtilizadorRepository.findById.mockImplementation((() => Promise.resolve(undefined)) as any);
       const req = MockUtils.createMockAuthRequest({ id: 1 });
       req.params = { id: '999' };
       const res = MockUtils.createMockResponse();
@@ -400,9 +400,9 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 400 when email exists', async () => {
-      mockUtilizadorRepository.findByEmail.mockImplementation(() =>
+      mockUtilizadorRepository.findByEmail.mockImplementation((() =>
         Promise.resolve({ id: 2, email: 'taken@test.com' })
-      );
+      ) as any);
       const req = MockUtils.createMockAuthRequest({ id: 1 });
       req.body = { nome: 'New', email: 'taken@test.com', senha: 'pass', tipoPerfil: 'formando' };
       const res = MockUtils.createMockResponse();
@@ -431,7 +431,7 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 404 when user not found', async () => {
-      mockUtilizadorRepository.findById.mockImplementation(() => Promise.resolve(undefined));
+      mockUtilizadorRepository.findById.mockImplementation((() => Promise.resolve(undefined)) as any);
       const req = MockUtils.createMockAuthRequest({ id: 1, tipoPerfil: 'admin' });
       req.params = { id: '999' };
       req.body = { nome: 'Name' };
@@ -444,12 +444,12 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 400 when email conflict', async () => {
-      mockUtilizadorRepository.findById.mockImplementation(() =>
+      mockUtilizadorRepository.findById.mockImplementation((() =>
         Promise.resolve({ id: 2, nome: 'User', email: 'old@test.com', tipoPerfil: 'formando', ativo: true })
-      );
-      mockUtilizadorRepository.findByEmail.mockImplementation(() =>
+      ) as any);
+      mockUtilizadorRepository.findByEmail.mockImplementation((() =>
         Promise.resolve({ id: 3, email: 'taken@test.com' })
-      );
+      ) as any);
       const req = MockUtils.createMockAuthRequest({ id: 1, tipoPerfil: 'admin' });
       req.params = { id: '2' };
       req.body = { email: 'taken@test.com' };
@@ -477,7 +477,7 @@ describe('UtilizadorController', () => {
     });
 
     test('returns 404 when user not found', async () => {
-      mockUtilizadorRepository.findById.mockImplementation(() => Promise.resolve(undefined));
+      mockUtilizadorRepository.findById.mockImplementation((() => Promise.resolve(undefined)) as any);
       const req = MockUtils.createMockAuthRequest({ id: 1, tipoPerfil: 'admin' });
       req.params = { id: '999' };
       const res = MockUtils.createMockResponse();

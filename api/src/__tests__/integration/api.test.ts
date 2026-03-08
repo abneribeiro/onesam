@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
+import { describe, test, expect } from 'bun:test';
 import { TestUtils, testData } from '../setup';
 import { cursoService } from '../../services/cursoService';
 import { inscricaoService } from '../../services/inscricaoService';

@@ -2,7 +2,7 @@ import express, { type Router } from 'express';
 import * as moduloController from '../controllers/moduloController';
 import betterAuthMiddleware from '../middlewares/betterAuthMiddleware';
 import { can } from '../middlewares/rbacMiddleware';
-import { validateDto } from '../middlewares/validateDto';
+import { validateDto, validateParams } from '../middlewares/validateDto';
 import { stateChangeRateLimiter } from '../middlewares/rateLimitMiddleware';
 import { Resource, Action } from '../types/permissions.types';
 import {
@@ -21,13 +21,13 @@ router.get('/', betterAuthMiddleware, moduloController.listarModulos);
 router.get(
   '/curso/:cursoId',
   betterAuthMiddleware,
-  validateDto(listModulosByCursoSchema),
+  validateParams(listModulosByCursoSchema.shape.params),
   moduloController.listarModulosPorCurso
 );
 router.get(
   '/:moduloId',
   betterAuthMiddleware,
-  validateDto(getModuloSchema),
+  validateParams(getModuloSchema.shape.params),
   moduloController.obterModulo
 );
 
@@ -44,7 +44,8 @@ router.put(
   '/:moduloId',
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.UPDATE),
-  validateDto(updateModuloSchema),
+  validateParams(updateModuloSchema.shape.params),
+  validateDto(updateModuloSchema.shape.body),
   moduloController.atualizarModulo
 );
 
@@ -52,7 +53,7 @@ router.delete(
   '/:moduloId',
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.DELETE),
-  validateDto(deleteModuloSchema),
+  validateParams(deleteModuloSchema.shape.params),
   moduloController.deletarModulo
 );
 
@@ -61,7 +62,8 @@ router.put(
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.UPDATE),
   stateChangeRateLimiter,
-  validateDto(reorderModulosSchema),
+  validateParams(reorderModulosSchema.shape.params),
+  validateDto(reorderModulosSchema.shape.body),
   moduloController.reordenarModulos
 );
 

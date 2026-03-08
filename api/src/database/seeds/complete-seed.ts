@@ -1517,9 +1517,18 @@ async function seedProgressoAulas(formandosInserted: any[], aulasInserted: any[]
     }
   }
 
+  // Deduplicate by (aulaId, utilizadorId) keeping the first entry
+  const seen = new Set<string>();
+  const uniqueProgressoData = progressoData.filter(p => {
+    const key = `${p.aulaId}-${p.utilizadorId}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
   // Inserir todos os dados de progresso
-  if (progressoData.length > 0) {
-    const insertedProgresso = await db.insert(progressoAulas).values(progressoData).returning();
+  if (uniqueProgressoData.length > 0) {
+    const insertedProgresso = await db.insert(progressoAulas).values(uniqueProgressoData).onConflictDoNothing().returning();
     logger.info('Progresso aulas created (heatmap data)', { count: insertedProgresso.length });
     return insertedProgresso;
   }

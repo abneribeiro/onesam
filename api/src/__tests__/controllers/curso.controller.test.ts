@@ -160,7 +160,7 @@ describe('CursoController', () => {
       await listarCursos(req, res as any, next);
 
       expect(mockCursoService.listarCursosPaginados).toHaveBeenCalled();
-      const callArgs = mockCursoService.listarCursosPaginados.mock.calls[0];
+      const callArgs = (mockCursoService.listarCursosPaginados.mock.calls as any[])[0];
       expect(callArgs[2]).toMatchObject({ visivel: true, estado: 'em_curso' });
     });
 
@@ -172,7 +172,7 @@ describe('CursoController', () => {
 
       await listarCursos(req as any, res as any, next);
 
-      const callArgs = mockCursoService.listarCursosPaginados.mock.calls[0];
+      const callArgs = (mockCursoService.listarCursosPaginados.mock.calls as any[])[0];
       expect(callArgs[2]).toMatchObject({ search: 'test', nivel: 'iniciante', areaId: 1 });
     });
 
@@ -231,9 +231,9 @@ describe('CursoController', () => {
     });
 
     test('updates course with image replacement', async () => {
-      mockCursoRepository.findById.mockImplementation(() =>
+      mockCursoRepository.findById.mockImplementation((() =>
         Promise.resolve({ id: 1, nome: 'Course', imagemCurso: 'https://old.com/img.jpg' })
-      );
+      ) as any);
       const req = MockUtils.createMockAuthRequest({ id: 1, tipoPerfil: 'admin' });
       req.params = { id: '1' };
       req.body = { nome: 'Updated' };

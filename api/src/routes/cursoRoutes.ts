@@ -2,7 +2,7 @@ import express, { type Router } from 'express';
 import * as cursoController from '../controllers/cursoController';
 import betterAuthMiddleware, { optionalAuthMiddleware } from '../middlewares/betterAuthMiddleware';
 import { can } from '../middlewares/rbacMiddleware';
-import { validateDto, validateQuery } from '../middlewares/validateDto';
+import { validateDto, validateQuery, validateParams } from '../middlewares/validateDto';
 import {
   bulkOperationsRateLimiter,
   stateChangeRateLimiter,
@@ -24,7 +24,7 @@ const router: Router = express.Router();
 
 // Rotas públicas com autenticação opcional para personalizar resposta
 router.get('/', optionalAuthMiddleware, validateQuery(listarCursosQuerySchema), cursoController.listarCursos);
-router.get('/:id', optionalAuthMiddleware, validateDto(getCursoSchema), cursoController.obterCurso);
+router.get('/:id', optionalAuthMiddleware, validateParams(getCursoSchema.shape.params), cursoController.obterCurso);
 
 router.use(betterAuthMiddleware);
 
@@ -47,8 +47,8 @@ router.put(
   cursoController.atualizarCurso
 );
 
-router.put('/:id/estado', stateChangeRateLimiter, can(Resource.CURSO, Action.UPDATE), validateDto(alterarEstadoSchema), cursoController.alterarEstado);
-router.delete('/:id', can(Resource.CURSO, Action.DELETE), validateDto(deletarCursoSchema), cursoController.deletarCurso);
+router.put('/:id/estado', stateChangeRateLimiter, can(Resource.CURSO, Action.UPDATE), validateParams(alterarEstadoSchema.shape.params), validateDto(alterarEstadoSchema.shape.body), cursoController.alterarEstado);
+router.delete('/:id', can(Resource.CURSO, Action.DELETE), validateParams(deletarCursoSchema.shape.params), cursoController.deletarCurso);
 router.post('/bulk-delete', bulkOperationsRateLimiter, can(Resource.CURSO, Action.DELETE), validateDto(deletarCursosEmMassaSchema), cursoController.deletarCursosEmMassa);
 
 export default router;

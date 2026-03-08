@@ -1,7 +1,6 @@
-import { describe, test, expect, beforeEach } from 'bun:test';
+import { describe, test, expect } from 'bun:test';
 import { TestUtils, testData } from '../setup';
 import { cursoService } from '../../services/cursoService';
-import { cursoRepository } from '../../repositories/cursoRepository';
 
 describe('CursoService', () => {
   describe('criarCurso', () => {

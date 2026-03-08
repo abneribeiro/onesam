@@ -266,7 +266,6 @@ describe('Security: Input Validation & XSS Prevention', () => {
     maliciousFiles.forEach(file => {
       // Test MIME type validation
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-      const isValidMimeType = allowedTypes.includes(file.mimeType);
 
       if (file.name.endsWith('.php') || file.name.endsWith('.exe') || file.name.endsWith('.jsp')) {
         // These should be rejected regardless of MIME type spoofing

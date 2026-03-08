@@ -2,7 +2,7 @@ import express, { type Router } from 'express';
 import * as aulaController from '../controllers/aulaController';
 import betterAuthMiddleware from '../middlewares/betterAuthMiddleware';
 import { can } from '../middlewares/rbacMiddleware';
-import { validateDto } from '../middlewares/validateDto';
+import { validateDto, validateParams } from '../middlewares/validateDto';
 import { uploadVideo } from '../middlewares/uploadMiddleware';
 import { fileUploadRateLimiter, stateChangeRateLimiter } from '../middlewares/rateLimitMiddleware';
 import { Resource, Action } from '../types/permissions.types';
@@ -32,7 +32,7 @@ router.get(
 router.get(
   '/progresso/curso/:cursoId',
   betterAuthMiddleware,
-  validateDto(progressoCursoSchema),
+  validateParams(progressoCursoSchema.shape.params),
   aulaController.obterProgressoCurso
 );
 
@@ -42,7 +42,7 @@ router.get('/', betterAuthMiddleware, aulaController.listarAulas);
 router.get(
   '/modulo/:moduloId',
   betterAuthMiddleware,
-  validateDto(listAulasByModuloSchema),
+  validateParams(listAulasByModuloSchema.shape.params),
   aulaController.listarAulasPorModulo
 );
 
@@ -52,7 +52,8 @@ router.put(
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.UPDATE),
   stateChangeRateLimiter,
-  validateDto(reorderAulasSchema),
+  validateParams(reorderAulasSchema.shape.params),
+  validateDto(reorderAulasSchema.shape.body),
   aulaController.reordenarAulas
 );
 
@@ -70,7 +71,7 @@ router.post(
 router.get(
   '/:aulaId',
   betterAuthMiddleware,
-  validateDto(getAulaSchema),
+  validateParams(getAulaSchema.shape.params),
   aulaController.obterAula
 );
 
@@ -86,7 +87,8 @@ router.put(
   '/:aulaId',
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.UPDATE),
-  validateDto(updateAulaSchema),
+  validateParams(updateAulaSchema.shape.params),
+  validateDto(updateAulaSchema.shape.body),
   aulaController.atualizarAula
 );
 
@@ -94,21 +96,22 @@ router.delete(
   '/:aulaId',
   betterAuthMiddleware,
   can(Resource.CONTEUDO, Action.DELETE),
-  validateDto(deleteAulaSchema),
+  validateParams(deleteAulaSchema.shape.params),
   aulaController.deletarAula
 );
 
 router.post(
   '/:aulaId/concluir',
   betterAuthMiddleware,
-  validateDto(marcarAulaConcluidaSchema),
+  validateParams(marcarAulaConcluidaSchema.shape.params),
+  validateDto(marcarAulaConcluidaSchema.shape.body),
   aulaController.marcarAulaConcluida
 );
 
 router.delete(
   '/:aulaId/concluir',
   betterAuthMiddleware,
-  validateDto(getAulaSchema),
+  validateParams(getAulaSchema.shape.params),
   aulaController.desmarcarAulaConcluida
 );
 

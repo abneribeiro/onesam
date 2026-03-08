@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeAll } from 'bun:test';
-import { TestUtils, SecurityTestUtils, PerformanceTestUtils, testData } from '../setup';
+import { TestUtils, SecurityTestUtils, PerformanceTestUtils } from '../setup';
 import { utilizadorService } from '../../services/utilizadorService';
 
 describe('UtilizadorService: Core Business Logic', () => {
@@ -171,9 +171,9 @@ describe('UtilizadorService: Core Business Logic', () => {
         updateData
       );
 
-      expect(updatedUser.nome).toBe(updateData.nome);
-      expect(updatedUser.email).toBe(updateData.email);
-      expect(updatedUser.dataAtualizacao).toBeDefined();
+      expect(updatedUser!.nome).toBe(updateData.nome);
+      expect(updatedUser!.email).toBe(updateData.email);
+      expect(updatedUser!.dataAtualizacao).toBeDefined();
     });
 
     test('should validate email uniqueness during updates', async () => {
@@ -200,8 +200,8 @@ describe('UtilizadorService: Core Business Logic', () => {
         updateData
       );
 
-      expect(updatedUser.nome).toBe(updateData.nome);
-      expect(updatedUser.email).toBe(testFormando.email);
+      expect(updatedUser!.nome).toBe(updateData.nome);
+      expect(updatedUser!.email).toBe(testFormando.email);
     });
 
     test('should handle partial updates correctly', async () => {
@@ -216,9 +216,9 @@ describe('UtilizadorService: Core Business Logic', () => {
         updateData
       );
 
-      expect(updatedUser.nome).toBe(updateData.nome);
-      expect(updatedUser.email).toBe(originalUser.email); // Unchanged
-      expect(updatedUser.tipoPerfil).toBe(originalUser.tipoPerfil); // Unchanged
+      expect(updatedUser!.nome).toBe(updateData.nome);
+      expect(updatedUser!.email).toBe(originalUser.email); // Unchanged
+      expect(updatedUser!.tipoPerfil).toBe(originalUser.tipoPerfil); // Unchanged
     });
   });
 
@@ -380,10 +380,10 @@ describe('UtilizadorService: Core Business Logic', () => {
         adminUpdateData
       );
 
-      expect(updatedUser.nome).toBe(adminUpdateData.nome);
-      expect(updatedUser.email).toBe(adminUpdateData.email);
-      expect(updatedUser.tipoPerfil).toBe(adminUpdateData.tipoPerfil);
-      expect(updatedUser.ativo).toBe(adminUpdateData.ativo);
+      expect(updatedUser!.nome).toBe(adminUpdateData.nome);
+      expect(updatedUser!.email).toBe(adminUpdateData.email);
+      expect(updatedUser!.tipoPerfil).toBe(adminUpdateData.tipoPerfil);
+      expect(updatedUser!.ativo).toBe(adminUpdateData.ativo);
     });
 
     test('should handle admin update without password change', async () => {
@@ -397,8 +397,8 @@ describe('UtilizadorService: Core Business Logic', () => {
         updateData
       );
 
-      expect(updatedUser.nome).toBe(updateData.nome);
-      expect(updatedUser.ativo).toBe(updateData.ativo);
+      expect(updatedUser!.nome).toBe(updateData.nome);
+      expect(updatedUser!.ativo).toBe(updateData.ativo);
     });
   });
 

@@ -1,7 +1,7 @@
 import express, { type Router } from 'express';
 import * as reviewController from '../controllers/reviewController';
 import betterAuthMiddleware from '../middlewares/betterAuthMiddleware';
-import { validateDto } from '../middlewares/validateDto';
+import { validateDto, validateParams } from '../middlewares/validateDto';
 import {
   createReviewSchema,
   updateReviewSchema,
@@ -19,19 +19,19 @@ router.use(betterAuthMiddleware);
 
 router.get(
   '/curso/:cursoId',
-  validateDto(listReviewsByCursoSchema),
+  validateParams(listReviewsByCursoSchema.shape.params),
   reviewController.listarReviewsPorCurso
 );
 
 router.get(
   '/curso/:cursoId/stats',
-  validateDto(getStatsSchema),
+  validateParams(getStatsSchema.shape.params),
   reviewController.obterEstatisticas
 );
 
 router.get(
   '/curso/:cursoId/minha',
-  validateDto(getMyReviewSchema),
+  validateParams(getMyReviewSchema.shape.params),
   reviewController.obterMinhaReview
 );
 
@@ -42,7 +42,7 @@ router.get(
 
 router.get(
   '/:id',
-  validateDto(getReviewSchema),
+  validateParams(getReviewSchema.shape.params),
   reviewController.obterReview
 );
 
@@ -54,13 +54,14 @@ router.post(
 
 router.put(
   '/:id',
-  validateDto(updateReviewSchema),
+  validateParams(updateReviewSchema.shape.params),
+  validateDto(updateReviewSchema.shape.body),
   reviewController.atualizarReview
 );
 
 router.delete(
   '/:id',
-  validateDto(deleteReviewSchema),
+  validateParams(deleteReviewSchema.shape.params),
   reviewController.deletarReview
 );
 

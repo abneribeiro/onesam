@@ -1,17 +1,6 @@
-/**
- * 🧪 OneSam - HealthService Tests
- * Comprehensive test suite for system health monitoring
- *
- * Coverage:
- * ✅ Health check functionality
- * ✅ Service connectivity validation
- * ✅ Configuration validation
- * ✅ Performance metrics
- * ✅ Error handling
- * ✅ Security validation
- */
 
-import { describe, test, expect, beforeEach } from 'bun:test';
+
+import { describe, test, expect } from 'bun:test';
 import { PerformanceTestUtils } from '../setup';
 import { healthService } from '../../services/healthService';
 
